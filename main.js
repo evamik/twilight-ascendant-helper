@@ -8,6 +8,7 @@ const {
   setLastWarcraftBounds,
   setIsDraggingOverlay,
 } = require("./src/backend/ipcHandlers");
+const { setupAutoUpdater } = require("./src/backend/autoUpdater");
 const activeWin = require("active-win");
 
 // Register all IPC handlers
@@ -18,6 +19,11 @@ app.whenReady().then(() => {
   const overlayWin = createOverlayWindow();
 
   setOverlayWin(overlayWin);
+
+  // Setup auto-updater (only in production)
+  if (!process.defaultApp) {
+    setupAutoUpdater(mainWin);
+  }
 
   mainWin.on("closed", () => {
     if (overlayWin) {

@@ -16,4 +16,5 @@ Thumbs.db
 .env
 
 .vscode/
-WEB_INSTALLER_SETUP.md
+*.md
+test*

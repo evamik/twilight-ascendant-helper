@@ -1,4 +1,4 @@
-const { findWindowByTitle, sendEnter, sendCharacter } = require("./windowsApi");
+const { findWindowByTitle, sendEnter, sendTextAsync } = require("./windowsApi");
 const { extractLoadCode, splitIntoChunks } = require("./loadCodeParser");
 
 let isExecutingCommand = false;
@@ -65,18 +65,10 @@ async function sendLoadCommand(characterData) {
 
     // Step 1: Send -lc command
     sendEnter(hwnd);
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    const lcCommand = "-lc";
-    for (const char of lcCommand) {
-      sendCharacter(hwnd, char);
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    await new Promise((resolve) => setTimeout(resolve, 20)); // Wait for text box to be ready
+    await sendTextAsync(hwnd, "-lc", 5); // 5ms delay per char
+    await new Promise((resolve) => setTimeout(resolve, 50)); // Wait for queue to process
     sendEnter(hwnd);
-
-    // Wait a bit before sending the code
-    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Step 2: Send the load code in chunks if necessary
     const maxChunkLength = 124;
@@ -93,35 +85,19 @@ async function sendLoadCommand(characterData) {
       );
 
       sendEnter(hwnd);
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      // Type the chunk character by character
-      for (const char of chunk) {
-        sendCharacter(hwnd, char);
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 20));
+      await new Promise((resolve) => setTimeout(resolve, 20)); // Wait for text box to be ready
+      await sendTextAsync(hwnd, chunk, 5); // 5ms delay per char
+      await new Promise((resolve) =>
+        setTimeout(resolve, chunk.length * 5 + 50)
+      ); // Wait for queue to process
       sendEnter(hwnd);
-
-      // Wait between chunks
-      if (i < codeChunks.length - 1) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-      }
     }
-
-    // Wait before sending -le
-    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Step 3: Send -le command
     sendEnter(hwnd);
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    const leCommand = "-le";
-    for (const char of leCommand) {
-      sendCharacter(hwnd, char);
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    await new Promise((resolve) => setTimeout(resolve, 20)); // Wait for text box to be ready
+    await sendTextAsync(hwnd, "-le", 5); // 5ms delay per char
+    await new Promise((resolve) => setTimeout(resolve, 50)); // Wait for queue to process
     sendEnter(hwnd);
 
     console.log("Successfully sent load sequence");

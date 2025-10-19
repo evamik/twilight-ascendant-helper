@@ -1,6 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
+
+const NON_T4_CLASSES = [
+  'Novice',
+  'Acolyte',
+  'Initiate',
+  'Thief',
+  'Archer',
+  'Swordsman',
+  'Witch Hunter',
+  'Templar',
+  'Druid',
+  'Cleric',
+  'Mage',
+  'Rogue',
+  'Hunter',
+  'Knight',
+  'Slayer',
+  'Arch Templar',
+  'Arch Druid',
+  'Priest',
+  'Matriarch',
+  'Sage',
+  'Wizard',
+  'Stalker',
+  'Assassin',
+  'Marksman',
+  'Tracker',
+  'Imperial Knight',
+  'Crusader',
+  'Witcher',
+  'Inquisitor',
+  'Dark Templar',
+  'High Templar',
+  'Shapeshifter',
+  'Shaman'
+];
 
 const CharacterList = ({ accountName, characters, onBack, onCharacterClick, buttonStyle, showBackButton = true }) => {
+  const [showOnlyT4, setShowOnlyT4] = useState(false);
+
+  const isT4Character = (characterName) => {
+    // Check if character name starts with any non-T4 class
+    return !NON_T4_CLASSES.some(nonT4Class => 
+      characterName.startsWith(nonT4Class)
+    );
+  };
+
+  const filteredCharacters = showOnlyT4 
+    ? characters.filter(isT4Character)
+    : characters;
+
   return (
     <>
       {showBackButton && (
@@ -24,11 +73,31 @@ const CharacterList = ({ accountName, characters, onBack, onCharacterClick, butt
       <h2 style={{ margin: '0 0 10px 0', fontSize: 20 }}>
         Characters in {accountName}
       </h2>
-      {characters.length === 0 ? (
-        <p style={{ margin: 0, fontSize: 14 }}>No characters found</p>
+      
+      <label style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '8px', 
+        marginBottom: '12px',
+        cursor: 'pointer',
+        fontSize: 14
+      }}>
+        <input
+          type="checkbox"
+          checked={showOnlyT4}
+          onChange={(e) => setShowOnlyT4(e.target.checked)}
+          style={{ cursor: 'pointer' }}
+        />
+        <span>Show only T4 classes</span>
+      </label>
+
+      {filteredCharacters.length === 0 ? (
+        <p style={{ margin: 0, fontSize: 14 }}>
+          {showOnlyT4 ? 'No T4 characters found' : 'No characters found'}
+        </p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {characters.map((char, index) => (
+          {filteredCharacters.map((char, index) => (
             <button
               key={index}
               onClick={() => onCharacterClick(char)}
