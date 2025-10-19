@@ -1,0 +1,80 @@
+{
+  "name": "twilight-ascendant-helper",
+  "version": "1.0.0",
+  "description": "Twilight Ascendant character loader helper for Warcraft III",
+  "author": "RagingCat",
+  "main": "main.js",
+  "scripts": {
+    "start": "npm run build && electron .",
+    "build": "webpack --mode=development",
+    "build:prod": "webpack --mode=production",
+    "dev": "concurrently \"cross-env NODE_ENV=development webpack serve --mode=development\" \"cross-env NODE_ENV=development electron .\"",
+    "postinstall": "electron-rebuild",
+    "pack": "npm run build:prod && electron-builder --dir",
+    "dist": "npm run build:prod && electron-builder",
+    "dist:web": "npm run build:prod && electron-builder --win nsis-web"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.4",
+    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-react": "^7.27.1",
+    "babel-loader": "^10.0.0",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.0.0",
+    "electron": "latest",
+    "electron-builder": "^26.0.12",
+    "electron-rebuild": "^3.2.9",
+    "html-webpack-plugin": "^5.6.4",
+    "webpack": "^5.101.3",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2"
+  },
+  "dependencies": {
+    "active-win": "^8.2.1",
+    "koffi": "^2.14.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "build": {
+    "appId": "com.twilightascendant.helper",
+    "productName": "Twilight Ascendant Helper",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "src/**/*",
+      "dist-react/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis-web",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "publish": {
+        "provider": "github",
+        "owner": "evamik",
+        "repo": "twilight-ascendant-helper"
+      }
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "differentialPackage": false
+    }
+  }
+}
