@@ -1,10 +1,15 @@
-const { ipcMain } = require("electron");
+const { ipcMain, dialog } = require("electron");
 const {
   getAccountFolders,
   getCharacterFolders,
   getLatestCharacterData,
 } = require("./characters");
 const { sendLoadCommand } = require("./gameCommands");
+const {
+  getDataPath,
+  setCustomDataPath,
+  resetToDefaultPath,
+} = require("./settings");
 
 let overlayWin = null;
 let overlayEnabled = false;
@@ -140,6 +145,34 @@ const registerIpcHandlers = () => {
       });
       overlayWin.webContents.send("set-overlay-size", overlaySize);
     }
+  });
+
+  // Settings - Get current data path
+  ipcMain.handle("get-data-path", async () => {
+    return getDataPath();
+  });
+
+  // Settings - Choose custom directory
+  ipcMain.handle("choose-custom-directory", async (event) => {
+    const result = await dialog.showOpenDialog({
+      properties: ["openDirectory"],
+      title: "Select Twilight Ascendant Data Folder",
+      buttonLabel: "Select Folder",
+    });
+
+    if (!result.canceled && result.filePaths.length > 0) {
+      const selectedPath = result.filePaths[0];
+      const success = setCustomDataPath(selectedPath);
+      return { success, path: selectedPath };
+    }
+
+    return { success: false, path: null };
+  });
+
+  // Settings - Reset to default directory
+  ipcMain.handle("reset-to-default-directory", async () => {
+    const success = resetToDefaultPath();
+    return { success, path: getDataPath() };
   });
 };
 

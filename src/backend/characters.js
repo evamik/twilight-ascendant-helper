@@ -1,15 +1,9 @@
 const fs = require("fs");
 const path = require("path");
-const os = require("os");
+const { getDataPath } = require("./settings");
 
 const getBasePath = () => {
-  const documentsPath = path.join(os.homedir(), "Documents");
-  return path.join(
-    documentsPath,
-    "Warcraft III",
-    "CustomMapData",
-    "Twilight Ascendant"
-  );
+  return getDataPath();
 };
 
 const getAccountFolders = () => {

@@ -3,12 +3,14 @@ import { createRoot } from 'react-dom/client';
 import AccountList from './components/AccountList';
 import CharacterList from './components/CharacterList';
 import CharacterData from './components/CharacterData';
+import Settings from './components/Settings';
 import { useAccountCharacterNavigation } from './hooks/useAccountCharacterNavigation';
 
 const { ipcRenderer } = window.require ? window.require('electron') : {};
 
 const App = () => {
   const [overlayEnabled, setOverlayEnabled] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const {
     accounts,
     characters,
@@ -28,6 +30,20 @@ const App = () => {
     }
   };
 
+  const handleSettingsClick = () => {
+    setShowSettings(true);
+  };
+
+  const handleSettingsBack = () => {
+    setShowSettings(false);
+    // Reload accounts in case the directory changed
+    window.location.reload();
+  };
+
+  if (showSettings) {
+    return <Settings onBack={handleSettingsBack} />;
+  }
+
   return (
     <div style={{ 
       padding: '20px',
@@ -36,7 +52,24 @@ const App = () => {
       color: '#ffffff',
       fontFamily: 'Arial, sans-serif'
     }}>
-      <h1 style={{ margin: '0 0 20px 0', color: '#fff' }}>Twilight Ascendant Helper</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h1 style={{ margin: 0, color: '#fff' }}>Twilight Ascendant Helper</h1>
+        <button
+          onClick={handleSettingsClick}
+          style={{
+            padding: '8px 16px',
+            background: '#555',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 4,
+            cursor: 'pointer',
+            fontSize: 14,
+          }}
+        >
+          ⚙️ Settings
+        </button>
+      </div>
+      
       <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
         <input
           type="checkbox"
