@@ -6,6 +6,31 @@ const getBasePath = () => {
   return getDataPath();
 };
 
+/**
+ * Check if a folder is a valid character folder by looking for txt files with [Level X] pattern
+ * @param {string} folderPath - Full path to the folder to check
+ * @returns {boolean} - True if folder contains character save files
+ */
+const isValidCharacterFolder = (folderPath) => {
+  try {
+    if (!fs.existsSync(folderPath)) {
+      return false;
+    }
+
+    // Get all .txt files in the folder
+    const files = fs.readdirSync(folderPath).filter((file) => file.endsWith(".txt"));
+
+    // Check if any file matches the [Level X] pattern
+    const levelPattern = /\[Level\s+\d+\]/i;
+    const hasValidFile = files.some((file) => levelPattern.test(file));
+
+    return hasValidFile;
+  } catch (error) {
+    console.error("Error checking character folder:", error);
+    return false;
+  }
+};
+
 const getAccountFolders = () => {
   try {
     const basePath = getBasePath();
@@ -39,11 +64,21 @@ const getCharacterFolders = (accountName) => {
     }
 
     const items = fs.readdirSync(accountPath, { withFileTypes: true });
+    
+    // Filter to only directories that contain valid character save files
     const folders = items
       .filter((item) => item.isDirectory())
-      .map((item) => item.name);
+      .map((item) => item.name)
+      .filter((folderName) => {
+        const folderPath = path.join(accountPath, folderName);
+        const isValid = isValidCharacterFolder(folderPath);
+        if (!isValid) {
+          console.log(`Skipping non-character folder: ${folderName}`);
+        }
+        return isValid;
+      });
 
-    console.log("Found character folders for", accountName, ":", folders);
+    console.log("Found valid character folders for", accountName, ":", folders);
     return folders;
   } catch (error) {
     console.error("Error reading character folders:", error);

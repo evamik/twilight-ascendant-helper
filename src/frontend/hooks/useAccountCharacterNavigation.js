@@ -9,11 +9,36 @@ export const useAccountCharacterNavigation = () => {
   const [selectedCharacter, setSelectedCharacter] = useState(null);
   const [characterData, setCharacterData] = useState(null);
 
-  useEffect(() => {
+  // Load accounts on mount and when settings change
+  const loadAccounts = () => {
     if (ipcRenderer) {
       ipcRenderer.invoke("get-account-folders").then((folders) => {
         setAccounts(folders);
       });
+    }
+  };
+
+  useEffect(() => {
+    loadAccounts();
+
+    // Listen for settings changes
+    if (ipcRenderer) {
+      const handleSettingsChanged = () => {
+        console.log("Settings changed, reloading accounts...");
+        // Reset navigation state
+        setSelectedAccount(null);
+        setSelectedCharacter(null);
+        setCharacterData(null);
+        setCharacters([]);
+        // Reload accounts
+        loadAccounts();
+      };
+
+      ipcRenderer.on("settings-changed", handleSettingsChanged);
+
+      return () => {
+        ipcRenderer.removeListener("settings-changed", handleSettingsChanged);
+      };
     }
   }, []);
 

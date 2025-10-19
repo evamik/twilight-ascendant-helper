@@ -86,6 +86,16 @@ const registerIpcHandlers = () => {
     }
     return { x: 0, y: 0 };
   });
+  
+  // Get overlay position synchronously
+  ipcMain.on("get-overlay-position-sync", (event) => {
+    if (overlayWin) {
+      const pos = overlayWin.getBounds();
+      event.returnValue = { x: pos.x, y: pos.y };
+    } else {
+      event.returnValue = { x: 0, y: 0 };
+    }
+  });
 
   // Warcraft position
   ipcMain.handle("get-warcraft-position", async () => {
@@ -99,7 +109,7 @@ const registerIpcHandlers = () => {
     return { x: 0, y: 0 };
   });
 
-  // Move overlay
+  // Move overlay (relative delta)
   ipcMain.on("move-overlay", (event, delta) => {
     if (
       overlayWin &&
@@ -119,9 +129,53 @@ const registerIpcHandlers = () => {
     }
   });
 
+  // Set overlay position (absolute)
+  ipcMain.on("set-overlay-position", (event, position) => {
+    if (
+      overlayWin &&
+      position &&
+      typeof position.x === "number" &&
+      typeof position.y === "number"
+    ) {
+      const bounds = overlayWin.getBounds();
+      overlayWin.setBounds({
+        x: position.x,
+        y: position.y,
+        width: bounds.width,
+        height: bounds.height,
+      });
+    }
+  });
+
   // Drag state
   ipcMain.on("drag-overlay", (event, dragging) => {
     isDraggingOverlay = dragging;
+  });
+
+  // Set mouse event forwarding (for minimized overlay)
+  ipcMain.on("set-mouse-forward", (event, shouldForward) => {
+    if (overlayWin) {
+      if (shouldForward) {
+        // Forward mouse events through the window (minimized state)
+        overlayWin.setIgnoreMouseEvents(true, { forward: true });
+      } else {
+        // Stop forwarding, capture events normally
+        overlayWin.setIgnoreMouseEvents(false);
+      }
+    }
+  });
+
+  // Set overlay minimized state
+  ipcMain.on("set-overlay-minimized", (event, isMinimized) => {
+    if (overlayWin) {
+      if (isMinimized) {
+        // When minimized: forward mouse events through
+        overlayWin.setIgnoreMouseEvents(true, { forward: true });
+      } else {
+        // When expanded: capture mouse events normally
+        overlayWin.setIgnoreMouseEvents(false);
+      }
+    }
   });
 
   // Resize overlay
@@ -136,6 +190,7 @@ const registerIpcHandlers = () => {
         width: Math.max(200, size.width),
         height: Math.max(100, size.height),
       };
+      
       const bounds = overlayWin.getBounds();
       overlayWin.setBounds({
         x: bounds.x,
@@ -143,6 +198,7 @@ const registerIpcHandlers = () => {
         width: overlaySize.width,
         height: overlaySize.height,
       });
+      
       overlayWin.webContents.send("set-overlay-size", overlaySize);
     }
   });
@@ -163,6 +219,12 @@ const registerIpcHandlers = () => {
     if (!result.canceled && result.filePaths.length > 0) {
       const selectedPath = result.filePaths[0];
       const success = setCustomDataPath(selectedPath);
+      
+      // Notify all windows that settings changed
+      if (success && overlayWin) {
+        overlayWin.webContents.send("settings-changed");
+      }
+      
       return { success, path: selectedPath };
     }
 
@@ -172,6 +234,12 @@ const registerIpcHandlers = () => {
   // Settings - Reset to default directory
   ipcMain.handle("reset-to-default-directory", async () => {
     const success = resetToDefaultPath();
+    
+    // Notify all windows that settings changed
+    if (success && overlayWin) {
+      overlayWin.webContents.send("settings-changed");
+    }
+    
     return { success, path: getDataPath() };
   });
 };

@@ -22,13 +22,15 @@ const Overlay = ({ visible }) => {
   const [anchor, setAnchor] = useState(defaultAnchor);
   const [overlaySize, setOverlaySize] = useState({ width: 400, height: 200 });
   const [isMinimized, setIsMinimized] = useState(false);
-  const [previousSize, setPreviousSize] = useState({ width: 400, height: 200 });
+  const [isDragging, setIsDragging] = useState(false);
   const dragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
-  const overlayStart = useRef({ x: 0, y: 0 });
+  const grabOffset = useRef({ x: 0, y: 0 }); // Offset from window top-left to mouse position
   const resizing = useRef(false);
   const resizeStart = useRef({ x: 0, y: 0 });
   const sizeStart = useRef({ width: 400, height: 200 });
+  const isHoveringAnchor = useRef(false); // Track if mouse is over anchor
+  const mouseDownPos = useRef({ x: 0, y: 0 }); // Track initial mouse position
 
   useEffect(() => {
     if (window.require) {
@@ -48,15 +50,41 @@ const Overlay = ({ visible }) => {
   }, []);
 
   const didDrag = useRef(false);
+  
+  const handleAnchorMouseEnter = () => {
+    isHoveringAnchor.current = true;
+    if (isMinimized && window.require && !dragging.current) {
+      const { ipcRenderer } = window.require('electron');
+      // Stop forwarding mouse events when hovering over anchor
+      ipcRenderer.send('set-mouse-forward', false);
+    }
+  };
+
+  const handleAnchorMouseLeave = () => {
+    isHoveringAnchor.current = false;
+    if (isMinimized && window.require && !dragging.current) {
+      const { ipcRenderer } = window.require('electron');
+      // Resume forwarding mouse events when not hovering
+      ipcRenderer.send('set-mouse-forward', true);
+    }
+  };
+  
   const handleMouseDown = (e) => {
     dragging.current = true;
     didDrag.current = false;
-    dragStart.current = { x: e.clientX, y: e.clientY };
+    mouseDownPos.current = { x: e.screenX, y: e.screenY }; // Store initial position
+    
+    // Calculate grab offset immediately on mousedown (not on first move)
     if (window.require) {
       const { ipcRenderer } = window.require('electron');
-      ipcRenderer.invoke('get-overlay-position').then((pos) => {
-        overlayStart.current = pos || { x: 0, y: 0 };
-      });
+      const pos = ipcRenderer.sendSync('get-overlay-position-sync');
+      grabOffset.current = {
+        x: e.clientX - pos.x,
+        y: e.clientY - pos.y
+      };
+      
+      // Disable mouse forwarding when potentially dragging
+      ipcRenderer.send('set-mouse-forward', false);
       ipcRenderer.send('drag-overlay', true);
     }
     document.addEventListener('mousemove', handleMouseMove);
@@ -66,18 +94,33 @@ const Overlay = ({ visible }) => {
   const moveTimeout = useRef(null);
   const lastMoveEvent = useRef(null);
   const DEBOUNCE_MS = 16; // ~60fps
+  const DRAG_THRESHOLD = 3; // pixels - must move at least this much to be considered a drag
 
   const sendMoveOverlay = (e) => {
     if (!dragging.current) return;
-    const dx = e.clientX - dragStart.current.x;
-    const dy = e.clientY - dragStart.current.y;
-    // Only consider as drag if mouse moved more than a few pixels
-    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
-      didDrag.current = true;
+    
+    // Check if mouse moved enough to be considered a drag
+    const dx = Math.abs(e.screenX - mouseDownPos.current.x);
+    const dy = Math.abs(e.screenY - mouseDownPos.current.y);
+    const distanceMoved = Math.sqrt(dx * dx + dy * dy);
+    
+    if (distanceMoved < DRAG_THRESHOLD && !didDrag.current) {
+      // Not enough movement yet, don't start dragging
+      return;
     }
+    
+    // Mark as dragged if mouse moved enough
+    if (!didDrag.current) {
+      didDrag.current = true;
+      setIsDragging(true); // Now we know it's actually a drag
+    }
+    
     if (window.require) {
       const { ipcRenderer } = window.require('electron');
-      ipcRenderer.send('move-overlay', { dx, dy });
+      // Simply set window position to mouse position minus grab offset
+      const newX = e.screenX - grabOffset.current.x;
+      const newY = e.screenY - grabOffset.current.y;
+      ipcRenderer.send('set-overlay-position', { x: newX, y: newY });
     }
   };
 
@@ -92,6 +135,7 @@ const Overlay = ({ visible }) => {
 
   const handleMouseUp = () => {
     dragging.current = false;
+    setIsDragging(false); // Set state to trigger re-render
     // Clear any pending move events
     if (moveTimeout.current) {
       clearTimeout(moveTimeout.current);
@@ -114,15 +158,29 @@ const Overlay = ({ visible }) => {
             ipcRenderer.send('anchor-changed', newAnchor);
           }
           ipcRenderer.send('drag-overlay', false); // Notify main process drag ended
+          // Re-enable mouse forwarding if minimized
+          if (isMinimized) {
+            ipcRenderer.send('set-mouse-forward', true);
+          }
         });
       }
     } else {
       // Simple click - toggle minimize
+      const wasMinimized = isMinimized;
       handleMinimizeToggle();
       // Just notify drag ended, no anchor update
       if (window.require) {
         const { ipcRenderer } = window.require('electron');
         ipcRenderer.send('drag-overlay', false);
+        // After minimizing, check if mouse is still over anchor
+        if (!wasMinimized) {
+          // We just minimized - mouse is still over anchor button (we just clicked it)
+          // Don't enable mouse forwarding, leave it off so button is clickable
+          ipcRenderer.send('set-mouse-forward', false);
+        } else {
+          // We just restored to full size - no mouse forwarding
+          ipcRenderer.send('set-mouse-forward', false);
+        }
       }
     }
     document.removeEventListener('mousemove', handleMouseMove);
@@ -131,22 +189,18 @@ const Overlay = ({ visible }) => {
 
   const handleMinimizeToggle = () => {
     if (isMinimized) {
-      // Restore to previous size
-      setOverlaySize(previousSize);
+      // Restore
       setIsMinimized(false);
       if (window.require) {
         const { ipcRenderer } = window.require('electron');
-        ipcRenderer.send('resize-overlay', previousSize);
+        ipcRenderer.send('set-overlay-minimized', false);
       }
     } else {
-      // Minimize to just the anchor button (48x48 to fit the button with some padding)
-      setPreviousSize(overlaySize);
-      const minimizedSize = { width: 48, height: 48 };
-      setOverlaySize(minimizedSize);
+      // Minimize
       setIsMinimized(true);
       if (window.require) {
         const { ipcRenderer } = window.require('electron');
-        ipcRenderer.send('resize-overlay', minimizedSize);
+        ipcRenderer.send('set-overlay-minimized', true);
       }
     }
   };
@@ -186,11 +240,11 @@ const Overlay = ({ visible }) => {
         position: 'fixed',
         top: 0,
         left: 0,
-        width: overlaySize.width,
-        height: overlaySize.height,
+        width: isMinimized ? 48 : overlaySize.width,
+        height: isMinimized ? 48 : overlaySize.height,
         background: isMinimized ? 'transparent' : 'rgba(30,30,30,0.7)',
         zIndex: 9999,
-        pointerEvents: 'auto',
+        pointerEvents: isDragging || !isMinimized ? 'auto' : 'none', // Enable during drag or when expanded
         display: 'flex',
         flexDirection: 'column',
         fontSize: 22,
@@ -218,8 +272,11 @@ const Overlay = ({ visible }) => {
           fontWeight: 'bold',
           color: '#222',
           zIndex: 10001,
+          pointerEvents: 'auto', // Only the anchor button captures events
         }}
         onMouseDown={handleMouseDown}
+        onMouseEnter={handleAnchorMouseEnter}
+        onMouseLeave={handleAnchorMouseLeave}
         title={isMinimized ? "Click to restore, drag to move" : "Click to minimize, drag to move"}
       >
         {isMinimized ? '□' : '+'}
@@ -239,6 +296,7 @@ const Overlay = ({ visible }) => {
             fontSize: 14,
             fontWeight: 'bold',
             zIndex: 10001,
+            pointerEvents: 'auto', // Enable pointer events
           }}
           onClick={handleBackClick}
           title="Back"
@@ -265,6 +323,7 @@ const Overlay = ({ visible }) => {
             fontWeight: 'bold',
             color: '#ff9800',
             zIndex: 10001,
+            pointerEvents: 'auto', // Enable pointer events
           }}
           onMouseDown={handleResizeMouseDown}
           title="Resize overlay"
@@ -284,6 +343,7 @@ const Overlay = ({ visible }) => {
             height: 'calc(100% - 48px)',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
+            pointerEvents: 'auto', // Enable pointer events for content area
           }}
           className="overlay-scroll-content"
         >
