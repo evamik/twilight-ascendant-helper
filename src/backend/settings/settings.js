@@ -14,6 +14,8 @@ const getDefaultSettings = () => ({
   customDataPath: null, // null means use default path
   preloadMessages: [], // Messages to send before loading character
   postloadMessages: [], // Messages to send after loading character
+  overlayEnabled: false, // Remember if overlay is enabled
+  showOnlyT4Classes: false, // Remember T4 class filter state
 });
 
 // Load settings from file
@@ -103,6 +105,33 @@ const setPostloadMessages = (messages) => {
   return saveSettings(settings);
 };
 
+// Get UI settings (overlay and filter preferences)
+const getUISettings = () => {
+  const settings = loadSettings();
+  return {
+    overlayEnabled:
+      settings.overlayEnabled !== undefined ? settings.overlayEnabled : false,
+    showOnlyT4Classes:
+      settings.showOnlyT4Classes !== undefined
+        ? settings.showOnlyT4Classes
+        : false,
+  };
+};
+
+// Set overlay enabled state
+const setOverlayEnabled = (enabled) => {
+  const settings = loadSettings();
+  settings.overlayEnabled = Boolean(enabled);
+  return saveSettings(settings);
+};
+
+// Set show only T4 classes filter state
+const setShowOnlyT4Classes = (enabled) => {
+  const settings = loadSettings();
+  settings.showOnlyT4Classes = Boolean(enabled);
+  return saveSettings(settings);
+};
+
 module.exports = {
   loadSettings,
   saveSettings,
@@ -112,4 +141,7 @@ module.exports = {
   getLoaderSettings,
   setPreloadMessages,
   setPostloadMessages,
+  getUISettings,
+  setOverlayEnabled,
+  setShowOnlyT4Classes,
 };

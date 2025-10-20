@@ -9,7 +9,10 @@ const {
   setIsDraggingOverlay,
 } = require("./src/backend/ipcHandlers");
 const { setupAutoUpdater } = require("./src/backend/autoUpdater");
-const { initAnalytics, shutdownAnalytics } = require("./src/backend/analytics");
+const {
+  initAnalytics,
+  shutdownAnalytics,
+} = require("./src/backend/settings/analytics");
 const activeWin = require("active-win");
 
 // Initialize analytics
@@ -36,6 +39,9 @@ app.whenReady().then(() => {
     app.quit();
   });
 
+  // Track if we've seen Warcraft III focused at least once
+  let hasSeenWarcraftFocused = false;
+
   setInterval(async () => {
     try {
       const state = getOverlayState();
@@ -45,10 +51,17 @@ app.whenReady().then(() => {
       const winInfo = await activeWin();
       const isWarcraft = winInfo && winInfo.title === "Warcraft III";
       const isOverlay = winInfo && winInfo.title === overlayWin.getTitle();
+
       if (isWarcraft && winInfo.bounds) {
         setLastWarcraftBounds({ x: winInfo.bounds.x, y: winInfo.bounds.y });
+        hasSeenWarcraftFocused = true; // Mark that we've seen WC3
       }
-      if (state.overlayEnabled && (isWarcraft || isOverlay)) {
+
+      // Only show overlay if enabled AND (Warcraft is focused OR (overlay is focused AND we've previously seen Warcraft))
+      if (
+        state.overlayEnabled &&
+        (isWarcraft || (isOverlay && hasSeenWarcraftFocused))
+      ) {
         if (overlayWin) {
           if (isWarcraft && winInfo.bounds) {
             overlayWin.setBounds({

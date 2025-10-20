@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { getDataPath } = require("./settings");
+const { getDataPath } = require("../settings/settings");
 
 const getBasePath = () => {
   return getDataPath();

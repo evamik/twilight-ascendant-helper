@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import AccountList from './components/AccountList';
-import CharacterList from './components/CharacterList';
-import CharacterData from './components/CharacterData';
-import Settings from './components/Settings';
+import AccountList from './components/character/AccountList';
+import CharacterList from './components/character/CharacterList';
+import CharacterData from './components/character/CharacterData';
+import Settings from './components/settings/Settings';
 import { useAccountCharacterNavigation } from './hooks/useAccountCharacterNavigation';
 
 const { ipcRenderer } = window.require ? window.require('electron') : {};
@@ -23,10 +23,36 @@ const App = () => {
     loadCharacterData,
   } = useAccountCharacterNavigation();
 
-  const handleOverlayToggle = (checked) => {
+  // Load overlay enabled state from settings on mount
+  useEffect(() => {
+    const loadUISettings = async () => {
+      if (!ipcRenderer) return;
+      
+      try {
+        const uiSettings = await ipcRenderer.invoke('get-ui-settings');
+        if (uiSettings.overlayEnabled !== undefined) {
+          setOverlayEnabled(uiSettings.overlayEnabled);
+          // Backend already loaded this state on startup, so no need to send toggle-overlay here
+          // Just sync the UI checkbox state
+        }
+      } catch (error) {
+        console.error('Error loading UI settings:', error);
+      }
+    };
+
+    loadUISettings();
+  }, []);
+
+  const handleOverlayToggle = async (checked) => {
     setOverlayEnabled(checked);
     if (ipcRenderer) {
       ipcRenderer.send('toggle-overlay', checked);
+      // Save preference
+      try {
+        await ipcRenderer.invoke('set-overlay-enabled', checked);
+      } catch (error) {
+        console.error('Error saving overlay preference:', error);
+      }
     }
   };
 

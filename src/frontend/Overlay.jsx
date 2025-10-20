@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import AccountList from './components/AccountList';
-import CharacterList from './components/CharacterList';
-import CharacterData from './components/CharacterData';
+import AccountList from './components/character/AccountList';
+import CharacterList from './components/character/CharacterList';
+import CharacterData from './components/character/CharacterData';
 import { useAccountCharacterNavigation } from './hooks/useAccountCharacterNavigation';
 
 const defaultAnchor = { x: 0, y: 0 };
@@ -20,7 +20,7 @@ const Overlay = ({ visible }) => {
   } = useAccountCharacterNavigation();
   
   const [anchor, setAnchor] = useState(defaultAnchor);
-  const [overlaySize, setOverlaySize] = useState({ width: 400, height: 200 });
+  const [overlaySize, setOverlaySize] = useState({ width: 400, height: 300 });
   const [isMinimized, setIsMinimized] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const dragging = useRef(false);
@@ -28,7 +28,7 @@ const Overlay = ({ visible }) => {
   const grabOffset = useRef({ x: 0, y: 0 }); // Offset from window top-left to mouse position
   const resizing = useRef(false);
   const resizeStart = useRef({ x: 0, y: 0 });
-  const sizeStart = useRef({ width: 400, height: 200 });
+  const sizeStart = useRef({ width: 400, height: 300 });
   const isHoveringAnchor = useRef(false); // Track if mouse is over anchor
   const mouseDownPos = useRef({ x: 0, y: 0 }); // Track initial mouse position
 
@@ -308,22 +308,23 @@ const Overlay = ({ visible }) => {
         <div
           style={{
             position: 'absolute',
-            bottom: 0,
-            right: 0,
-            width: 24,
-            height: 24,
+            bottom: 4,
+            right: 4,
+            width: 20,
+            height: 20,
             background: '#fff',
-            borderRadius: '6px',
+            borderRadius: '4px',
             border: '2px solid #ff9800',
             cursor: 'nwse-resize',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: 'bold',
             color: '#ff9800',
-            zIndex: 10001,
+            zIndex: 10002,
             pointerEvents: 'auto', // Enable pointer events
+            boxShadow: '0 2px 4px rgba(0,0,0,0.5)',
           }}
           onMouseDown={handleResizeMouseDown}
           title="Resize overlay"

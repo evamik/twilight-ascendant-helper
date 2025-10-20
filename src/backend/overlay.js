@@ -12,6 +12,7 @@ const createOverlayWindow = () => {
     resizable: false,
     fullscreenable: false,
     skipTaskbar: true,
+    show: false, // Don't show on creation
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -24,6 +25,7 @@ const createOverlayWindow = () => {
     // In production, load from dist-react folder
     overlayWin.loadFile(path.join(__dirname, "../../dist-react/overlay.html"));
   }
+  // Explicitly hide after creation
   overlayWin.hide();
   return overlayWin;
 };

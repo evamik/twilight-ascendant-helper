@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
+const { ipcRenderer } = window.require ? window.require('electron') : {};
 
 const NON_T4_CLASSES = [
   'Novice',
@@ -38,6 +40,37 @@ const NON_T4_CLASSES = [
 
 const CharacterList = ({ accountName, characters, onBack, onCharacterClick, buttonStyle, showBackButton = true }) => {
   const [showOnlyT4, setShowOnlyT4] = useState(false);
+
+  // Load T4 filter state from settings on mount
+  useEffect(() => {
+    const loadT4FilterSetting = async () => {
+      if (!ipcRenderer) return;
+      
+      try {
+        const uiSettings = await ipcRenderer.invoke('get-ui-settings');
+        if (uiSettings.showOnlyT4Classes !== undefined) {
+          setShowOnlyT4(uiSettings.showOnlyT4Classes);
+        }
+      } catch (error) {
+        console.error('Error loading T4 filter preference:', error);
+      }
+    };
+
+    loadT4FilterSetting();
+  }, []);
+
+  const handleT4FilterChange = async (checked) => {
+    setShowOnlyT4(checked);
+    
+    // Save preference
+    if (ipcRenderer) {
+      try {
+        await ipcRenderer.invoke('set-show-only-t4', checked);
+      } catch (error) {
+        console.error('Error saving T4 filter preference:', error);
+      }
+    }
+  };
 
   const isT4Character = (characterName) => {
     // Check if character name starts with any non-T4 class
@@ -85,7 +118,7 @@ const CharacterList = ({ accountName, characters, onBack, onCharacterClick, butt
         <input
           type="checkbox"
           checked={showOnlyT4}
-          onChange={(e) => setShowOnlyT4(e.target.checked)}
+          onChange={(e) => handleT4FilterChange(e.target.checked)}
           style={{ cursor: 'pointer' }}
         />
         <span>Show only T4 classes</span>

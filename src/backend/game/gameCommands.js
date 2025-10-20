@@ -1,6 +1,10 @@
-const { findWindowByTitle, sendEnter, sendTextAsync } = require("./windowsApi");
+const {
+  findWindowByTitle,
+  sendEnter,
+  sendTextAsync,
+} = require("../windows/windowsApi");
 const { extractLoadCode, splitIntoChunks } = require("./loadCodeParser");
-const { getLoaderSettings } = require("./settings");
+const { getLoaderSettings } = require("../settings/settings");
 
 let isExecutingCommand = false;
 
