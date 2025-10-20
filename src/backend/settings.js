@@ -12,6 +12,8 @@ const getSettingsPath = () => {
 // Default settings
 const getDefaultSettings = () => ({
   customDataPath: null, // null means use default path
+  preloadMessages: [], // Messages to send before loading character
+  postloadMessages: [], // Messages to send after loading character
 });
 
 // Load settings from file
@@ -78,10 +80,36 @@ const resetToDefaultPath = () => {
   return saveSettings(settings);
 };
 
+// Get loader settings (preload/postload messages)
+const getLoaderSettings = () => {
+  const settings = loadSettings();
+  return {
+    preloadMessages: settings.preloadMessages || [],
+    postloadMessages: settings.postloadMessages || [],
+  };
+};
+
+// Set preload messages
+const setPreloadMessages = (messages) => {
+  const settings = loadSettings();
+  settings.preloadMessages = Array.isArray(messages) ? messages : [];
+  return saveSettings(settings);
+};
+
+// Set postload messages
+const setPostloadMessages = (messages) => {
+  const settings = loadSettings();
+  settings.postloadMessages = Array.isArray(messages) ? messages : [];
+  return saveSettings(settings);
+};
+
 module.exports = {
   loadSettings,
   saveSettings,
   getDataPath,
   setCustomDataPath,
   resetToDefaultPath,
+  getLoaderSettings,
+  setPreloadMessages,
+  setPostloadMessages,
 };

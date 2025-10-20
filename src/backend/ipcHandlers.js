@@ -9,6 +9,9 @@ const {
   getDataPath,
   setCustomDataPath,
   resetToDefaultPath,
+  getLoaderSettings,
+  setPreloadMessages,
+  setPostloadMessages,
 } = require("./settings");
 const { trackFeature } = require("./analytics");
 
@@ -260,6 +263,29 @@ const registerIpcHandlers = () => {
     }
 
     return { success, path: getDataPath() };
+  });
+
+  // Loader Settings - Get loader settings
+  ipcMain.handle("get-loader-settings", async () => {
+    return getLoaderSettings();
+  });
+
+  // Loader Settings - Set preload messages
+  ipcMain.handle("set-preload-messages", async (event, messages) => {
+    const success = setPreloadMessages(messages);
+    trackFeature("preload_messages_configured", {
+      count: messages.length,
+    });
+    return { success };
+  });
+
+  // Loader Settings - Set postload messages
+  ipcMain.handle("set-postload-messages", async (event, messages) => {
+    const success = setPostloadMessages(messages);
+    trackFeature("postload_messages_configured", {
+      count: messages.length,
+    });
+    return { success };
   });
 };
 

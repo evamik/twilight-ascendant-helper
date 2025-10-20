@@ -1,5 +1,6 @@
 const { findWindowByTitle, sendEnter, sendTextAsync } = require("./windowsApi");
 const { extractLoadCode, splitIntoChunks } = require("./loadCodeParser");
+const { getLoaderSettings } = require("./settings");
 
 let isExecutingCommand = false;
 
@@ -63,6 +64,25 @@ async function sendLoadCommand(characterData) {
     console.log("Sending load sequence to Warcraft III");
     console.log("Load code length:", loadCode.length);
 
+    // Get loader settings for preload/postload messages
+    const loaderSettings = getLoaderSettings();
+    const { preloadMessages, postloadMessages } = loaderSettings;
+
+    // Send preload messages (before load command)
+    if (preloadMessages && preloadMessages.length > 0) {
+      console.log(`Sending ${preloadMessages.length} preload message(s)`);
+      for (const message of preloadMessages) {
+        if (message.trim()) {
+          sendEnter(hwnd);
+          await new Promise((resolve) => setTimeout(resolve, 20));
+          await sendTextAsync(hwnd, message.trim(), 5);
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          sendEnter(hwnd);
+          await new Promise((resolve) => setTimeout(resolve, 100)); // Brief pause between messages
+        }
+      }
+    }
+
     // Step 1: Send -lc command
     sendEnter(hwnd);
     await new Promise((resolve) => setTimeout(resolve, 20)); // Wait for text box to be ready
@@ -99,6 +119,22 @@ async function sendLoadCommand(characterData) {
     await sendTextAsync(hwnd, "-le", 5); // 5ms delay per char
     await new Promise((resolve) => setTimeout(resolve, 50)); // Wait for queue to process
     sendEnter(hwnd);
+
+    // Send postload messages (after load command)
+    if (postloadMessages && postloadMessages.length > 0) {
+      console.log(`Sending ${postloadMessages.length} postload message(s)`);
+      await new Promise((resolve) => setTimeout(resolve, 200)); // Wait a bit after -le
+      for (const message of postloadMessages) {
+        if (message.trim()) {
+          sendEnter(hwnd);
+          await new Promise((resolve) => setTimeout(resolve, 20));
+          await sendTextAsync(hwnd, message.trim(), 5);
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          sendEnter(hwnd);
+          await new Promise((resolve) => setTimeout(resolve, 100)); // Brief pause between messages
+        }
+      }
+    }
 
     console.log("Successfully sent load sequence");
     return { success: true };
