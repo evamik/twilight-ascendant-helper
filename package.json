@@ -1,6 +1,6 @@
 {
   "name": "twilight-ascendant-helper",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Twilight Ascendant character loader helper for Warcraft III",
   "author": "RagingCat",
   "main": "main.js",
