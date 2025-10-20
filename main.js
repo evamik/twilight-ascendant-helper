@@ -9,7 +9,11 @@ const {
   setIsDraggingOverlay,
 } = require("./src/backend/ipcHandlers");
 const { setupAutoUpdater } = require("./src/backend/autoUpdater");
+const { initAnalytics, shutdownAnalytics } = require("./src/backend/analytics");
 const activeWin = require("active-win");
+
+// Initialize analytics
+initAnalytics();
 
 // Register all IPC handlers
 registerIpcHandlers();
@@ -73,4 +77,9 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
   }
+});
+
+// Cleanup analytics on app quit
+app.on("before-quit", async () => {
+  await shutdownAnalytics();
 });

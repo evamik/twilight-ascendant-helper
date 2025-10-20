@@ -18,7 +18,9 @@ const isValidCharacterFolder = (folderPath) => {
     }
 
     // Get all .txt files in the folder
-    const files = fs.readdirSync(folderPath).filter((file) => file.endsWith(".txt"));
+    const files = fs
+      .readdirSync(folderPath)
+      .filter((file) => file.endsWith(".txt"));
 
     // Check if any file matches the [Level X] pattern
     const levelPattern = /\[Level\s+\d+\]/i;
@@ -64,7 +66,7 @@ const getCharacterFolders = (accountName) => {
     }
 
     const items = fs.readdirSync(accountPath, { withFileTypes: true });
-    
+
     // Filter to only directories that contain valid character save files
     const folders = items
       .filter((item) => item.isDirectory())

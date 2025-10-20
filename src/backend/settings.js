@@ -46,12 +46,12 @@ const saveSettings = (settings) => {
 // Get the Twilight Ascendant data path (default or custom)
 const getDataPath = () => {
   const settings = loadSettings();
-  
+
   if (settings.customDataPath && fs.existsSync(settings.customDataPath)) {
     console.log("Using custom data path:", settings.customDataPath);
     return settings.customDataPath;
   }
-  
+
   // Default path
   const documentsPath = path.join(os.homedir(), "Documents");
   const defaultPath = path.join(

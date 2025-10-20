@@ -10,6 +10,7 @@ const {
   setCustomDataPath,
   resetToDefaultPath,
 } = require("./settings");
+const { trackFeature } = require("./analytics");
 
 let overlayWin = null;
 let overlayEnabled = false;
@@ -62,12 +63,18 @@ const registerIpcHandlers = () => {
 
   // Game commands
   ipcMain.handle("send-load-command", async (event, characterData) => {
+    trackFeature("load_character", {
+      source: "send_load_command",
+    });
     return sendLoadCommand(characterData);
   });
 
   // Overlay toggle
   ipcMain.on("toggle-overlay", (event, enabled) => {
     overlayEnabled = enabled;
+    trackFeature("toggle_overlay", {
+      enabled,
+    });
   });
 
   // Anchor management
@@ -86,7 +93,7 @@ const registerIpcHandlers = () => {
     }
     return { x: 0, y: 0 };
   });
-  
+
   // Get overlay position synchronously
   ipcMain.on("get-overlay-position-sync", (event) => {
     if (overlayWin) {
@@ -171,9 +178,11 @@ const registerIpcHandlers = () => {
       if (isMinimized) {
         // When minimized: forward mouse events through
         overlayWin.setIgnoreMouseEvents(true, { forward: true });
+        trackFeature("overlay_minimized");
       } else {
         // When expanded: capture mouse events normally
         overlayWin.setIgnoreMouseEvents(false);
+        trackFeature("overlay_maximized");
       }
     }
   });
@@ -190,7 +199,7 @@ const registerIpcHandlers = () => {
         width: Math.max(200, size.width),
         height: Math.max(100, size.height),
       };
-      
+
       const bounds = overlayWin.getBounds();
       overlayWin.setBounds({
         x: bounds.x,
@@ -198,7 +207,7 @@ const registerIpcHandlers = () => {
         width: overlaySize.width,
         height: overlaySize.height,
       });
-      
+
       overlayWin.webContents.send("set-overlay-size", overlaySize);
     }
   });
@@ -219,12 +228,17 @@ const registerIpcHandlers = () => {
     if (!result.canceled && result.filePaths.length > 0) {
       const selectedPath = result.filePaths[0];
       const success = setCustomDataPath(selectedPath);
-      
+
+      // Track feature usage
+      if (success) {
+        trackFeature("custom_directory_set");
+      }
+
       // Notify all windows that settings changed
       if (success && overlayWin) {
         overlayWin.webContents.send("settings-changed");
       }
-      
+
       return { success, path: selectedPath };
     }
 
@@ -234,12 +248,17 @@ const registerIpcHandlers = () => {
   // Settings - Reset to default directory
   ipcMain.handle("reset-to-default-directory", async () => {
     const success = resetToDefaultPath();
-    
+
+    // Track feature usage
+    if (success) {
+      trackFeature("custom_directory_reset");
+    }
+
     // Notify all windows that settings changed
     if (success && overlayWin) {
       overlayWin.webContents.send("settings-changed");
     }
-    
+
     return { success, path: getDataPath() };
   });
 };
