@@ -61,7 +61,10 @@ export function parseDropsContent(content: string): ParsedDropsData | null {
   // Map to track player data as we parse
   const playerMap = new Map<
     string,
-    { classes: string[]; items: Array<{ itemName: string; className: string; isLucky: boolean }> }
+    {
+      classes: string[];
+      items: Array<{ itemName: string; className: string; isLucky: boolean }>;
+    }
   >();
 
   let currentPlayer: string | null = null;

@@ -398,6 +398,7 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
                     characterData={characterData}
                     onBack={handleBackClick}
                     onLoad={() => loadCharacterData()}
+                    showBackButton={false}
                   />
                 ) : selectedAccount ? (
                   <CharacterList

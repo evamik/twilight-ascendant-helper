@@ -26,12 +26,6 @@ const LoaderView: React.FC = () => {
 
   return (
     <div>
-      {selectedAccount && (
-        <button onClick={handleBackClick} className={styles.backButton}>
-          ← Back
-        </button>
-      )}
-
       {selectedCharacter ? (
         <CharacterData
           accountName={selectedAccount!}
@@ -41,14 +35,19 @@ const LoaderView: React.FC = () => {
           onLoad={() => loadCharacterData()}
         />
       ) : selectedAccount ? (
-        <CharacterList
-          accountName={selectedAccount}
-          characters={characters}
-          onBack={handleBackClick}
-          onCharacterClick={handleCharacterClick}
-          showBackButton={false}
-          buttonStyle={{ background: "#ff9800", color: "#222" }}
-        />
+        <>
+          <button onClick={handleBackClick} className={styles.backButton}>
+            ← Back
+          </button>
+          <CharacterList
+            accountName={selectedAccount}
+            characters={characters}
+            onBack={handleBackClick}
+            onCharacterClick={handleCharacterClick}
+            showBackButton={false}
+            buttonStyle={{ background: "#ff9800", color: "#222" }}
+          />
+        </>
       ) : (
         <>
           <h2 className={styles.accountsTitle}>Accounts</h2>

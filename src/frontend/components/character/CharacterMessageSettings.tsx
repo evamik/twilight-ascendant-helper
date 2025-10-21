@@ -156,7 +156,7 @@ const CharacterMessageSettings: React.FC<CharacterMessageSettingsProps> = ({
         onClick={() => setShowSettings(!showSettings)}
         className={styles.toggleButton}
       >
-        <span>⚙️ Preload/Postload Messages</span>
+        <span>⚙️ Preload/Postload</span>
         <span>{showSettings ? "▼" : "▶"}</span>
       </button>
 

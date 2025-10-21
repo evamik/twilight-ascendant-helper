@@ -1,0 +1,145 @@
+.container {
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Hero Name - Large Header */
+.heroName {
+  margin: 0 0 16px 0;
+  font-size: 28px;
+  font-weight: bold;
+  color: #ffd700;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Resources Section */
+.resources {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  flex-wrap: wrap;
+}
+
+.resourceItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 1 auto;
+  white-space: nowrap;
+}
+
+.resourceLabel {
+  font-size: 13px;
+  color: #aaa;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.resourceValue {
+  font-size: 14px;
+  color: #fff;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* Card Styles */
+.inventoryCard,
+.stashCard {
+  margin-bottom: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.inventoryCard {
+  border-left: 3px solid #4caf50;
+}
+
+.stashCard {
+  border-left: 3px solid #2196f3;
+}
+
+.cardTitle {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* Items Grid */
+.itemsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+.itemSlot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.slotNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: bold;
+  color: #aaa;
+  flex-shrink: 0;
+}
+
+.itemName {
+  color: #ffd700;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.emptySlot {
+  padding: 6px 8px;
+  color: #666;
+  font-size: 12px;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 500px) {
+  .container {
+    padding: 8px;
+  }
+
+  .heroName {
+    font-size: 24px;
+  }
+
+  .resources {
+    gap: 8px;
+  }
+
+  .resourceItem {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .itemName {
+    font-size: 12px;
+  }
+}

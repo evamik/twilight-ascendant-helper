@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import type { IpcRenderer } from "../../types/electron";
 import type { CharacterData as CharacterDataType } from "../../types";
 import styles from "./CharacterData.module.css";
 import CharacterMessageSettings from "./CharacterMessageSettings";
+import FormattedLoader from "./FormattedLoader";
+import { parseLoaderContent } from "../../utils/loaderParser";
 
 const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
   ipcRenderer?: IpcRenderer;
@@ -15,16 +17,26 @@ interface CharacterDataProps {
   onBack: () => void;
   onLoad?: () => void;
   buttonStyle?: React.CSSProperties;
+  showBackButton?: boolean; // Whether to show the back button
 }
 
 const CharacterData: React.FC<CharacterDataProps> = ({
   accountName,
   characterName,
   characterData,
+  onBack,
   onLoad,
   buttonStyle,
+  showBackButton = true, // Default to true
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showRawText, setShowRawText] = useState<boolean>(false);
+
+  // Parse loader content into structured data
+  const parsedData = useMemo(() => {
+    if (!characterData?.content) return null;
+    return parseLoaderContent(characterData.content, characterData.fileName);
+  }, [characterData?.content, characterData?.fileName]);
 
   const handleLoad = async () => {
     if (isLoading) return; // Prevent multiple clicks
@@ -63,26 +75,52 @@ const CharacterData: React.FC<CharacterDataProps> = ({
 
   return (
     <>
-      <button
-        onClick={handleLoad}
-        disabled={isLoading}
-        className={isLoading ? styles.loadButtonDisabled : styles.loadButton}
-        style={buttonStyle}
-      >
-        {isLoading ? "⏳ Loading..." : "🔄 Load"}
-      </button>
+      <div className={styles.buttonRow}>
+        {showBackButton && (
+          <button onClick={onBack} className={styles.backButton}>
+            ← Back
+          </button>
+        )}
 
-      {/* Character-specific message settings (separate component) */}
-      <CharacterMessageSettings
-        accountName={accountName}
-        characterName={characterName}
-      />
+        <button
+          onClick={handleLoad}
+          disabled={isLoading}
+          className={isLoading ? styles.loadButtonDisabled : styles.loadButton}
+          style={buttonStyle}
+        >
+          {isLoading ? "⏳ Loading..." : "🔄 Load"}
+        </button>
 
-      <h2 className={styles.title}>{characterName}</h2>
+        {/* Character-specific message settings (inline button) */}
+        <CharacterMessageSettings
+          accountName={accountName}
+          characterName={characterName}
+        />
+      </div>
+
       {characterData ? (
         <>
-          <p className={styles.fileName}>File: {characterData.fileName}</p>
-          <div className={styles.content}>{characterData.content}</div>
+          {/* Formatted View */}
+          {parsedData && (
+            <div className={styles.formattedSection}>
+              <FormattedLoader data={parsedData} />
+            </div>
+          )}
+
+          {/* Expandable Raw Text Section */}
+          <div className={styles.rawTextSection}>
+            <button
+              onClick={() => setShowRawText(!showRawText)}
+              className={styles.toggleButton}
+            >
+              {showRawText ? "▼" : "▶"} Raw Text Data
+            </button>
+            {showRawText && (
+              <div className={styles.rawContent}>
+                <pre className={styles.rawText}>{characterData.content}</pre>
+              </div>
+            )}
+          </div>
         </>
       ) : (
         <p className={styles.emptyMessage}>
