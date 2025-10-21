@@ -12,10 +12,11 @@ const getSettingsPath = () => {
 // Default settings
 const getDefaultSettings = () => ({
   customDataPath: null, // null means use default path
-  preloadMessages: [], // Messages to send before loading character
-  postloadMessages: [], // Messages to send after loading character
+  preloadMessages: [], // Global messages to send before loading character
+  postloadMessages: [], // Global messages to send after loading character
   overlayEnabled: false, // Remember if overlay is enabled
   showOnlyT4Classes: false, // Remember T4 class filter state
+  characterSettings: {}, // Per-character settings { "accountName:characterName": { preloadMessages, postloadMessages } }
 });
 
 // Load settings from file
@@ -132,6 +133,62 @@ const setShowOnlyT4Classes = (enabled) => {
   return saveSettings(settings);
 };
 
+// Get character-specific settings
+// Returns { preloadMessages: [], postloadMessages: [] } or null if not set
+const getCharacterSettings = (accountName, characterName) => {
+  const settings = loadSettings();
+  const key = `${accountName}:${characterName}`;
+  const characterSettings = settings.characterSettings || {};
+  return characterSettings[key] || null;
+};
+
+// Set character-specific preload messages
+const setCharacterPreloadMessages = (accountName, characterName, messages) => {
+  const settings = loadSettings();
+  const key = `${accountName}:${characterName}`;
+  
+  if (!settings.characterSettings) {
+    settings.characterSettings = {};
+  }
+  
+  if (!settings.characterSettings[key]) {
+    settings.characterSettings[key] = {};
+  }
+  
+  settings.characterSettings[key].preloadMessages = Array.isArray(messages) ? messages : [];
+  return saveSettings(settings);
+};
+
+// Set character-specific postload messages
+const setCharacterPostloadMessages = (accountName, characterName, messages) => {
+  const settings = loadSettings();
+  const key = `${accountName}:${characterName}`;
+  
+  if (!settings.characterSettings) {
+    settings.characterSettings = {};
+  }
+  
+  if (!settings.characterSettings[key]) {
+    settings.characterSettings[key] = {};
+  }
+  
+  settings.characterSettings[key].postloadMessages = Array.isArray(messages) ? messages : [];
+  return saveSettings(settings);
+};
+
+// Clear all character-specific settings for a character
+const clearCharacterSettings = (accountName, characterName) => {
+  const settings = loadSettings();
+  const key = `${accountName}:${characterName}`;
+  
+  if (settings.characterSettings && settings.characterSettings[key]) {
+    delete settings.characterSettings[key];
+    return saveSettings(settings);
+  }
+  
+  return true; // Already cleared
+};
+
 module.exports = {
   loadSettings,
   saveSettings,
@@ -144,4 +201,8 @@ module.exports = {
   getUISettings,
   setOverlayEnabled,
   setShowOnlyT4Classes,
+  getCharacterSettings,
+  setCharacterPreloadMessages,
+  setCharacterPostloadMessages,
+  clearCharacterSettings,
 };

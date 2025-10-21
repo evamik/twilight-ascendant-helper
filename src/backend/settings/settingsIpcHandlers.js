@@ -9,6 +9,10 @@ const {
   getUISettings,
   setOverlayEnabled,
   setShowOnlyT4Classes,
+  getCharacterSettings,
+  setCharacterPreloadMessages,
+  setCharacterPostloadMessages,
+  clearCharacterSettings,
 } = require("./settings");
 const { trackFeature } = require("./analytics");
 
@@ -127,6 +131,73 @@ const registerSettingsIpcHandlers = () => {
     });
     return { success };
   });
+
+  // Per-Character Settings
+
+  // Get character-specific settings (preload/postload messages)
+  ipcMain.handle(
+    "get-character-settings",
+    async (event, accountName, characterName) => {
+      const characterSettings = getCharacterSettings(
+        accountName,
+        characterName
+      );
+      const globalSettings = getLoaderSettings();
+      return {
+        characterSettings, // null if not set
+        globalSettings, // fallback global settings
+      };
+    }
+  );
+
+  // Set character-specific preload messages
+  ipcMain.handle(
+    "set-character-preload",
+    async (event, accountName, characterName, messages) => {
+      const success = setCharacterPreloadMessages(
+        accountName,
+        characterName,
+        messages
+      );
+      trackFeature("character_preload_messages_configured", {
+        accountName,
+        characterName,
+        count: messages.length,
+      });
+      return { success };
+    }
+  );
+
+  // Set character-specific postload messages
+  ipcMain.handle(
+    "set-character-postload",
+    async (event, accountName, characterName, messages) => {
+      const success = setCharacterPostloadMessages(
+        accountName,
+        characterName,
+        messages
+      );
+      trackFeature("character_postload_messages_configured", {
+        accountName,
+        characterName,
+        count: messages.length,
+      });
+      return { success };
+    }
+  );
+
+  // Clear character-specific settings (revert to global)
+  ipcMain.handle(
+    "clear-character-settings",
+    async (event, accountName, characterName) => {
+      const success = clearCharacterSettings(accountName, characterName);
+      trackFeature("character_settings_cleared", {
+        accountName,
+        characterName,
+      });
+      return { success };
+    }
+  );
 };
 
 module.exports = {

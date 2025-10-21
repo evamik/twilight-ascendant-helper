@@ -1,6 +1,6 @@
 {
   "name": "twilight-ascendant-helper",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Twilight Ascendant character loader helper for Warcraft III",
   "author": "RagingCat",
   "main": "main.js",
@@ -13,7 +13,7 @@
     "pack": "npm run build:prod && electron-builder --dir",
     "dist": "npm run build:prod && electron-builder",
     "dist:web": "npm run build:prod && electron-builder --win nsis-web",
-    "publish": "npm run build:prod && electron-builder --publish always",
+    "publish": "npm run build:prod && node -r dotenv/config node_modules/electron-builder/out/cli/cli.js --publish always",
     "test:input": "electron test-character-input.js",
     "test:methods": "electron test-text-methods.js",
     "test:wc3": "electron test-send-to-wc3.js"

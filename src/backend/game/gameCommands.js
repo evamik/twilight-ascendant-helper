@@ -4,7 +4,10 @@ const {
   sendTextAsync,
 } = require("../windows/windowsApi");
 const { extractLoadCode, splitIntoChunks } = require("./loadCodeParser");
-const { getLoaderSettings } = require("../settings/settings");
+const {
+  getLoaderSettings,
+  getCharacterSettings,
+} = require("../settings/settings");
 
 let isExecutingCommand = false;
 
@@ -38,8 +41,11 @@ function findWarcraftWindow() {
 
 /**
  * Sends the load sequence to the Warcraft III game window
+ * @param {Object} characterData - Character data with content
+ * @param {string} accountName - Account name (optional, for per-character messages)
+ * @param {string} characterName - Character name (optional, for per-character messages)
  */
-async function sendLoadCommand(characterData) {
+async function sendLoadCommand(characterData, accountName = null, characterName = null) {
   // Prevent multiple simultaneous executions
   if (isExecutingCommand) {
     console.log("Command already in progress, skipping...");
@@ -68,9 +74,28 @@ async function sendLoadCommand(characterData) {
     console.log("Sending load sequence to Warcraft III");
     console.log("Load code length:", loadCode.length);
 
-    // Get loader settings for preload/postload messages
-    const loaderSettings = getLoaderSettings();
-    const { preloadMessages, postloadMessages } = loaderSettings;
+    // Get loader settings - check for character-specific first, then fallback to global
+    let preloadMessages = [];
+    let postloadMessages = [];
+    
+    if (accountName && characterName) {
+      const characterSettings = getCharacterSettings(accountName, characterName);
+      if (characterSettings) {
+        console.log(`Using character-specific settings for ${accountName}:${characterName}`);
+        preloadMessages = characterSettings.preloadMessages || [];
+        postloadMessages = characterSettings.postloadMessages || [];
+      } else {
+        console.log(`No character-specific settings found, using global settings`);
+        const globalSettings = getLoaderSettings();
+        preloadMessages = globalSettings.preloadMessages || [];
+        postloadMessages = globalSettings.postloadMessages || [];
+      }
+    } else {
+      console.log(`Using global settings (no account/character provided)`);
+      const globalSettings = getLoaderSettings();
+      preloadMessages = globalSettings.preloadMessages || [];
+      postloadMessages = globalSettings.postloadMessages || [];
+    }
 
     // Send preload messages (before load command)
     if (preloadMessages && preloadMessages.length > 0) {
