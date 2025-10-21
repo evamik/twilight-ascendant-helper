@@ -1,18 +1,20 @@
-const {
+import {
   findWindowByTitle,
   sendEnter,
   sendTextAsync,
-} = require("../windows/windowsApi");
-const { extractLoadCode, splitIntoChunks } = require("./loadCodeParser");
-const { getLoaderSettings } = require("../settings/settings");
-const { getCharacterSettings } = require("../settings/characterSettings");
+  HWND,
+} from "../windows/windowsApi";
+import { extractLoadCode, splitIntoChunks } from "./loadCodeParser";
+import { getLoaderSettings } from "../settings/settings";
+import { getCharacterSettings } from "../settings/characterSettings";
+import { CharacterData, GameSendResult } from "../types";
 
 let isExecutingCommand = false;
 
 /**
  * Find the Warcraft III window handle
  */
-function findWarcraftWindow() {
+function findWarcraftWindow(): HWND {
   try {
     // Try common Warcraft III window titles
     const possibleTitles = [
@@ -39,15 +41,15 @@ function findWarcraftWindow() {
 
 /**
  * Sends the load sequence to the Warcraft III game window
- * @param {Object} characterData - Character data with content
- * @param {string} accountName - Account name (optional, for per-character messages)
- * @param {string} characterName - Character name (optional, for per-character messages)
+ * @param characterData - Character data with content
+ * @param accountName - Account name (optional, for per-character messages)
+ * @param characterName - Character name (optional, for per-character messages)
  */
-async function sendLoadCommand(
-  characterData,
-  accountName = null,
-  characterName = null
-) {
+export async function sendLoadCommand(
+  characterData: CharacterData,
+  accountName: string | null = null,
+  characterName: string | null = null
+): Promise<GameSendResult> {
   // Prevent multiple simultaneous executions
   if (isExecutingCommand) {
     console.log("Command already in progress, skipping...");
@@ -77,8 +79,8 @@ async function sendLoadCommand(
     console.log("Load code length:", loadCode.length);
 
     // Get loader settings - check for character-specific first, then fallback to global
-    let preloadMessages = [];
-    let postloadMessages = [];
+    let preloadMessages: string[] = [];
+    let postloadMessages: string[] = [];
 
     if (accountName && characterName) {
       const characterSettings = getCharacterSettings(
@@ -112,20 +114,20 @@ async function sendLoadCommand(
       for (const message of preloadMessages) {
         if (message.trim()) {
           sendEnter(hwnd);
-          await new Promise((resolve) => setTimeout(resolve, 20));
+          await new Promise<void>((resolve) => setTimeout(resolve, 20));
           await sendTextAsync(hwnd, message.trim(), 5);
-          await new Promise((resolve) => setTimeout(resolve, 50));
+          await new Promise<void>((resolve) => setTimeout(resolve, 50));
           sendEnter(hwnd);
-          await new Promise((resolve) => setTimeout(resolve, 100)); // Brief pause between messages
+          await new Promise<void>((resolve) => setTimeout(resolve, 100)); // Brief pause between messages
         }
       }
     }
 
     // Step 1: Send -lc command
     sendEnter(hwnd);
-    await new Promise((resolve) => setTimeout(resolve, 20)); // Wait for text box to be ready
+    await new Promise<void>((resolve) => setTimeout(resolve, 20)); // Wait for text box to be ready
     await sendTextAsync(hwnd, "-lc", 5); // 5ms delay per char
-    await new Promise((resolve) => setTimeout(resolve, 50)); // Wait for queue to process
+    await new Promise<void>((resolve) => setTimeout(resolve, 50)); // Wait for queue to process
     sendEnter(hwnd);
 
     // Step 2: Send the load code in chunks if necessary
@@ -143,9 +145,9 @@ async function sendLoadCommand(
       );
 
       sendEnter(hwnd);
-      await new Promise((resolve) => setTimeout(resolve, 20)); // Wait for text box to be ready
+      await new Promise<void>((resolve) => setTimeout(resolve, 20)); // Wait for text box to be ready
       await sendTextAsync(hwnd, chunk, 5); // 5ms delay per char
-      await new Promise((resolve) =>
+      await new Promise<void>((resolve) =>
         setTimeout(resolve, chunk.length * 5 + 50)
       ); // Wait for queue to process
       sendEnter(hwnd);
@@ -153,23 +155,23 @@ async function sendLoadCommand(
 
     // Step 3: Send -le command
     sendEnter(hwnd);
-    await new Promise((resolve) => setTimeout(resolve, 20)); // Wait for text box to be ready
+    await new Promise<void>((resolve) => setTimeout(resolve, 20)); // Wait for text box to be ready
     await sendTextAsync(hwnd, "-le", 5); // 5ms delay per char
-    await new Promise((resolve) => setTimeout(resolve, 50)); // Wait for queue to process
+    await new Promise<void>((resolve) => setTimeout(resolve, 50)); // Wait for queue to process
     sendEnter(hwnd);
 
     // Send postload messages (after load command)
     if (postloadMessages && postloadMessages.length > 0) {
       console.log(`Sending ${postloadMessages.length} postload message(s)`);
-      await new Promise((resolve) => setTimeout(resolve, 200)); // Wait a bit after -le
+      await new Promise<void>((resolve) => setTimeout(resolve, 200)); // Wait a bit after -le
       for (const message of postloadMessages) {
         if (message.trim()) {
           sendEnter(hwnd);
-          await new Promise((resolve) => setTimeout(resolve, 20));
+          await new Promise<void>((resolve) => setTimeout(resolve, 20));
           await sendTextAsync(hwnd, message.trim(), 5);
-          await new Promise((resolve) => setTimeout(resolve, 50));
+          await new Promise<void>((resolve) => setTimeout(resolve, 50));
           sendEnter(hwnd);
-          await new Promise((resolve) => setTimeout(resolve, 100)); // Brief pause between messages
+          await new Promise<void>((resolve) => setTimeout(resolve, 100)); // Brief pause between messages
         }
       }
     }
@@ -178,12 +180,8 @@ async function sendLoadCommand(
     return { success: true };
   } catch (error) {
     console.error("Error sending load command:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error).message };
   } finally {
     isExecutingCommand = false;
   }
 }
-
-module.exports = {
-  sendLoadCommand,
-};

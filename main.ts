@@ -1,19 +1,19 @@
-const { app } = require("electron");
-const { createOverlayWindow } = require("./src/backend/overlay");
-const { createMainWindow } = require("./src/backend/main");
-const {
+import { app, BrowserWindow } from "electron";
+import { createOverlayWindow } from "./src/backend/overlay";
+import { createMainWindow } from "./src/backend/main";
+import {
   registerIpcHandlers,
   setOverlayWin,
   getOverlayState,
   setLastWarcraftBounds,
-  setIsDraggingOverlay,
-} = require("./src/backend/ipcHandlers");
-const { setupAutoUpdater } = require("./src/backend/autoUpdater");
-const {
+} from "./src/backend/ipcHandlers";
+import { setupAutoUpdater } from "./src/backend/autoUpdater";
+import {
   initAnalytics,
   shutdownAnalytics,
-} = require("./src/backend/settings/analytics");
-const activeWin = require("active-win");
+} from "./src/backend/settings/analytics";
+import activeWin from "active-win";
+import { WindowInfo } from "./src/backend/types";
 
 // Initialize analytics
 initAnalytics();
@@ -22,8 +22,8 @@ initAnalytics();
 registerIpcHandlers();
 
 app.whenReady().then(() => {
-  const mainWin = createMainWindow();
-  const overlayWin = createOverlayWindow();
+  const mainWin: BrowserWindow = createMainWindow();
+  const overlayWin: BrowserWindow = createOverlayWindow();
 
   setOverlayWin(overlayWin);
 
@@ -48,7 +48,7 @@ app.whenReady().then(() => {
       if (state.isDraggingOverlay) {
         return;
       }
-      const winInfo = await activeWin();
+      const winInfo = (await activeWin()) as WindowInfo | undefined;
       const isWarcraft = winInfo && winInfo.title === "Warcraft III";
       const isOverlay = winInfo && winInfo.title === overlayWin.getTitle();
 

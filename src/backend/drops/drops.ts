@@ -1,7 +1,8 @@
-const fs = require("fs");
-const path = require("path");
-const { shell } = require("electron");
-const { getDataPath } = require("../settings/settings");
+import fs from "fs";
+import path from "path";
+import { shell } from "electron";
+import { getDataPath } from "../settings/settings";
+import { DropsResult, OperationResult } from "../types";
 
 /**
  * Drops Tracking Module
@@ -10,18 +11,21 @@ const { getDataPath } = require("../settings/settings");
 
 /**
  * Get the path to the drops.txt file
- * @returns {string} Full path to drops.txt
+ * @returns Full path to drops.txt
  */
-const getDropsFilePath = () => {
+export const getDropsFilePath = (): string => {
   const dataPath = getDataPath();
   return path.join(dataPath, "drops.txt");
 };
 
 /**
  * Read the drops.txt file content
- * @returns {Object} Object with success status and drops content or error message
+ * @returns Object with success status and drops content or error message
  */
-const getDropsContent = () => {
+export const getDropsContent = (): DropsResult & {
+  lastModified?: Date;
+  message?: string;
+} => {
   try {
     const dropsPath = getDropsFilePath();
 
@@ -29,7 +33,7 @@ const getDropsContent = () => {
       console.log("drops.txt file not found at:", dropsPath);
       return {
         success: true,
-        content: null,
+        content: undefined,
         message: "No drops.txt file found. Start playing to track your drops!",
       };
     }
@@ -46,17 +50,17 @@ const getDropsContent = () => {
     console.error("Error reading drops.txt:", error);
     return {
       success: false,
-      error: error.message,
+      error: (error as Error).message,
     };
   }
 };
 
 /**
  * Watch the drops.txt file for changes (optional - for future real-time updates)
- * @param {Function} callback - Callback function to call when file changes
- * @returns {fs.FSWatcher|null} Watcher instance or null if file doesn't exist
+ * @param callback - Callback function to call when file changes
+ * @returns Watcher instance or null if file doesn't exist
  */
-const watchDropsFile = (callback) => {
+export const watchDropsFile = (callback: () => void): fs.FSWatcher | null => {
   try {
     const dropsPath = getDropsFilePath();
 
@@ -83,9 +87,9 @@ const watchDropsFile = (callback) => {
 /**
  * Open the drops.txt directory in File Explorer
  * If drops.txt exists, it will be highlighted in the folder
- * @returns {Object} Object with success status
+ * @returns Object with success status
  */
-const openDropsDirectory = () => {
+export const openDropsDirectory = (): OperationResult => {
   try {
     const dropsPath = getDropsFilePath();
     const dataPath = getDataPath();
@@ -110,14 +114,7 @@ const openDropsDirectory = () => {
     console.error("Error opening drops directory:", error);
     return {
       success: false,
-      error: error.message,
+      error: (error as Error).message,
     };
   }
-};
-
-module.exports = {
-  getDropsFilePath,
-  getDropsContent,
-  watchDropsFile,
-  openDropsDirectory,
 };

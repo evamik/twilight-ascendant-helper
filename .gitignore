@@ -4,6 +4,12 @@ node_modules/
 # Build output
 dist/
 dist-react/
+dist-backend/
+
+# Compiled TypeScript output (backend)
+main.js
+src/**/*.js
+!src/**/*.config.js
 
 # Logs
 *.log

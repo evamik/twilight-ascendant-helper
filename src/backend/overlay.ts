@@ -1,7 +1,7 @@
-const { BrowserWindow } = require("electron");
-const path = require("path");
+import { BrowserWindow } from "electron";
+import path from "path";
 
-const createOverlayWindow = () => {
+export const createOverlayWindow = (): BrowserWindow => {
   const overlayWin = new BrowserWindow({
     width: 800,
     height: 600,
@@ -29,5 +29,3 @@ const createOverlayWindow = () => {
   overlayWin.hide();
   return overlayWin;
 };
-
-module.exports = { createOverlayWindow };

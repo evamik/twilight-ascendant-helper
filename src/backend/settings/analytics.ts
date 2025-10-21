@@ -1,19 +1,46 @@
-const { PostHog } = require("posthog-node");
-const { app } = require("electron");
-require("dotenv").config();
+import { PostHog } from "posthog-node";
+import { app } from "electron";
+import * as dotenv from "dotenv";
+import * as crypto from "crypto";
+import fs from "fs";
+import path from "path";
+
+dotenv.config();
 
 // Initialize PostHog client from environment variables
 const POSTHOG_API_KEY = process.env.POSTHOG_API_KEY;
 const POSTHOG_HOST = process.env.POSTHOG_HOST || "https://app.posthog.com";
 
-let posthog = null;
+let posthog: PostHog | null = null;
 let isEnabled = true;
-let userId = null;
+let userId: string | null = null;
+
+/**
+ * Get or create a persistent anonymous user ID
+ */
+const getOrCreateUserId = (): string => {
+  const userDataPath = app.getPath("userData");
+  const idFile = path.join(userDataPath, ".analytics-id");
+
+  try {
+    if (fs.existsSync(idFile)) {
+      return fs.readFileSync(idFile, "utf-8").trim();
+    }
+
+    // Generate new random UUID
+    const newId = crypto.randomUUID();
+    fs.writeFileSync(idFile, newId, "utf-8");
+    return newId;
+  } catch (error) {
+    console.error("[Analytics] Failed to get/create user ID:", error);
+    return "anonymous";
+  }
+};
 
 /**
  * Initialize analytics
  */
-const initAnalytics = () => {
+export const initAnalytics = (): void => {
   try {
     // Only enable if API key is set and not in development
     if (!POSTHOG_API_KEY || process.env.NODE_ENV === "development") {
@@ -46,38 +73,15 @@ const initAnalytics = () => {
 };
 
 /**
- * Get or create a persistent anonymous user ID
- */
-const getOrCreateUserId = () => {
-  const crypto = require("crypto");
-  const fs = require("fs");
-  const path = require("path");
-
-  const userDataPath = app.getPath("userData");
-  const idFile = path.join(userDataPath, ".analytics-id");
-
-  try {
-    if (fs.existsSync(idFile)) {
-      return fs.readFileSync(idFile, "utf-8").trim();
-    }
-
-    // Generate new random UUID
-    const newId = crypto.randomUUID();
-    fs.writeFileSync(idFile, newId, "utf-8");
-    return newId;
-  } catch (error) {
-    console.error("[Analytics] Failed to get/create user ID:", error);
-    return "anonymous";
-  }
-};
-
-/**
  * Track an event
- * @param {string} eventName - Name of the event
- * @param {object} properties - Additional properties for the event
+ * @param eventName - Name of the event
+ * @param properties - Additional properties for the event
  */
-const trackEvent = (eventName, properties = {}) => {
-  if (!isEnabled || !posthog) {
+export const trackEvent = (
+  eventName: string,
+  properties: Record<string, any> = {}
+): void => {
+  if (!isEnabled || !posthog || !userId) {
     return;
   }
 
@@ -99,10 +103,13 @@ const trackEvent = (eventName, properties = {}) => {
 
 /**
  * Track feature usage
- * @param {string} feature - Name of the feature used
- * @param {object} metadata - Additional metadata
+ * @param feature - Name of the feature used
+ * @param metadata - Additional metadata
  */
-const trackFeature = (feature, metadata = {}) => {
+export const trackFeature = (
+  feature: string,
+  metadata: Record<string, any> = {}
+): void => {
   trackEvent("feature_used", {
     feature,
     ...metadata,
@@ -112,7 +119,7 @@ const trackFeature = (feature, metadata = {}) => {
 /**
  * Shutdown analytics (flush pending events)
  */
-const shutdownAnalytics = async () => {
+export const shutdownAnalytics = async (): Promise<void> => {
   if (!isEnabled || !posthog) {
     return;
   }
@@ -123,11 +130,4 @@ const shutdownAnalytics = async () => {
   } catch (error) {
     console.error("[Analytics] Shutdown failed:", error);
   }
-};
-
-module.exports = {
-  initAnalytics,
-  trackEvent,
-  trackFeature,
-  shutdownAnalytics,
 };

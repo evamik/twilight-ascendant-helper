@@ -1,16 +1,28 @@
-const fs = require("fs");
-const path = require("path");
-const os = require("os");
-const { app } = require("electron");
+import fs from "fs";
+import path from "path";
+import os from "os";
+import { app } from "electron";
+import { LoaderSettings, UISettings, CharacterSettings } from "../types";
+
+// Settings file structure
+interface Settings {
+  customDataPath: string | null;
+  replayBaseDirectory: string;
+  preloadMessages: string[];
+  postloadMessages: string[];
+  overlayEnabled: boolean;
+  showOnlyT4Classes: boolean;
+  characterSettings: Record<string, CharacterSettings>;
+}
 
 // Get the user data path for storing settings
-const getSettingsPath = () => {
+const getSettingsPath = (): string => {
   const userDataPath = app.getPath("userData");
   return path.join(userDataPath, "settings.json");
 };
 
 // Default settings
-const getDefaultSettings = () => {
+const getDefaultSettings = (): Settings => {
   const documentsPath = path.join(os.homedir(), "Documents");
   const defaultReplayPath = path.join(
     documentsPath,
@@ -30,12 +42,12 @@ const getDefaultSettings = () => {
 };
 
 // Load settings from file
-const loadSettings = () => {
+export const loadSettings = (): Settings => {
   try {
     const settingsPath = getSettingsPath();
     if (fs.existsSync(settingsPath)) {
       const data = fs.readFileSync(settingsPath, "utf-8");
-      const settings = JSON.parse(data);
+      const settings = JSON.parse(data) as Partial<Settings>;
       console.log("Loaded settings:", settings);
       return { ...getDefaultSettings(), ...settings };
     }
@@ -46,7 +58,7 @@ const loadSettings = () => {
 };
 
 // Save settings to file
-const saveSettings = (settings) => {
+export const saveSettings = (settings: Settings): boolean => {
   try {
     const settingsPath = getSettingsPath();
     fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf-8");
@@ -59,7 +71,7 @@ const saveSettings = (settings) => {
 };
 
 // Get the Twilight Ascendant data path (default or custom)
-const getDataPath = () => {
+export const getDataPath = (): string => {
   const settings = loadSettings();
 
   if (settings.customDataPath && fs.existsSync(settings.customDataPath)) {
@@ -80,21 +92,21 @@ const getDataPath = () => {
 };
 
 // Set custom data path
-const setCustomDataPath = (customPath) => {
+export const setCustomDataPath = (customPath: string): boolean => {
   const settings = loadSettings();
   settings.customDataPath = customPath;
   return saveSettings(settings);
 };
 
 // Reset to default path
-const resetToDefaultPath = () => {
+export const resetToDefaultPath = (): boolean => {
   const settings = loadSettings();
   settings.customDataPath = null;
   return saveSettings(settings);
 };
 
 // Get loader settings (preload/postload messages)
-const getLoaderSettings = () => {
+export const getLoaderSettings = (): LoaderSettings => {
   const settings = loadSettings();
   return {
     preloadMessages: settings.preloadMessages || [],
@@ -103,21 +115,21 @@ const getLoaderSettings = () => {
 };
 
 // Set preload messages
-const setPreloadMessages = (messages) => {
+export const setPreloadMessages = (messages: string[]): boolean => {
   const settings = loadSettings();
   settings.preloadMessages = Array.isArray(messages) ? messages : [];
   return saveSettings(settings);
 };
 
 // Set postload messages
-const setPostloadMessages = (messages) => {
+export const setPostloadMessages = (messages: string[]): boolean => {
   const settings = loadSettings();
   settings.postloadMessages = Array.isArray(messages) ? messages : [];
   return saveSettings(settings);
 };
 
 // Get UI settings (overlay and filter preferences)
-const getUISettings = () => {
+export const getUISettings = (): UISettings => {
   const settings = loadSettings();
   return {
     overlayEnabled:
@@ -130,21 +142,21 @@ const getUISettings = () => {
 };
 
 // Set overlay enabled state
-const setOverlayEnabled = (enabled) => {
+export const setOverlayEnabled = (enabled: boolean): boolean => {
   const settings = loadSettings();
   settings.overlayEnabled = Boolean(enabled);
   return saveSettings(settings);
 };
 
 // Set show only T4 classes filter state
-const setShowOnlyT4Classes = (enabled) => {
+export const setShowOnlyT4Classes = (enabled: boolean): boolean => {
   const settings = loadSettings();
   settings.showOnlyT4Classes = Boolean(enabled);
   return saveSettings(settings);
 };
 
 // Get replay base directory
-const getReplayBaseDirectory = () => {
+export const getReplayBaseDirectory = (): string => {
   const settings = loadSettings();
   return (
     settings.replayBaseDirectory || getDefaultSettings().replayBaseDirectory
@@ -152,24 +164,8 @@ const getReplayBaseDirectory = () => {
 };
 
 // Set replay base directory
-const setReplayBaseDirectory = (directory) => {
+export const setReplayBaseDirectory = (directory: string): boolean => {
   const settings = loadSettings();
   settings.replayBaseDirectory = directory;
   return saveSettings(settings);
-};
-
-module.exports = {
-  loadSettings,
-  saveSettings,
-  getDataPath,
-  setCustomDataPath,
-  resetToDefaultPath,
-  getLoaderSettings,
-  setPreloadMessages,
-  setPostloadMessages,
-  getUISettings,
-  setOverlayEnabled,
-  setShowOnlyT4Classes,
-  getReplayBaseDirectory,
-  setReplayBaseDirectory,
 };

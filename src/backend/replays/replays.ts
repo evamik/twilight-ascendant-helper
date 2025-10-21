@@ -1,7 +1,7 @@
-const fs = require("fs");
-const path = require("path");
-const { getReplayBaseDirectory } = require("../settings/settings");
-const { getDataPath } = require("../settings/settings");
+import fs from "fs";
+import path from "path";
+import { getReplayBaseDirectory, getDataPath } from "../settings/settings";
+import { ReplayResult } from "../types";
 
 /**
  * Replays Module
@@ -10,9 +10,9 @@ const { getDataPath } = require("../settings/settings");
 
 /**
  * Find the latest LastReplay.w3g across all account folders
- * @returns {Object} Object with success status and replay path or error
+ * @returns Object with success status and replay path or error
  */
-const findLatestReplay = () => {
+export const findLatestReplay = (): ReplayResult => {
   try {
     const replayBaseDir = getReplayBaseDirectory();
 
@@ -43,7 +43,11 @@ const findLatestReplay = () => {
     );
 
     // Search for LastReplay.w3g in each account's Replays folder
-    let latestReplay = null;
+    let latestReplay: {
+      path: string;
+      accountId: string;
+      modifiedTime: Date;
+    } | null = null;
     let latestModTime = 0;
 
     for (const accountFolder of accountFolders) {
@@ -86,22 +90,26 @@ const findLatestReplay = () => {
       success: true,
       replayPath: latestReplay.path,
       accountId: latestReplay.accountId,
-      modifiedTime: latestReplay.modifiedTime,
+      modifiedTime: latestReplay.modifiedTime.getTime(),
     };
   } catch (error) {
     console.error("Error finding latest replay:", error);
     return {
       success: false,
-      error: error.message,
+      error: (error as Error).message,
     };
   }
 };
 
 /**
  * Copy the latest LastReplay.w3g to the drops.txt directory
- * @returns {Object} Object with success status, destination path, or error
+ * @returns Object with success status, destination path, or error
  */
-const copyReplayToDropsDirectory = () => {
+export const copyReplayToDropsDirectory = (): ReplayResult & {
+  sourcePath?: string;
+  filename?: string;
+  message?: string;
+} => {
   try {
     // Find the latest replay
     const replayResult = findLatestReplay();
@@ -110,7 +118,14 @@ const copyReplayToDropsDirectory = () => {
       return replayResult; // Return the error
     }
 
-    const { replayPath, accountId, modifiedTime } = replayResult;
+    const { replayPath, accountId } = replayResult;
+
+    if (!replayPath) {
+      return {
+        success: false,
+        error: "Replay path not found",
+      };
+    }
 
     // Get the drops directory (same as data path)
     const dropsDirectory = getDataPath();
@@ -140,12 +155,7 @@ const copyReplayToDropsDirectory = () => {
     console.error("Error copying replay:", error);
     return {
       success: false,
-      error: error.message,
+      error: (error as Error).message,
     };
   }
-};
-
-module.exports = {
-  findLatestReplay,
-  copyReplayToDropsDirectory,
 };

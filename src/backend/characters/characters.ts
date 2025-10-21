@@ -1,17 +1,18 @@
-const fs = require("fs");
-const path = require("path");
-const { getDataPath } = require("../settings/settings");
+import fs from "fs";
+import path from "path";
+import { getDataPath } from "../settings/settings";
+import { CharacterData, AccountList, CharacterList } from "../types";
 
-const getBasePath = () => {
+const getBasePath = (): string => {
   return getDataPath();
 };
 
 /**
  * Check if a folder is a valid character folder by looking for txt files with [Level X] pattern
- * @param {string} folderPath - Full path to the folder to check
- * @returns {boolean} - True if folder contains character save files
+ * @param folderPath - Full path to the folder to check
+ * @returns True if folder contains character save files
  */
-const isValidCharacterFolder = (folderPath) => {
+const isValidCharacterFolder = (folderPath: string): boolean => {
   try {
     if (!fs.existsSync(folderPath)) {
       return false;
@@ -33,7 +34,7 @@ const isValidCharacterFolder = (folderPath) => {
   }
 };
 
-const getAccountFolders = () => {
+export const getAccountFolders = (): AccountList => {
   try {
     const basePath = getBasePath();
 
@@ -55,7 +56,7 @@ const getAccountFolders = () => {
   }
 };
 
-const getCharacterFolders = (accountName) => {
+export const getCharacterFolders = (accountName: string): CharacterList => {
   try {
     const basePath = getBasePath();
     const accountPath = path.join(basePath, accountName);
@@ -88,7 +89,10 @@ const getCharacterFolders = (accountName) => {
   }
 };
 
-const getLatestCharacterData = (accountName, characterName) => {
+export const getLatestCharacterData = (
+  accountName: string,
+  characterName: string
+): CharacterData | null => {
   try {
     const basePath = getBasePath();
     const characterPath = path.join(basePath, accountName, characterName);
@@ -107,7 +111,7 @@ const getLatestCharacterData = (accountName, characterName) => {
         path: path.join(characterPath, file),
         mtime: fs.statSync(path.join(characterPath, file)).mtime,
       }))
-      .sort((a, b) => b.mtime - a.mtime); // Sort by modified time, newest first
+      .sort((a, b) => b.mtime.getTime() - a.mtime.getTime()); // Sort by modified time, newest first
 
     if (files.length === 0) {
       console.log("No .txt files found for character:", characterName);
@@ -127,10 +131,4 @@ const getLatestCharacterData = (accountName, characterName) => {
     console.error("Error reading character data:", error);
     return null;
   }
-};
-
-module.exports = {
-  getAccountFolders,
-  getCharacterFolders,
-  getLatestCharacterData,
 };

@@ -1,7 +1,7 @@
 /**
  * Extract the load code from character data content
  */
-function extractLoadCode(content) {
+export function extractLoadCode(content: string): string | null {
   // Find the line with "-l " followed by the code
   const lines = content.split("\n");
   for (const line of lines) {
@@ -19,15 +19,10 @@ function extractLoadCode(content) {
 /**
  * Split a long string into chunks of max length
  */
-function splitIntoChunks(str, maxLength) {
-  const chunks = [];
+export function splitIntoChunks(str: string, maxLength: number): string[] {
+  const chunks: string[] = [];
   for (let i = 0; i < str.length; i += maxLength) {
     chunks.push(str.substring(i, i + maxLength));
   }
   return chunks;
 }
-
-module.exports = {
-  extractLoadCode,
-  splitIntoChunks,
-};

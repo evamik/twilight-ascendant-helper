@@ -1,11 +1,14 @@
-const { BrowserWindow } = require("electron");
-const path = require("path");
-const { getAppOptions } = require("./appOptions.js");
+import { BrowserWindow } from "electron";
+import path from "path";
+import { getAppOptions } from "./appOptions";
 
-const createMainWindow = () => {
+export const createMainWindow = (): BrowserWindow => {
   const options = getAppOptions();
   const win = new BrowserWindow(options);
-  if (options.menuVisible === false) {
+  if (
+    options.frame === false ||
+    options.webPreferences?.nodeIntegration === false
+  ) {
     win.setMenu(null);
   }
   if (process.env.NODE_ENV === "development") {
@@ -16,5 +19,3 @@ const createMainWindow = () => {
   }
   return win;
 };
-
-module.exports = { createMainWindow };

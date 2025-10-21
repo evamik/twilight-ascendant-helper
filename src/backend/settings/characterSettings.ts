@@ -1,4 +1,5 @@
-const { loadSettings, saveSettings } = require("./settings");
+import { loadSettings, saveSettings } from "./settings";
+import { CharacterSettings } from "../types";
 
 /**
  * Character-specific settings module
@@ -7,11 +8,14 @@ const { loadSettings, saveSettings } = require("./settings");
 
 /**
  * Get character-specific settings
- * @param {string} accountName - Account name
- * @param {string} characterName - Character name
- * @returns {Object|null} Character settings object or null if not set
+ * @param accountName - Account name
+ * @param characterName - Character name
+ * @returns Character settings object or null if not set
  */
-const getCharacterSettings = (accountName, characterName) => {
+export const getCharacterSettings = (
+  accountName: string,
+  characterName: string
+): CharacterSettings | null => {
   const settings = loadSettings();
   const key = `${accountName}:${characterName}`;
   const characterSettings = settings.characterSettings || {};
@@ -20,12 +24,16 @@ const getCharacterSettings = (accountName, characterName) => {
 
 /**
  * Set character-specific preload messages
- * @param {string} accountName - Account name
- * @param {string} characterName - Character name
- * @param {string[]} messages - Array of preload messages
- * @returns {boolean} Success status
+ * @param accountName - Account name
+ * @param characterName - Character name
+ * @param messages - Array of preload messages
+ * @returns Success status
  */
-const setCharacterPreloadMessages = (accountName, characterName, messages) => {
+export const setCharacterPreloadMessages = (
+  accountName: string,
+  characterName: string,
+  messages: string[]
+): boolean => {
   const settings = loadSettings();
   const key = `${accountName}:${characterName}`;
 
@@ -45,12 +53,16 @@ const setCharacterPreloadMessages = (accountName, characterName, messages) => {
 
 /**
  * Set character-specific postload messages
- * @param {string} accountName - Account name
- * @param {string} characterName - Character name
- * @param {string[]} messages - Array of postload messages
- * @returns {boolean} Success status
+ * @param accountName - Account name
+ * @param characterName - Character name
+ * @param messages - Array of postload messages
+ * @returns Success status
  */
-const setCharacterPostloadMessages = (accountName, characterName, messages) => {
+export const setCharacterPostloadMessages = (
+  accountName: string,
+  characterName: string,
+  messages: string[]
+): boolean => {
   const settings = loadSettings();
   const key = `${accountName}:${characterName}`;
 
@@ -71,11 +83,14 @@ const setCharacterPostloadMessages = (accountName, characterName, messages) => {
 /**
  * Clear all character-specific settings for a character
  * Reverts the character to using global settings
- * @param {string} accountName - Account name
- * @param {string} characterName - Character name
- * @returns {boolean} Success status
+ * @param accountName - Account name
+ * @param characterName - Character name
+ * @returns Success status
  */
-const clearCharacterSettings = (accountName, characterName) => {
+export const clearCharacterSettings = (
+  accountName: string,
+  characterName: string
+): boolean => {
   const settings = loadSettings();
   const key = `${accountName}:${characterName}`;
 
@@ -85,11 +100,4 @@ const clearCharacterSettings = (accountName, characterName) => {
   }
 
   return true; // Already cleared
-};
-
-module.exports = {
-  getCharacterSettings,
-  setCharacterPreloadMessages,
-  setCharacterPostloadMessages,
-  clearCharacterSettings,
 };
