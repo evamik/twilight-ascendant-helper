@@ -222,6 +222,7 @@ const Drops = () => {
             border: '1px solid #555',
             maxHeight: 'calc(100vh - 200px)',
             overflowY: 'auto',
+            scrollbarGutter: 'stable',
           }}
         >
           <pre
