@@ -1,6 +1,7 @@
 import React from "react";
 import DataDirectorySettings from "./DataDirectorySettings";
 import LoaderSettings from "./LoaderSettings";
+import ReplayDirectorySettings from "./ReplayDirectorySettings";
 
 function Settings({ onBack }) {
   return (
@@ -38,6 +39,18 @@ function Settings({ onBack }) {
         }}
       >
         <DataDirectorySettings />
+      </div>
+
+      {/* Replay Directory Settings Section */}
+      <div
+        style={{
+          backgroundColor: "#2a2a2a",
+          padding: "20px",
+          borderRadius: "8px",
+          marginBottom: "20px",
+        }}
+      >
+        <ReplayDirectorySettings />
       </div>
 
       {/* Loader Settings Section */}

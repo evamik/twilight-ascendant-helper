@@ -10,14 +10,24 @@ const getSettingsPath = () => {
 };
 
 // Default settings
-const getDefaultSettings = () => ({
-  customDataPath: null, // null means use default path
-  preloadMessages: [], // Global messages to send before loading character
-  postloadMessages: [], // Global messages to send after loading character
-  overlayEnabled: false, // Remember if overlay is enabled
-  showOnlyT4Classes: false, // Remember T4 class filter state
-  characterSettings: {}, // Per-character settings { "accountName:characterName": { preloadMessages, postloadMessages } }
-});
+const getDefaultSettings = () => {
+  const documentsPath = path.join(os.homedir(), "Documents");
+  const defaultReplayPath = path.join(
+    documentsPath,
+    "Warcraft III",
+    "BattleNet"
+  );
+
+  return {
+    customDataPath: null, // null means use default path
+    replayBaseDirectory: defaultReplayPath, // Base directory for replays (contains account ID folders)
+    preloadMessages: [], // Global messages to send before loading character
+    postloadMessages: [], // Global messages to send after loading character
+    overlayEnabled: false, // Remember if overlay is enabled
+    showOnlyT4Classes: false, // Remember T4 class filter state
+    characterSettings: {}, // Per-character settings { "accountName:characterName": { preloadMessages, postloadMessages } }
+  };
+};
 
 // Load settings from file
 const loadSettings = () => {
@@ -133,6 +143,21 @@ const setShowOnlyT4Classes = (enabled) => {
   return saveSettings(settings);
 };
 
+// Get replay base directory
+const getReplayBaseDirectory = () => {
+  const settings = loadSettings();
+  return (
+    settings.replayBaseDirectory || getDefaultSettings().replayBaseDirectory
+  );
+};
+
+// Set replay base directory
+const setReplayBaseDirectory = (directory) => {
+  const settings = loadSettings();
+  settings.replayBaseDirectory = directory;
+  return saveSettings(settings);
+};
+
 module.exports = {
   loadSettings,
   saveSettings,
@@ -145,4 +170,6 @@ module.exports = {
   getUISettings,
   setOverlayEnabled,
   setShowOnlyT4Classes,
+  getReplayBaseDirectory,
+  setReplayBaseDirectory,
 };

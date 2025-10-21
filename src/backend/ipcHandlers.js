@@ -21,6 +21,7 @@ const {
   setOverlaySize: setOverlaySizeInternal,
 } = require("./overlayIpcHandlers");
 const { registerDropsIpcHandlers } = require("./drops/dropsIpcHandlers");
+const { registerReplayIpcHandlers } = require("./replays/replayIpcHandlers");
 
 /**
  * Set overlay window reference for all handlers that need it
@@ -56,6 +57,9 @@ const registerIpcHandlers = () => {
 
   // Register drops tracking handlers
   registerDropsIpcHandlers();
+
+  // Register replay handlers
+  registerReplayIpcHandlers();
 };
 
 module.exports = {

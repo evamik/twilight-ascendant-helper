@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { shell } = require("electron");
 const { getDataPath } = require("../settings/settings");
 
 /**
@@ -79,8 +80,44 @@ const watchDropsFile = (callback) => {
   }
 };
 
+/**
+ * Open the drops.txt directory in File Explorer
+ * If drops.txt exists, it will be highlighted in the folder
+ * @returns {Object} Object with success status
+ */
+const openDropsDirectory = () => {
+  try {
+    const dropsPath = getDropsFilePath();
+    const dataPath = getDataPath();
+
+    // Check if the file exists
+    if (fs.existsSync(dropsPath)) {
+      // Show the file in the folder (highlights it)
+      shell.showItemInFolder(dropsPath);
+      console.log("Opened drops.txt location in File Explorer");
+    } else {
+      // File doesn't exist yet, just open the data directory
+      shell.openPath(dataPath);
+      console.log(
+        "Opened data directory in File Explorer (drops.txt not found)"
+      );
+    }
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error("Error opening drops directory:", error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+};
+
 module.exports = {
   getDropsFilePath,
   getDropsContent,
   watchDropsFile,
+  openDropsDirectory,
 };

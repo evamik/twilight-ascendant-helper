@@ -1,5 +1,5 @@
 const { ipcMain } = require("electron");
-const { getDropsContent } = require("./drops");
+const { getDropsContent, openDropsDirectory } = require("./drops");
 const { trackFeature } = require("../settings/analytics");
 
 /**
@@ -12,6 +12,14 @@ const registerDropsIpcHandlers = () => {
       source: "get_drops",
     });
     return getDropsContent();
+  });
+
+  // Open drops.txt directory in File Explorer
+  ipcMain.handle("open-drops-directory", async () => {
+    trackFeature("drops_directory_opened", {
+      source: "open_drops_directory",
+    });
+    return openDropsDirectory();
   });
 };
 

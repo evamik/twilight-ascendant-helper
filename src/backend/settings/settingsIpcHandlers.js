@@ -9,6 +9,8 @@ const {
   getUISettings,
   setOverlayEnabled,
   setShowOnlyT4Classes,
+  getReplayBaseDirectory,
+  setReplayBaseDirectory,
 } = require("./settings");
 const {
   getCharacterSettings,
@@ -200,6 +202,22 @@ const registerSettingsIpcHandlers = () => {
       return { success };
     }
   );
+
+  // Replay Directory Settings
+
+  // Get replay base directory
+  ipcMain.handle("get-replay-directory", async () => {
+    return getReplayBaseDirectory();
+  });
+
+  // Set replay base directory
+  ipcMain.handle("set-replay-directory", async (event, directory) => {
+    const success = setReplayBaseDirectory(directory);
+    if (success) {
+      trackFeature("replay_directory_configured");
+    }
+    return { success };
+  });
 };
 
 module.exports = {
