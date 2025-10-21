@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import styles from './OverlayToggle.module.css';
 
 const { ipcRenderer } = window.require ? window.require('electron') : {};
 
@@ -45,12 +46,12 @@ const OverlayToggle = () => {
   };
 
   return (
-    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+    <label className={styles.label}>
       <input
         type="checkbox"
         checked={overlayEnabled}
         onChange={e => handleOverlayToggle(e.target.checked)}
-        style={{ cursor: 'pointer' }}
+        className={styles.checkbox}
       />
       <span>Enable Overlay</span>
     </label>

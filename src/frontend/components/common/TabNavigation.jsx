@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import styles from './TabNavigation.module.css';
 
 const TabNavigation = ({ activeTab, onTabChange }) => {
   const tabs = [
@@ -13,28 +14,12 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
   ];
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      gap: '10px', 
-      marginBottom: '20px',
-      borderBottom: '2px solid #333',
-      paddingBottom: '0'
-    }}>
+    <div className={styles.container}>
       {tabs.map(tab => (
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
-          style={{
-            padding: '12px 24px',
-            background: activeTab === tab.id ? '#ff9800' : 'transparent',
-            color: activeTab === tab.id ? '#222' : '#fff',
-            border: 'none',
-            borderBottom: activeTab === tab.id ? '3px solid #ff9800' : '3px solid transparent',
-            cursor: 'pointer',
-            fontSize: 16,
-            fontWeight: 'bold',
-            transition: 'all 0.2s',
-          }}
+          className={activeTab === tab.id ? styles.tabActive : styles.tabInactive}
         >
           {tab.label}
         </button>

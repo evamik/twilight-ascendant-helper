@@ -1,0 +1,36 @@
+.container {
+  padding: 20px;
+}
+
+.backButton {
+  position: sticky;
+  top: 10px;
+  margin-bottom: 20px;
+  padding: 10px 20px;
+  background-color: #444;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 1;
+  font-weight: bold;
+}
+
+.title {
+  color: white;
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+.section {
+  background-color: #2a2a2a;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.sectionLast {
+  background-color: #2a2a2a;
+  padding: 20px;
+  border-radius: 8px;
+}

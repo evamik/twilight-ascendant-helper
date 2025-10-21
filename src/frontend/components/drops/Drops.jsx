@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import styles from './Drops.module.css';
 
 const { ipcRenderer } = window.require ? window.require('electron') : {};
 
@@ -95,56 +96,27 @@ const Drops = () => {
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 15 }}>
-        <h2 style={{ margin: 0, fontSize: 24, color: '#ff9800' }}>📦 Drops Tracker</h2>
-        <div style={{ display: 'flex', gap: '10px' }}>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h2 className={styles.title}>📦 Drops Tracker</h2>
+        <div className={styles.buttonGroup}>
           <button
             onClick={copyReplay}
             disabled={copyingReplay}
-            style={{
-              padding: '8px 16px',
-              background: copyingReplay ? '#666' : '#9c27b0',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 4,
-              cursor: copyingReplay ? 'not-allowed' : 'pointer',
-              fontSize: 14,
-              fontWeight: 'bold',
-              opacity: copyingReplay ? 0.6 : 1,
-            }}
+            className={copyingReplay ? styles.copyReplayButtonDisabled : styles.copyReplayButton}
           >
             {copyingReplay ? '⏳ Copying...' : '🎮 Copy Replay'}
           </button>
           <button
             onClick={openDirectory}
-            style={{
-              padding: '8px 16px',
-              background: '#4caf50',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 4,
-              cursor: 'pointer',
-              fontSize: 14,
-              fontWeight: 'bold',
-            }}
+            className={styles.openExplorerButton}
           >
             📂 Open in Explorer
           </button>
           <button
             onClick={loadDrops}
             disabled={loading}
-            style={{
-              padding: '8px 16px',
-              background: loading ? '#666' : '#2196f3',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 4,
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: 14,
-              fontWeight: 'bold',
-              opacity: loading ? 0.6 : 1,
-            }}
+            className={loading ? styles.refreshButtonDisabled : styles.refreshButton}
           >
             {loading ? '⏳ Refreshing...' : '🔄 Refresh'}
           </button>
@@ -152,61 +124,34 @@ const Drops = () => {
       </div>
 
       {replayCopyStatus && (
-        <div
-          style={{
-            padding: 12,
-            background: replayCopyStatus.includes('✓') ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)',
-            border: `1px solid ${replayCopyStatus.includes('✓') ? '#4caf50' : '#f44336'}`,
-            borderRadius: 4,
-            color: replayCopyStatus.includes('✓') ? '#4caf50' : '#f44336',
-            marginBottom: 15,
-            fontSize: 14,
-          }}
-        >
+        <div className={replayCopyStatus.includes('✓') ? styles.success : styles.error}>
           {replayCopyStatus}
         </div>
       )}
 
       {lastModified && (
-        <p style={{ margin: '0 0 15px 0', fontSize: 12, color: '#aaa' }}>
+        <p className={styles.lastModified}>
           Last updated: {formatDate(lastModified)}
         </p>
       )}
 
       {error && (
-        <div
-          style={{
-            padding: 15,
-            background: 'rgba(244, 67, 54, 0.1)',
-            border: '1px solid #f44336',
-            borderRadius: 4,
-            color: '#f44336',
-            marginBottom: 15,
-          }}
-        >
+        <div className={styles.errorBox}>
           <strong>Error:</strong> {error}
         </div>
       )}
 
       {loading && !dropsContent && (
-        <div style={{ textAlign: 'center', padding: 40, fontSize: 16, color: '#aaa' }}>
+        <div className={styles.loadingMessage}>
           Loading drops...
         </div>
       )}
 
       {!loading && !dropsContent && !error && (
-        <div
-          style={{
-            padding: 40,
-            textAlign: 'center',
-            background: 'rgba(0,0,0,0.2)',
-            borderRadius: 8,
-            border: '2px dashed #555',
-          }}
-        >
-          <div style={{ fontSize: 48, marginBottom: 15 }}>📦</div>
-          <h3 style={{ margin: '0 0 10px 0', color: '#fff' }}>No Drops Tracked Yet</h3>
-          <p style={{ margin: 0, fontSize: 14, color: '#aaa', lineHeight: 1.6 }}>
+        <div className={styles.emptyState}>
+          <div className={styles.emptyStateIcon}>📦</div>
+          <h3 className={styles.emptyStateTitle}>No Drops Tracked Yet</h3>
+          <p className={styles.emptyStateText}>
             The drops.txt file doesn't exist yet.<br />
             Start playing Twilight Ascendant to track your drops!
           </p>
@@ -214,49 +159,18 @@ const Drops = () => {
       )}
 
       {!loading && dropsContent && (
-        <div
-          style={{
-            background: 'rgba(0,0,0,0.3)',
-            padding: 15,
-            borderRadius: 4,
-            border: '1px solid #555',
-            maxHeight: 'calc(100vh - 200px)',
-            overflowY: 'auto',
-            scrollbarGutter: 'stable',
-          }}
-        >
-          <pre
-            style={{
-              margin: 0,
-              fontSize: 13,
-              fontFamily: 'Consolas, monospace',
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-              color: '#fff',
-              lineHeight: 1.5,
-            }}
-          >
+        <div className={styles.dropsContent}>
+          <pre className={styles.dropsText}>
             {dropsContent}
           </pre>
         </div>
       )}
 
-      <div
-        style={{
-          marginTop: 20,
-          padding: 15,
-          background: 'rgba(33, 150, 243, 0.1)',
-          border: '1px solid #2196f3',
-          borderRadius: 4,
-          fontSize: 12,
-          color: '#2196f3',
-          lineHeight: 1.6,
-        }}
-      >
-        <strong>ℹ️ Info:</strong> Drops are tracked in the <code style={{ background: 'rgba(0,0,0,0.3)', padding: '2px 6px', borderRadius: 2 }}>drops.txt</code> file 
+      <div className={styles.infoBox}>
+        <strong>ℹ️ Info:</strong> Drops are tracked in the <code>drops.txt</code> file 
         in your Twilight Ascendant data directory. The file updates automatically as you play.
         <br /><br />
-        <strong>🎮 Copy Replay:</strong> Copies your latest <code style={{ background: 'rgba(0,0,0,0.3)', padding: '2px 6px', borderRadius: 2 }}>LastReplay.w3g</code> to 
+        <strong>🎮 Copy Replay:</strong> Copies your latest <code>LastReplay.w3g</code> to 
         this directory (replaces the previous copy), making it easy to share both drops and replay to Discord!
         Configure the replay directory in Settings if needed.
       </div>

@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import styles from './LoaderView.module.css';
 import AccountList from '../character/AccountList';
 import CharacterList from '../character/CharacterList';
 import CharacterData from '../character/CharacterData';
@@ -26,20 +27,7 @@ const LoaderView = () => {
   return (
     <div>
       {selectedAccount && (
-        <button
-          onClick={handleBackClick}
-          style={{
-            padding: '8px 16px',
-            background: '#555',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 4,
-            cursor: 'pointer',
-            fontSize: 14,
-            fontWeight: 'bold',
-            marginBottom: '16px'
-          }}
-        >
+        <button onClick={handleBackClick} className={styles.backButton}>
           ← Back
         </button>
       )}
@@ -63,8 +51,8 @@ const LoaderView = () => {
         />
       ) : (
         <>
-          <h2 style={{ color: '#fff' }}>Accounts</h2>
-          <div style={{ maxWidth: 300 }}>
+          <h2 className={styles.accountsTitle}>Accounts</h2>
+          <div className={styles.accountsContainer}>
             <AccountList
               accounts={accounts}
               onAccountClick={handleAccountClick}

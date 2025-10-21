@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import styles from './CharacterList.module.css';
 
 const { ipcRenderer } = window.require ? window.require('electron') : {};
 
@@ -88,64 +89,38 @@ const CharacterList = ({ accountName, characters, onBack, onCharacterClick, butt
       {showBackButton && (
         <button
           onClick={onBack}
-          style={{
-            marginBottom: 10,
-            padding: '8px 12px',
-            background: '#555',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 4,
-            cursor: 'pointer',
-            fontSize: 14,
-            ...buttonStyle,
-          }}
+          className={styles.backButton}
+          style={buttonStyle}
         >
           ← Back
         </button>
       )}
-      <h2 style={{ margin: '0 0 10px 0', fontSize: 20 }}>
+      <h2 className={styles.title}>
         Characters in {accountName}
       </h2>
       
-      <label style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '8px', 
-        marginBottom: '12px',
-        cursor: 'pointer',
-        fontSize: 14
-      }}>
+      <label className={styles.filterLabel}>
         <input
           type="checkbox"
           checked={showOnlyT4}
           onChange={(e) => handleT4FilterChange(e.target.checked)}
-          style={{ cursor: 'pointer' }}
+          className={styles.filterCheckbox}
         />
         <span>Show only T4 classes</span>
       </label>
 
       {filteredCharacters.length === 0 ? (
-        <p style={{ margin: 0, fontSize: 14 }}>
+        <p className={styles.emptyMessage}>
           {showOnlyT4 ? 'No T4 characters found' : 'No characters found'}
         </p>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className={styles.characterList}>
           {filteredCharacters.map((char, index) => (
             <button
               key={index}
               onClick={() => onCharacterClick(char)}
-              style={{
-                padding: '8px 12px',
-                background: '#2196f3',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 4,
-                cursor: 'pointer',
-                fontSize: 14,
-                fontWeight: 'bold',
-                textAlign: 'left',
-                ...buttonStyle,
-              }}
+              className={styles.characterButton}
+              style={buttonStyle}
             >
               {char}
             </button>

@@ -1,0 +1,51 @@
+.backButton {
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: #555;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.title {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+}
+
+.filterLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.filterCheckbox {
+  cursor: pointer;
+}
+
+.emptyMessage {
+  margin: 0;
+  font-size: 14px;
+}
+
+.characterList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.characterButton {
+  padding: 8px 12px;
+  background: #2196f3;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: left;
+}

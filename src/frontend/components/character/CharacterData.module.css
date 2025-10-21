@@ -1,0 +1,51 @@
+.loadButton {
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.loadButtonDisabled {
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: #999;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: not-allowed;
+  font-size: 14px;
+  font-weight: bold;
+  opacity: 0.6;
+}
+
+.title {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+}
+
+.fileName {
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  color: #aaa;
+}
+
+.content {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  border-radius: 4px;
+  text-align: left;
+  font-size: 12px;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.emptyMessage {
+  margin: 0;
+  font-size: 14px;
+}

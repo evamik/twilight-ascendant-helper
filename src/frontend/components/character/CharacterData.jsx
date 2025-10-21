@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import styles from './CharacterData.module.css';
 import CharacterMessageSettings from './CharacterMessageSettings';
 
 const { ipcRenderer } = window.require ? window.require('electron') : {};
@@ -41,19 +42,8 @@ const CharacterData = ({ accountName, characterName, characterData, onBack, onLo
       <button
         onClick={handleLoad}
         disabled={isLoading}
-        style={{
-          marginBottom: 10,
-          padding: '8px 12px',
-          background: isLoading ? '#999' : '#4caf50',
-          color: '#fff',
-          border: 'none',
-          borderRadius: 4,
-          cursor: isLoading ? 'not-allowed' : 'pointer',
-          fontSize: 14,
-          fontWeight: 'bold',
-          opacity: isLoading ? 0.6 : 1,
-          ...buttonStyle,
-        }}
+        className={isLoading ? styles.loadButtonDisabled : styles.loadButton}
+        style={buttonStyle}
       >
         {isLoading ? '⏳ Loading...' : '🔄 Load'}
       </button>
@@ -61,31 +51,20 @@ const CharacterData = ({ accountName, characterName, characterData, onBack, onLo
       {/* Character-specific message settings (separate component) */}
       <CharacterMessageSettings accountName={accountName} characterName={characterName} />
 
-      <h2 style={{ margin: '0 0 10px 0', fontSize: 20 }}>
+      <h2 className={styles.title}>
         {characterName}
       </h2>
       {characterData ? (
         <>
-          <p style={{ margin: '0 0 10px 0', fontSize: 12, color: '#aaa' }}>
+          <p className={styles.fileName}>
             File: {characterData.fileName}
           </p>
-          <div
-            style={{
-              background: 'rgba(0,0,0,0.3)',
-              padding: 10,
-              borderRadius: 4,
-              textAlign: 'left',
-              fontSize: 12,
-              fontFamily: 'monospace',
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-            }}
-          >
+          <div className={styles.content}>
             {characterData.content}
           </div>
         </>
       ) : (
-        <p style={{ margin: 0, fontSize: 14 }}>No data found. Click Load to refresh.</p>
+        <p className={styles.emptyMessage}>No data found. Click Load to refresh.</p>
       )}
     </>
   );

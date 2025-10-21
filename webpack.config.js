@@ -2,6 +2,7 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
+  mode: process.env.NODE_ENV === "production" ? "production" : "development",
   entry: {
     main: "./src/frontend/index.jsx",
     overlay: "./src/frontend/overlayEntry.jsx",
@@ -11,6 +12,7 @@ module.exports = {
     filename: "[name].bundle.js",
     clean: true,
   },
+  devtool: process.env.NODE_ENV === "production" ? false : "eval-source-map",
   module: {
     rules: [
       {
@@ -20,10 +22,32 @@ module.exports = {
           loader: "babel-loader",
         },
       },
+      {
+        test: /\.module\.css$/,
+        use: [
+          "style-loader",
+          {
+            loader: "css-loader",
+            options: {
+              modules: {
+                localIdentName: "[name]__[local]--[hash:base64:5]",
+                namedExport: false,
+                exportLocalsConvention: "camelCase",
+              },
+              esModule: true,
+            },
+          },
+        ],
+      },
+      {
+        test: /\.css$/,
+        exclude: /\.module\.css$/,
+        use: ["style-loader", "css-loader"],
+      },
     ],
   },
   resolve: {
-    extensions: [".js", ".jsx"],
+    extensions: [".js", ".jsx", ".css"],
   },
   plugins: [
     new HtmlWebpackPlugin({
