@@ -1,7 +1,17 @@
 import React from "react";
 import styles from "./AccountList.module.css";
 
-const AccountList = ({ accounts, onAccountClick, buttonStyle }) => {
+interface AccountListProps {
+  accounts: string[];
+  onAccountClick: (account: string) => void;
+  buttonStyle?: React.CSSProperties;
+}
+
+const AccountList: React.FC<AccountListProps> = ({
+  accounts,
+  onAccountClick,
+  buttonStyle,
+}) => {
   if (accounts.length === 0) {
     return <p className={styles.emptyMessage}>No accounts found</p>;
   }

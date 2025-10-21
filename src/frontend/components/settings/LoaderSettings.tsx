@@ -1,20 +1,34 @@
 import React, { useState, useEffect } from "react";
+import type { IpcRenderer } from "../../types/electron";
 import styles from "./LoaderSettings.module.css";
 
-const { ipcRenderer } = window.require ? window.require("electron") : {};
+const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
+  ipcRenderer?: IpcRenderer;
+};
 
-const LoaderSettings = () => {
-  const [preloadText, setPreloadText] = useState("");
-  const [postloadText, setPostloadText] = useState("");
-  const [saveStatus, setSaveStatus] = useState("");
+interface LoaderSettings {
+  preloadMessages?: string[];
+  postloadMessages?: string[];
+}
+
+interface SaveResult {
+  success: boolean;
+}
+
+const LoaderSettings: React.FC = () => {
+  const [preloadText, setPreloadText] = useState<string>("");
+  const [postloadText, setPostloadText] = useState<string>("");
+  const [saveStatus, setSaveStatus] = useState<string>("");
 
   // Load current settings on mount
   useEffect(() => {
     if (ipcRenderer) {
-      ipcRenderer.invoke("get-loader-settings").then((settings) => {
-        setPreloadText((settings.preloadMessages || []).join("\n"));
-        setPostloadText((settings.postloadMessages || []).join("\n"));
-      });
+      ipcRenderer
+        .invoke("get-loader-settings")
+        .then((settings: LoaderSettings) => {
+          setPreloadText((settings.preloadMessages || []).join("\n"));
+          setPostloadText((settings.postloadMessages || []).join("\n"));
+        });
     }
   }, []);
 
@@ -27,7 +41,10 @@ const LoaderSettings = () => {
       .map((line) => line.trim())
       .filter((line) => line.length > 0);
 
-    const result = await ipcRenderer.invoke("set-preload-messages", messages);
+    const result = (await ipcRenderer.invoke(
+      "set-preload-messages",
+      messages
+    )) as SaveResult;
     if (result.success) {
       setSaveStatus("Preload messages saved!");
       setTimeout(() => setSaveStatus(""), 2000);
@@ -43,7 +60,10 @@ const LoaderSettings = () => {
       .map((line) => line.trim())
       .filter((line) => line.length > 0);
 
-    const result = await ipcRenderer.invoke("set-postload-messages", messages);
+    const result = (await ipcRenderer.invoke(
+      "set-postload-messages",
+      messages
+    )) as SaveResult;
     if (result.success) {
       setSaveStatus("Postload messages saved!");
       setTimeout(() => setSaveStatus(""), 2000);

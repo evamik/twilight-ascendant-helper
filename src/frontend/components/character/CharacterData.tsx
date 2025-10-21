@@ -1,18 +1,30 @@
 import React, { useState } from "react";
+import type { IpcRenderer } from "../../types/electron";
+import type { CharacterData as CharacterDataType } from "../../types";
 import styles from "./CharacterData.module.css";
 import CharacterMessageSettings from "./CharacterMessageSettings";
 
-const { ipcRenderer } = window.require ? window.require("electron") : {};
+const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
+  ipcRenderer?: IpcRenderer;
+};
 
-const CharacterData = ({
+interface CharacterDataProps {
+  accountName: string;
+  characterName: string;
+  characterData: CharacterDataType | null;
+  onBack: () => void;
+  onLoad?: () => void;
+  buttonStyle?: React.CSSProperties;
+}
+
+const CharacterData: React.FC<CharacterDataProps> = ({
   accountName,
   characterName,
   characterData,
-  onBack,
   onLoad,
   buttonStyle,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleLoad = async () => {
     if (isLoading) return; // Prevent multiple clicks

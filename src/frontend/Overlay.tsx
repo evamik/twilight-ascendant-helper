@@ -1,13 +1,26 @@
 import React, { useEffect, useState, useRef } from "react";
+import type { IpcRenderer } from "./types/electron";
 import styles from "./Overlay.module.css";
 import AccountList from "./components/character/AccountList";
 import CharacterList from "./components/character/CharacterList";
 import CharacterData from "./components/character/CharacterData";
 import { useAccountCharacterNavigation } from "./hooks/useAccountCharacterNavigation";
 
-const defaultAnchor = { x: 0, y: 0 };
+interface Position {
+  x: number;
+  y: number;
+}
 
-const Overlay = ({ visible }) => {
+interface Size {
+  width: number;
+  height: number;
+}
+
+interface OverlayProps {
+  visible: boolean;
+}
+
+const Overlay: React.FC<OverlayProps> = ({ visible }) => {
   const {
     accounts,
     characters,
@@ -20,27 +33,31 @@ const Overlay = ({ visible }) => {
     loadCharacterData,
   } = useAccountCharacterNavigation();
 
-  const [anchor, setAnchor] = useState(defaultAnchor);
-  const [overlaySize, setOverlaySize] = useState({ width: 400, height: 300 });
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const dragging = useRef(false);
-  const dragStart = useRef({ x: 0, y: 0 });
-  const grabOffset = useRef({ x: 0, y: 0 }); // Offset from window top-left to mouse position
-  const resizing = useRef(false);
-  const resizeStart = useRef({ x: 0, y: 0 });
-  const sizeStart = useRef({ width: 400, height: 300 });
-  const isHoveringAnchor = useRef(false); // Track if mouse is over anchor
-  const mouseDownPos = useRef({ x: 0, y: 0 }); // Track initial mouse position
+  const [overlaySize, setOverlaySize] = useState<Size>({
+    width: 400,
+    height: 300,
+  });
+  const [isMinimized, setIsMinimized] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const dragging = useRef<boolean>(false);
+  const grabOffset = useRef<Position>({ x: 0, y: 0 }); // Offset from window top-left to mouse position
+  const resizing = useRef<boolean>(false);
+  const resizeStart = useRef<Position>({ x: 0, y: 0 });
+  const sizeStart = useRef<Size>({ width: 400, height: 300 });
+  const isHoveringAnchor = useRef<boolean>(false); // Track if mouse is over anchor
+  const mouseDownPos = useRef<Position>({ x: 0, y: 0 }); // Track initial mouse position
 
   useEffect(() => {
     if (window.require) {
-      const { ipcRenderer } = window.require("electron");
+      const { ipcRenderer } = window.require("electron") as {
+        ipcRenderer: IpcRenderer;
+      };
 
-      ipcRenderer.on("set-anchor", (event, anchorPos) => {
-        setAnchor(anchorPos);
+      ipcRenderer.on("set-anchor", (_event: any, anchorPos: Position) => {
+        // Update anchor position if needed in future
+        console.log("Anchor updated:", anchorPos);
       });
-      ipcRenderer.on("set-overlay-size", (event, size) => {
+      ipcRenderer.on("set-overlay-size", (_event: any, size: Size) => {
         setOverlaySize(size);
       });
       return () => {
@@ -48,14 +65,17 @@ const Overlay = ({ visible }) => {
         ipcRenderer.removeAllListeners("set-overlay-size");
       };
     }
+    return undefined;
   }, []);
 
-  const didDrag = useRef(false);
+  const didDrag = useRef<boolean>(false);
 
   const handleAnchorMouseEnter = () => {
     isHoveringAnchor.current = true;
     if (isMinimized && window.require && !dragging.current) {
-      const { ipcRenderer } = window.require("electron");
+      const { ipcRenderer } = window.require("electron") as {
+        ipcRenderer: IpcRenderer;
+      };
       // Stop forwarding mouse events when hovering over anchor
       ipcRenderer.send("set-mouse-forward", false);
     }
@@ -64,21 +84,25 @@ const Overlay = ({ visible }) => {
   const handleAnchorMouseLeave = () => {
     isHoveringAnchor.current = false;
     if (isMinimized && window.require && !dragging.current) {
-      const { ipcRenderer } = window.require("electron");
+      const { ipcRenderer } = window.require("electron") as {
+        ipcRenderer: IpcRenderer;
+      };
       // Resume forwarding mouse events when not hovering
       ipcRenderer.send("set-mouse-forward", true);
     }
   };
 
-  const handleMouseDown = (e) => {
+  const handleMouseDown = (e: React.MouseEvent) => {
     dragging.current = true;
     didDrag.current = false;
     mouseDownPos.current = { x: e.screenX, y: e.screenY }; // Store initial position
 
     // Calculate grab offset immediately on mousedown (not on first move)
     if (window.require) {
-      const { ipcRenderer } = window.require("electron");
-      const pos = ipcRenderer.sendSync("get-overlay-position-sync");
+      const { ipcRenderer } = window.require("electron") as {
+        ipcRenderer: IpcRenderer;
+      };
+      const pos = ipcRenderer.sendSync("get-overlay-position-sync") as Position;
       grabOffset.current = {
         x: e.clientX - pos.x,
         y: e.clientY - pos.y,
@@ -92,12 +116,12 @@ const Overlay = ({ visible }) => {
     document.addEventListener("mouseup", handleMouseUp);
   };
 
-  const moveTimeout = useRef(null);
-  const lastMoveEvent = useRef(null);
+  const moveTimeout = useRef<NodeJS.Timeout | null>(null);
+  const lastMoveEvent = useRef<MouseEvent | null>(null);
   const DEBOUNCE_MS = 16; // ~60fps
   const DRAG_THRESHOLD = 3; // pixels - must move at least this much to be considered a drag
 
-  const sendMoveOverlay = (e) => {
+  const sendMoveOverlay = (e: MouseEvent) => {
     if (!dragging.current) return;
 
     // Check if mouse moved enough to be considered a drag
@@ -117,7 +141,9 @@ const Overlay = ({ visible }) => {
     }
 
     if (window.require) {
-      const { ipcRenderer } = window.require("electron");
+      const { ipcRenderer } = window.require("electron") as {
+        ipcRenderer: IpcRenderer;
+      };
       // Simply set window position to mouse position minus grab offset
       const newX = e.screenX - grabOffset.current.x;
       const newY = e.screenY - grabOffset.current.y;
@@ -125,11 +151,13 @@ const Overlay = ({ visible }) => {
     }
   };
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: MouseEvent) => {
     lastMoveEvent.current = e;
     if (moveTimeout.current) return;
     moveTimeout.current = setTimeout(() => {
-      sendMoveOverlay(lastMoveEvent.current);
+      if (lastMoveEvent.current) {
+        sendMoveOverlay(lastMoveEvent.current);
+      }
       moveTimeout.current = null;
     }, DEBOUNCE_MS);
   };
@@ -146,10 +174,12 @@ const Overlay = ({ visible }) => {
     if (didDrag.current) {
       // Request overlay and Warcraft window positions for accurate anchor
       if (window.require) {
-        const { ipcRenderer } = window.require("electron");
+        const { ipcRenderer } = window.require("electron") as {
+          ipcRenderer: IpcRenderer;
+        };
         Promise.all([
-          ipcRenderer.invoke("get-overlay-position"),
-          ipcRenderer.invoke("get-warcraft-position"),
+          ipcRenderer.invoke("get-overlay-position") as Promise<Position>,
+          ipcRenderer.invoke("get-warcraft-position") as Promise<Position>,
         ]).then(([overlayPos, warcraftPos]) => {
           if (overlayPos && warcraftPos) {
             const newAnchor = {
@@ -171,7 +201,9 @@ const Overlay = ({ visible }) => {
       handleMinimizeToggle();
       // Just notify drag ended, no anchor update
       if (window.require) {
-        const { ipcRenderer } = window.require("electron");
+        const { ipcRenderer } = window.require("electron") as {
+          ipcRenderer: IpcRenderer;
+        };
         ipcRenderer.send("drag-overlay", false);
         // After minimizing, check if mouse is still over anchor
         if (!wasMinimized) {
@@ -193,20 +225,24 @@ const Overlay = ({ visible }) => {
       // Restore
       setIsMinimized(false);
       if (window.require) {
-        const { ipcRenderer } = window.require("electron");
+        const { ipcRenderer } = window.require("electron") as {
+          ipcRenderer: IpcRenderer;
+        };
         ipcRenderer.send("set-overlay-minimized", false);
       }
     } else {
       // Minimize
       setIsMinimized(true);
       if (window.require) {
-        const { ipcRenderer } = window.require("electron");
+        const { ipcRenderer } = window.require("electron") as {
+          ipcRenderer: IpcRenderer;
+        };
         ipcRenderer.send("set-overlay-minimized", true);
       }
     }
   };
 
-  const handleResizeMouseDown = (e) => {
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
     resizing.current = true;
     resizeStart.current = { x: e.clientX, y: e.clientY };
@@ -215,7 +251,7 @@ const Overlay = ({ visible }) => {
     document.addEventListener("mouseup", handleResizeMouseUp);
   };
 
-  const handleResizeMouseMove = (e) => {
+  const handleResizeMouseMove = (e: MouseEvent) => {
     if (!resizing.current) return;
     const dx = e.clientX - resizeStart.current.x;
     const dy = e.clientY - resizeStart.current.y;
@@ -223,7 +259,9 @@ const Overlay = ({ visible }) => {
     const newHeight = Math.max(100, sizeStart.current.height + dy);
     setOverlaySize({ width: newWidth, height: newHeight });
     if (window.require) {
-      const { ipcRenderer } = window.require("electron");
+      const { ipcRenderer } = window.require("electron") as {
+        ipcRenderer: IpcRenderer;
+      };
       ipcRenderer.send("resize-overlay", {
         width: newWidth,
         height: newHeight,
@@ -283,7 +321,7 @@ const Overlay = ({ visible }) => {
         <div className={styles.contentArea}>
           {selectedCharacter ? (
             <CharacterData
-              accountName={selectedAccount}
+              accountName={selectedAccount!}
               characterName={selectedCharacter}
               characterData={characterData}
               onBack={handleBackClick}

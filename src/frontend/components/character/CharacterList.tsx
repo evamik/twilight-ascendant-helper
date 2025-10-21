@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
+import type { IpcRenderer } from "../../types/electron";
 import styles from "./CharacterList.module.css";
 
-const { ipcRenderer } = window.require ? window.require("electron") : {};
+const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
+  ipcRenderer?: IpcRenderer;
+};
 
-const NON_T4_CLASSES = [
+const NON_T4_CLASSES: string[] = [
   "Novice",
   "Acolyte",
   "Initiate",
@@ -39,7 +42,20 @@ const NON_T4_CLASSES = [
   "Shaman",
 ];
 
-const CharacterList = ({
+interface UISettings {
+  showOnlyT4Classes?: boolean;
+}
+
+interface CharacterListProps {
+  accountName: string;
+  characters: string[];
+  onBack: () => void;
+  onCharacterClick: (characterName: string) => void;
+  buttonStyle?: React.CSSProperties;
+  showBackButton?: boolean;
+}
+
+const CharacterList: React.FC<CharacterListProps> = ({
   accountName,
   characters,
   onBack,
@@ -47,7 +63,7 @@ const CharacterList = ({
   buttonStyle,
   showBackButton = true,
 }) => {
-  const [showOnlyT4, setShowOnlyT4] = useState(false);
+  const [showOnlyT4, setShowOnlyT4] = useState<boolean>(false);
 
   // Load T4 filter state from settings on mount
   useEffect(() => {
@@ -55,7 +71,9 @@ const CharacterList = ({
       if (!ipcRenderer) return;
 
       try {
-        const uiSettings = await ipcRenderer.invoke("get-ui-settings");
+        const uiSettings = (await ipcRenderer.invoke(
+          "get-ui-settings"
+        )) as UISettings;
         if (uiSettings.showOnlyT4Classes !== undefined) {
           setShowOnlyT4(uiSettings.showOnlyT4Classes);
         }
@@ -67,7 +85,7 @@ const CharacterList = ({
     loadT4FilterSetting();
   }, []);
 
-  const handleT4FilterChange = async (checked) => {
+  const handleT4FilterChange = async (checked: boolean) => {
     setShowOnlyT4(checked);
 
     // Save preference
@@ -80,7 +98,7 @@ const CharacterList = ({
     }
   };
 
-  const isT4Character = (characterName) => {
+  const isT4Character = (characterName: string): boolean => {
     // Check if character name starts with any non-T4 class
     return !NON_T4_CLASSES.some((nonT4Class) =>
       characterName.startsWith(nonT4Class)

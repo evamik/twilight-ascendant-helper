@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from "react";
+import type { IpcRenderer } from "../../types/electron";
 import styles from "./ReplayDirectorySettings.module.css";
 
-const { ipcRenderer } = window.require ? window.require("electron") : {};
+const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
+  ipcRenderer?: IpcRenderer;
+};
+
+interface SaveResult {
+  success: boolean;
+}
 
 /**
  * ReplayDirectorySettings Component
  * Allows users to configure the replay base directory
  */
-const ReplayDirectorySettings = () => {
-  const [replayDirectory, setReplayDirectory] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [saveStatus, setSaveStatus] = useState("");
+const ReplayDirectorySettings: React.FC = () => {
+  const [replayDirectory, setReplayDirectory] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [saveStatus, setSaveStatus] = useState<string>("");
 
   useEffect(() => {
     loadReplayDirectory();
@@ -21,7 +28,9 @@ const ReplayDirectorySettings = () => {
 
     try {
       setIsLoading(true);
-      const directory = await ipcRenderer.invoke("get-replay-directory");
+      const directory = (await ipcRenderer.invoke(
+        "get-replay-directory"
+      )) as string;
       setReplayDirectory(directory);
     } catch (error) {
       console.error("Error loading replay directory:", error);
@@ -35,10 +44,10 @@ const ReplayDirectorySettings = () => {
 
     try {
       setSaveStatus("Saving...");
-      const result = await ipcRenderer.invoke(
+      const result = (await ipcRenderer.invoke(
         "set-replay-directory",
         replayDirectory
-      );
+      )) as SaveResult;
 
       if (result.success) {
         setSaveStatus("✓ Saved");

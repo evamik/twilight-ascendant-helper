@@ -1,21 +1,52 @@
 import React, { useState, useEffect } from "react";
+import type { IpcRenderer } from "../../types/electron";
 import styles from "./CharacterMessageSettings.module.css";
 
-const { ipcRenderer } = window.require ? window.require("electron") : {};
+const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
+  ipcRenderer?: IpcRenderer;
+};
+
+interface CharacterSettings {
+  preloadMessages?: string[];
+  postloadMessages?: string[];
+}
+
+interface GlobalSettings {
+  preloadMessages?: string[];
+  postloadMessages?: string[];
+}
+
+interface GetSettingsResult {
+  characterSettings: CharacterSettings | null;
+  globalSettings: GlobalSettings;
+}
+
+interface SaveResult {
+  success: boolean;
+}
 
 /**
  * CharacterMessageSettings Component
  * Handles per-character preload/postload message configuration
  * Shows collapsible settings section with save, clear, and use global actions
  */
-const CharacterMessageSettings = ({ accountName, characterName }) => {
-  const [showSettings, setShowSettings] = useState(false);
-  const [preloadText, setPreloadText] = useState("");
-  const [postloadText, setPostloadText] = useState("");
-  const [globalPreload, setGlobalPreload] = useState([]);
-  const [globalPostload, setGlobalPostload] = useState([]);
-  const [saveStatus, setSaveStatus] = useState("");
-  const [hasCharacterSettings, setHasCharacterSettings] = useState(false);
+interface CharacterMessageSettingsProps {
+  accountName: string;
+  characterName: string;
+}
+
+const CharacterMessageSettings: React.FC<CharacterMessageSettingsProps> = ({
+  accountName,
+  characterName,
+}) => {
+  const [showSettings, setShowSettings] = useState<boolean>(false);
+  const [preloadText, setPreloadText] = useState<string>("");
+  const [postloadText, setPostloadText] = useState<string>("");
+  const [globalPreload, setGlobalPreload] = useState<string[]>([]);
+  const [globalPostload, setGlobalPostload] = useState<string[]>([]);
+  const [saveStatus, setSaveStatus] = useState<string>("");
+  const [hasCharacterSettings, setHasCharacterSettings] =
+    useState<boolean>(false);
 
   // Load character settings on mount or when character changes
   useEffect(() => {
@@ -28,11 +59,11 @@ const CharacterMessageSettings = ({ accountName, characterName }) => {
     if (!ipcRenderer) return;
 
     try {
-      const result = await ipcRenderer.invoke(
+      const result = (await ipcRenderer.invoke(
         "get-character-settings",
         accountName,
         characterName
-      );
+      )) as GetSettingsResult;
       const { characterSettings, globalSettings } = result;
 
       // Store global settings for reference
@@ -63,12 +94,12 @@ const CharacterMessageSettings = ({ accountName, characterName }) => {
       .map((line) => line.trim())
       .filter((line) => line.length > 0);
 
-    const result = await ipcRenderer.invoke(
+    const result = (await ipcRenderer.invoke(
       "set-character-preload",
       accountName,
       characterName,
       messages
-    );
+    )) as SaveResult;
     if (result.success) {
       setHasCharacterSettings(true);
       setSaveStatus("Preload messages saved!");
@@ -84,12 +115,12 @@ const CharacterMessageSettings = ({ accountName, characterName }) => {
       .map((line) => line.trim())
       .filter((line) => line.length > 0);
 
-    const result = await ipcRenderer.invoke(
+    const result = (await ipcRenderer.invoke(
       "set-character-postload",
       accountName,
       characterName,
       messages
-    );
+    )) as SaveResult;
     if (result.success) {
       setHasCharacterSettings(true);
       setSaveStatus("Postload messages saved!");
@@ -100,11 +131,11 @@ const CharacterMessageSettings = ({ accountName, characterName }) => {
   const handleClear = async () => {
     if (!ipcRenderer) return;
 
-    const result = await ipcRenderer.invoke(
+    const result = (await ipcRenderer.invoke(
       "clear-character-settings",
       accountName,
       characterName
-    );
+    )) as SaveResult;
     if (result.success) {
       setHasCharacterSettings(false);
       setPreloadText("");

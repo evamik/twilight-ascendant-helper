@@ -4,8 +4,8 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 module.exports = {
   mode: process.env.NODE_ENV === "production" ? "production" : "development",
   entry: {
-    main: "./src/frontend/index.jsx",
-    overlay: "./src/frontend/overlayEntry.jsx",
+    main: "./src/frontend/index.tsx",
+    overlay: "./src/frontend/overlayEntry.tsx",
   },
   output: {
     path: path.resolve(__dirname, "dist-react"),
@@ -15,6 +15,13 @@ module.exports = {
   devtool: process.env.NODE_ENV === "production" ? false : "eval-source-map",
   module: {
     rules: [
+      {
+        test: /\.(ts|tsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "ts-loader",
+        },
+      },
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
@@ -47,7 +54,7 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: [".js", ".jsx", ".css"],
+    extensions: [".ts", ".tsx", ".js", ".jsx", ".css"],
   },
   plugins: [
     new HtmlWebpackPlugin({

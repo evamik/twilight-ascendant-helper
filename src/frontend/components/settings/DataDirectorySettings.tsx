@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from "react";
+import type { IpcRenderer } from "../../types/electron";
 import styles from "./DataDirectorySettings.module.css";
 
-const { ipcRenderer } = window.require ? window.require("electron") : {};
+const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
+  ipcRenderer?: IpcRenderer;
+};
 
-const DataDirectorySettings = () => {
-  const [currentPath, setCurrentPath] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+interface DirectoryResult {
+  success: boolean;
+  path: string;
+}
+
+const DataDirectorySettings: React.FC = () => {
+  const [currentPath, setCurrentPath] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     loadCurrentPath();
@@ -14,7 +22,7 @@ const DataDirectorySettings = () => {
   const loadCurrentPath = async () => {
     if (!ipcRenderer) return;
     try {
-      const path = await ipcRenderer.invoke("get-data-path");
+      const path = (await ipcRenderer.invoke("get-data-path")) as string;
       setCurrentPath(path);
     } catch (error) {
       console.error("Error loading data path:", error);
@@ -25,7 +33,9 @@ const DataDirectorySettings = () => {
     if (!ipcRenderer) return;
     setIsLoading(true);
     try {
-      const result = await ipcRenderer.invoke("choose-custom-directory");
+      const result = (await ipcRenderer.invoke(
+        "choose-custom-directory"
+      )) as DirectoryResult;
       if (result.success) {
         setCurrentPath(result.path);
         alert(
@@ -49,7 +59,9 @@ const DataDirectorySettings = () => {
     ) {
       setIsLoading(true);
       try {
-        const result = await ipcRenderer.invoke("reset-to-default-directory");
+        const result = (await ipcRenderer.invoke(
+          "reset-to-default-directory"
+        )) as DirectoryResult;
         if (result.success) {
           setCurrentPath(result.path);
           alert("Reset to default directory successfully!");

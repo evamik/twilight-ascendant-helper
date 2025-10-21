@@ -13,9 +13,9 @@ import Drops from "./components/drops/Drops";
 import TabNavigation from "./components/common/TabNavigation";
 import OverlayToggle from "./components/common/OverlayToggle";
 
-const App = () => {
-  const [showSettings, setShowSettings] = useState(false);
-  const [activeTab, setActiveTab] = useState("loader"); // 'loader' or 'drops'
+const App: React.FC = () => {
+  const [showSettings, setShowSettings] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>("loader"); // 'loader' or 'drops'
 
   const handleSettingsClick = () => {
     setShowSettings(true);
@@ -27,7 +27,7 @@ const App = () => {
     window.location.reload();
   };
 
-  const handleTabChange = (tabId) => {
+  const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
   };
 
@@ -61,5 +61,7 @@ const App = () => {
 };
 
 const container = document.getElementById("root");
-const root = createRoot(container);
-root.render(<App />);
+if (container) {
+  const root = createRoot(container);
+  root.render(<App />);
+}

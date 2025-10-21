@@ -1,16 +1,23 @@
 /**
  * OverlayToggle Component
  * Manages overlay enabled state with IPC communication
- * Separated from index.jsx to maintain SRP
+ * Separated from index.tsx to maintain SRP
  */
 
 import React, { useState, useEffect } from "react";
+import type { IpcRenderer } from "../../types/electron";
 import styles from "./OverlayToggle.module.css";
 
-const { ipcRenderer } = window.require ? window.require("electron") : {};
+const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
+  ipcRenderer?: IpcRenderer;
+};
 
-const OverlayToggle = () => {
-  const [overlayEnabled, setOverlayEnabled] = useState(false);
+interface UISettings {
+  overlayEnabled?: boolean;
+}
+
+const OverlayToggle: React.FC = () => {
+  const [overlayEnabled, setOverlayEnabled] = useState<boolean>(false);
 
   // Load overlay enabled state from settings on mount
   useEffect(() => {
@@ -18,7 +25,9 @@ const OverlayToggle = () => {
       if (!ipcRenderer) return;
 
       try {
-        const uiSettings = await ipcRenderer.invoke("get-ui-settings");
+        const uiSettings = (await ipcRenderer.invoke(
+          "get-ui-settings"
+        )) as UISettings;
         if (uiSettings.overlayEnabled !== undefined) {
           setOverlayEnabled(uiSettings.overlayEnabled);
           // Backend already loaded this state on startup, so no need to send toggle-overlay here
@@ -32,7 +41,7 @@ const OverlayToggle = () => {
     loadUISettings();
   }, []);
 
-  const handleOverlayToggle = async (checked) => {
+  const handleOverlayToggle = async (checked: boolean) => {
     setOverlayEnabled(checked);
     if (ipcRenderer) {
       ipcRenderer.send("toggle-overlay", checked);

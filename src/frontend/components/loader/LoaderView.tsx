@@ -1,7 +1,7 @@
 /**
  * LoaderView Component
  * Handles all loader routing logic (accounts → characters → character data)
- * Separated from index.jsx to maintain SRP
+ * Separated from index.tsx to maintain SRP
  */
 
 import React from "react";
@@ -11,7 +11,7 @@ import CharacterList from "../character/CharacterList";
 import CharacterData from "../character/CharacterData";
 import { useAccountCharacterNavigation } from "../../hooks/useAccountCharacterNavigation";
 
-const LoaderView = () => {
+const LoaderView: React.FC = () => {
   const {
     accounts,
     characters,
@@ -34,7 +34,7 @@ const LoaderView = () => {
 
       {selectedCharacter ? (
         <CharacterData
-          accountName={selectedAccount}
+          accountName={selectedAccount!}
           characterName={selectedCharacter}
           characterData={characterData}
           onBack={handleBackClick}

@@ -4,7 +4,11 @@ import DataDirectorySettings from "./DataDirectorySettings";
 import LoaderSettings from "./LoaderSettings";
 import ReplayDirectorySettings from "./ReplayDirectorySettings";
 
-function Settings({ onBack }) {
+interface SettingsProps {
+  onBack: () => void;
+}
+
+const Settings: React.FC<SettingsProps> = ({ onBack }) => {
   return (
     <div className={styles.container}>
       <button onClick={onBack} className={styles.backButton}>
@@ -29,6 +33,6 @@ function Settings({ onBack }) {
       </div>
     </div>
   );
-}
+};
 
 export default Settings;
