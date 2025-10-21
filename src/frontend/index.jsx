@@ -1,60 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
-import AccountList from './components/character/AccountList';
-import CharacterList from './components/character/CharacterList';
-import CharacterData from './components/character/CharacterData';
-import Settings from './components/settings/Settings';
-import { useAccountCharacterNavigation } from './hooks/useAccountCharacterNavigation';
+/**
+ * Main Application Entry Point
+ * Thin shell that composes feature components
+ * Refactored to maintain SRP - delegates to specialized components
+ */
 
-const { ipcRenderer } = window.require ? window.require('electron') : {};
+import React, { useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import Settings from './components/settings/Settings';
+import LoaderView from './components/loader/LoaderView';
+import Drops from './components/drops/Drops';
+import TabNavigation from './components/common/TabNavigation';
+import OverlayToggle from './components/common/OverlayToggle';
 
 const App = () => {
-  const [overlayEnabled, setOverlayEnabled] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const {
-    accounts,
-    characters,
-    selectedAccount,
-    selectedCharacter,
-    characterData,
-    handleAccountClick,
-    handleCharacterClick,
-    handleBackClick,
-    loadCharacterData,
-  } = useAccountCharacterNavigation();
-
-  // Load overlay enabled state from settings on mount
-  useEffect(() => {
-    const loadUISettings = async () => {
-      if (!ipcRenderer) return;
-      
-      try {
-        const uiSettings = await ipcRenderer.invoke('get-ui-settings');
-        if (uiSettings.overlayEnabled !== undefined) {
-          setOverlayEnabled(uiSettings.overlayEnabled);
-          // Backend already loaded this state on startup, so no need to send toggle-overlay here
-          // Just sync the UI checkbox state
-        }
-      } catch (error) {
-        console.error('Error loading UI settings:', error);
-      }
-    };
-
-    loadUISettings();
-  }, []);
-
-  const handleOverlayToggle = async (checked) => {
-    setOverlayEnabled(checked);
-    if (ipcRenderer) {
-      ipcRenderer.send('toggle-overlay', checked);
-      // Save preference
-      try {
-        await ipcRenderer.invoke('set-overlay-enabled', checked);
-      } catch (error) {
-        console.error('Error saving overlay preference:', error);
-      }
-    }
-  };
+  const [activeTab, setActiveTab] = useState('loader'); // 'loader' or 'drops'
 
   const handleSettingsClick = () => {
     setShowSettings(true);
@@ -64,6 +24,10 @@ const App = () => {
     setShowSettings(false);
     // Reload accounts in case the directory changed
     window.location.reload();
+  };
+
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
   };
 
   if (showSettings) {
@@ -78,6 +42,7 @@ const App = () => {
       color: '#ffffff',
       fontFamily: 'Arial, sans-serif'
     }}>
+      {/* App Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1 style={{ margin: 0, color: '#fff' }}>Twilight Ascendant Helper</h1>
         <button
@@ -95,66 +60,17 @@ const App = () => {
           ⚙️ Settings
         </button>
       </div>
-      
-      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-        <input
-          type="checkbox"
-          checked={overlayEnabled}
-          onChange={e => handleOverlayToggle(e.target.checked)}
-          style={{ cursor: 'pointer' }}
-        />
-        <span>Enable Overlay</span>
-      </label>
 
+      {/* Tab Navigation */}
+      <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
+
+      {/* Overlay Toggle */}
+      <OverlayToggle />
+
+      {/* Tab Content */}
       <div style={{ marginTop: '20px' }}>
-        {selectedAccount && (
-          <button
-            onClick={handleBackClick}
-            style={{
-              padding: '8px 16px',
-              background: '#555',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 4,
-              cursor: 'pointer',
-              fontSize: 14,
-              fontWeight: 'bold',
-              marginBottom: '16px'
-            }}
-          >
-            ← Back
-          </button>
-        )}
-        
-        {selectedCharacter ? (
-          <CharacterData
-            accountName={selectedAccount}
-            characterName={selectedCharacter}
-            characterData={characterData}
-            onBack={handleBackClick}
-            onLoad={() => loadCharacterData()}
-          />
-        ) : selectedAccount ? (
-          <CharacterList
-            accountName={selectedAccount}
-            characters={characters}
-            onBack={handleBackClick}
-            onCharacterClick={handleCharacterClick}
-            showBackButton={false}
-            buttonStyle={{ background: '#ff9800', color: '#222' }}
-          />
-        ) : (
-          <>
-            <h2 style={{ color: '#fff' }}>Accounts</h2>
-            <div style={{ maxWidth: 300 }}>
-              <AccountList
-                accounts={accounts}
-                onAccountClick={handleAccountClick}
-                buttonStyle={{ background: '#ff9800', color: '#222' }}
-              />
-            </div>
-          </>
-        )}
+        {activeTab === 'loader' && <LoaderView />}
+        {activeTab === 'drops' && <Drops />}
       </div>
     </div>
   );

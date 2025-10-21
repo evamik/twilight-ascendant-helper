@@ -1,7 +1,7 @@
 /**
  * IPC Handlers Orchestrator
  * Imports and registers all domain-specific IPC handlers
- * Each domain (characters, game, settings, overlay) manages its own IPC handlers
+ * Each domain (characters, game, settings, overlay, drops) manages its own IPC handlers
  */
 
 const {
@@ -20,6 +20,7 @@ const {
   setIsDraggingOverlay: setIsDraggingOverlayInternal,
   setOverlaySize: setOverlaySizeInternal,
 } = require("./overlayIpcHandlers");
+const { registerDropsIpcHandlers } = require("./drops/dropsIpcHandlers");
 
 /**
  * Set overlay window reference for all handlers that need it
@@ -52,6 +53,9 @@ const registerIpcHandlers = () => {
 
   // Register overlay window handlers
   registerOverlayIpcHandlers();
+
+  // Register drops tracking handlers
+  registerDropsIpcHandlers();
 };
 
 module.exports = {
