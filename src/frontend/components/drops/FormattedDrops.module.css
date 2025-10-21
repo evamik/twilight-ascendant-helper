@@ -1,0 +1,160 @@
+.container {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #555;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Game Info Section */
+.gameInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #555;
+  margin-bottom: 20px;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.infoLabel {
+  font-weight: bold;
+  color: #aaa;
+  font-size: 14px;
+}
+
+.infoValue {
+  color: #fff;
+  font-size: 14px;
+  font-family: Consolas, monospace;
+}
+
+/* Players Section */
+.playersSection {
+  margin-top: 0;
+}
+
+.sectionTitle {
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  color: #ff9800;
+  font-weight: bold;
+}
+
+.playersList {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Player Card */
+.playerCard {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 12px 15px;
+  transition: all 0.2s ease;
+}
+
+.playerCard:hover {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: #666;
+}
+
+.playerHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.playerName {
+  font-weight: bold;
+  color: #2196f3;
+  font-size: 15px;
+  font-family: Consolas, monospace;
+}
+
+.playerClass {
+  color: #aaa;
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* Items List */
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: 10px;
+}
+
+.itemRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.itemBullet {
+  color: #666;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.itemName {
+  color: #ffd700;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.itemClass {
+  color: #aaa;
+  font-size: 13px;
+  font-style: italic;
+  margin-left: 6px;
+}
+
+/* No items state */
+.noItems {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 10px;
+  padding: 4px 0;
+}
+
+.noItemsText {
+  color: #666;
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .gameInfo {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .playerName {
+    font-size: 14px;
+  }
+
+  .playerClass {
+    font-size: 13px;
+  }
+
+  .itemName {
+    font-size: 13px;
+  }
+}

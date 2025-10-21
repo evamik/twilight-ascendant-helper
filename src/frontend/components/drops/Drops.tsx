@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import type { IpcRenderer } from "../../types/electron";
+import FormattedDrops from "./FormattedDrops";
+import { parseDropsContent } from "../../utils/dropsParser";
 import styles from "./Drops.module.css";
 
 const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
@@ -31,6 +33,13 @@ const Drops: React.FC = () => {
   const [lastModified, setLastModified] = useState<string | null>(null);
   const [copyingReplay, setCopyingReplay] = useState<boolean>(false);
   const [replayCopyStatus, setReplayCopyStatus] = useState<string>("");
+  const [showRawText, setShowRawText] = useState<boolean>(false);
+
+  // Parse drops content into structured data
+  const parsedData = useMemo(() => {
+    if (!dropsContent) return null;
+    return parseDropsContent(dropsContent);
+  }, [dropsContent]);
 
   // Load drops content on mount
   useEffect(() => {
@@ -186,9 +195,27 @@ const Drops: React.FC = () => {
       )}
 
       {!loading && dropsContent && (
-        <div className={styles.dropsContent}>
-          <pre className={styles.dropsText}>{dropsContent}</pre>
-        </div>
+        <>
+          {parsedData && (
+            <div className={styles.formattedSection}>
+              <FormattedDrops data={parsedData} />
+            </div>
+          )}
+
+          <div className={styles.rawTextSection}>
+            <button
+              onClick={() => setShowRawText(!showRawText)}
+              className={styles.toggleButton}
+            >
+              {showRawText ? "▼" : "▶"} Raw Text Data
+            </button>
+            {showRawText && (
+              <div className={styles.dropsContent}>
+                <pre className={styles.dropsText}>{dropsContent}</pre>
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       <div className={styles.infoBox}>
