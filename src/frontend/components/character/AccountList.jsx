@@ -1,5 +1,5 @@
-import React from 'react';
-import styles from './AccountList.module.css';
+import React from "react";
+import styles from "./AccountList.module.css";
 
 const AccountList = ({ accounts, onAccountClick, buttonStyle }) => {
   if (accounts.length === 0) {

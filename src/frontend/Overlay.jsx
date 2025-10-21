@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react';
-import AccountList from './components/character/AccountList';
-import CharacterList from './components/character/CharacterList';
-import CharacterData from './components/character/CharacterData';
-import { useAccountCharacterNavigation } from './hooks/useAccountCharacterNavigation';
+import React, { useEffect, useState, useRef } from "react";
+import styles from "./Overlay.module.css";
+import AccountList from "./components/character/AccountList";
+import CharacterList from "./components/character/CharacterList";
+import CharacterData from "./components/character/CharacterData";
+import { useAccountCharacterNavigation } from "./hooks/useAccountCharacterNavigation";
 
 const defaultAnchor = { x: 0, y: 0 };
 
@@ -18,7 +19,7 @@ const Overlay = ({ visible }) => {
     handleBackClick,
     loadCharacterData,
   } = useAccountCharacterNavigation();
-  
+
   const [anchor, setAnchor] = useState(defaultAnchor);
   const [overlaySize, setOverlaySize] = useState({ width: 400, height: 300 });
   const [isMinimized, setIsMinimized] = useState(false);
@@ -34,61 +35,61 @@ const Overlay = ({ visible }) => {
 
   useEffect(() => {
     if (window.require) {
-      const { ipcRenderer } = window.require('electron');
-      
-      ipcRenderer.on('set-anchor', (event, anchorPos) => {
+      const { ipcRenderer } = window.require("electron");
+
+      ipcRenderer.on("set-anchor", (event, anchorPos) => {
         setAnchor(anchorPos);
       });
-      ipcRenderer.on('set-overlay-size', (event, size) => {
+      ipcRenderer.on("set-overlay-size", (event, size) => {
         setOverlaySize(size);
       });
       return () => {
-        ipcRenderer.removeAllListeners('set-anchor');
-        ipcRenderer.removeAllListeners('set-overlay-size');
+        ipcRenderer.removeAllListeners("set-anchor");
+        ipcRenderer.removeAllListeners("set-overlay-size");
       };
     }
   }, []);
 
   const didDrag = useRef(false);
-  
+
   const handleAnchorMouseEnter = () => {
     isHoveringAnchor.current = true;
     if (isMinimized && window.require && !dragging.current) {
-      const { ipcRenderer } = window.require('electron');
+      const { ipcRenderer } = window.require("electron");
       // Stop forwarding mouse events when hovering over anchor
-      ipcRenderer.send('set-mouse-forward', false);
+      ipcRenderer.send("set-mouse-forward", false);
     }
   };
 
   const handleAnchorMouseLeave = () => {
     isHoveringAnchor.current = false;
     if (isMinimized && window.require && !dragging.current) {
-      const { ipcRenderer } = window.require('electron');
+      const { ipcRenderer } = window.require("electron");
       // Resume forwarding mouse events when not hovering
-      ipcRenderer.send('set-mouse-forward', true);
+      ipcRenderer.send("set-mouse-forward", true);
     }
   };
-  
+
   const handleMouseDown = (e) => {
     dragging.current = true;
     didDrag.current = false;
     mouseDownPos.current = { x: e.screenX, y: e.screenY }; // Store initial position
-    
+
     // Calculate grab offset immediately on mousedown (not on first move)
     if (window.require) {
-      const { ipcRenderer } = window.require('electron');
-      const pos = ipcRenderer.sendSync('get-overlay-position-sync');
+      const { ipcRenderer } = window.require("electron");
+      const pos = ipcRenderer.sendSync("get-overlay-position-sync");
       grabOffset.current = {
         x: e.clientX - pos.x,
-        y: e.clientY - pos.y
+        y: e.clientY - pos.y,
       };
-      
+
       // Disable mouse forwarding when potentially dragging
-      ipcRenderer.send('set-mouse-forward', false);
-      ipcRenderer.send('drag-overlay', true);
+      ipcRenderer.send("set-mouse-forward", false);
+      ipcRenderer.send("drag-overlay", true);
     }
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
   };
 
   const moveTimeout = useRef(null);
@@ -98,29 +99,29 @@ const Overlay = ({ visible }) => {
 
   const sendMoveOverlay = (e) => {
     if (!dragging.current) return;
-    
+
     // Check if mouse moved enough to be considered a drag
     const dx = Math.abs(e.screenX - mouseDownPos.current.x);
     const dy = Math.abs(e.screenY - mouseDownPos.current.y);
     const distanceMoved = Math.sqrt(dx * dx + dy * dy);
-    
+
     if (distanceMoved < DRAG_THRESHOLD && !didDrag.current) {
       // Not enough movement yet, don't start dragging
       return;
     }
-    
+
     // Mark as dragged if mouse moved enough
     if (!didDrag.current) {
       didDrag.current = true;
       setIsDragging(true); // Now we know it's actually a drag
     }
-    
+
     if (window.require) {
-      const { ipcRenderer } = window.require('electron');
+      const { ipcRenderer } = window.require("electron");
       // Simply set window position to mouse position minus grab offset
       const newX = e.screenX - grabOffset.current.x;
       const newY = e.screenY - grabOffset.current.y;
-      ipcRenderer.send('set-overlay-position', { x: newX, y: newY });
+      ipcRenderer.send("set-overlay-position", { x: newX, y: newY });
     }
   };
 
@@ -145,22 +146,22 @@ const Overlay = ({ visible }) => {
     if (didDrag.current) {
       // Request overlay and Warcraft window positions for accurate anchor
       if (window.require) {
-        const { ipcRenderer } = window.require('electron');
+        const { ipcRenderer } = window.require("electron");
         Promise.all([
-          ipcRenderer.invoke('get-overlay-position'),
-          ipcRenderer.invoke('get-warcraft-position'),
+          ipcRenderer.invoke("get-overlay-position"),
+          ipcRenderer.invoke("get-warcraft-position"),
         ]).then(([overlayPos, warcraftPos]) => {
           if (overlayPos && warcraftPos) {
             const newAnchor = {
               x: overlayPos.x - warcraftPos.x,
               y: overlayPos.y - warcraftPos.y,
             };
-            ipcRenderer.send('anchor-changed', newAnchor);
+            ipcRenderer.send("anchor-changed", newAnchor);
           }
-          ipcRenderer.send('drag-overlay', false); // Notify main process drag ended
+          ipcRenderer.send("drag-overlay", false); // Notify main process drag ended
           // Re-enable mouse forwarding if minimized
           if (isMinimized) {
-            ipcRenderer.send('set-mouse-forward', true);
+            ipcRenderer.send("set-mouse-forward", true);
           }
         });
       }
@@ -170,21 +171,21 @@ const Overlay = ({ visible }) => {
       handleMinimizeToggle();
       // Just notify drag ended, no anchor update
       if (window.require) {
-        const { ipcRenderer } = window.require('electron');
-        ipcRenderer.send('drag-overlay', false);
+        const { ipcRenderer } = window.require("electron");
+        ipcRenderer.send("drag-overlay", false);
         // After minimizing, check if mouse is still over anchor
         if (!wasMinimized) {
           // We just minimized - mouse is still over anchor button (we just clicked it)
           // Don't enable mouse forwarding, leave it off so button is clickable
-          ipcRenderer.send('set-mouse-forward', false);
+          ipcRenderer.send("set-mouse-forward", false);
         } else {
           // We just restored to full size - no mouse forwarding
-          ipcRenderer.send('set-mouse-forward', false);
+          ipcRenderer.send("set-mouse-forward", false);
         }
       }
     }
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("mouseup", handleMouseUp);
   };
 
   const handleMinimizeToggle = () => {
@@ -192,15 +193,15 @@ const Overlay = ({ visible }) => {
       // Restore
       setIsMinimized(false);
       if (window.require) {
-        const { ipcRenderer } = window.require('electron');
-        ipcRenderer.send('set-overlay-minimized', false);
+        const { ipcRenderer } = window.require("electron");
+        ipcRenderer.send("set-overlay-minimized", false);
       }
     } else {
       // Minimize
       setIsMinimized(true);
       if (window.require) {
-        const { ipcRenderer } = window.require('electron');
-        ipcRenderer.send('set-overlay-minimized', true);
+        const { ipcRenderer } = window.require("electron");
+        ipcRenderer.send("set-overlay-minimized", true);
       }
     }
   };
@@ -210,8 +211,8 @@ const Overlay = ({ visible }) => {
     resizing.current = true;
     resizeStart.current = { x: e.clientX, y: e.clientY };
     sizeStart.current = { ...overlaySize };
-    document.addEventListener('mousemove', handleResizeMouseMove);
-    document.addEventListener('mouseup', handleResizeMouseUp);
+    document.addEventListener("mousemove", handleResizeMouseMove);
+    document.addEventListener("mouseup", handleResizeMouseUp);
   };
 
   const handleResizeMouseMove = (e) => {
@@ -222,82 +223,47 @@ const Overlay = ({ visible }) => {
     const newHeight = Math.max(100, sizeStart.current.height + dy);
     setOverlaySize({ width: newWidth, height: newHeight });
     if (window.require) {
-      const { ipcRenderer } = window.require('electron');
-      ipcRenderer.send('resize-overlay', { width: newWidth, height: newHeight });
+      const { ipcRenderer } = window.require("electron");
+      ipcRenderer.send("resize-overlay", {
+        width: newWidth,
+        height: newHeight,
+      });
     }
   };
 
   const handleResizeMouseUp = () => {
     resizing.current = false;
-    document.removeEventListener('mousemove', handleResizeMouseMove);
-    document.removeEventListener('mouseup', handleResizeMouseUp);
+    document.removeEventListener("mousemove", handleResizeMouseMove);
+    document.removeEventListener("mouseup", handleResizeMouseUp);
   };
 
   if (!visible) return null;
   return (
     <div
+      className={styles.overlayContainer}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
         width: isMinimized ? 48 : overlaySize.width,
         height: isMinimized ? 48 : overlaySize.height,
-        background: isMinimized ? 'transparent' : 'rgba(30,30,30,0.7)',
-        zIndex: 9999,
-        pointerEvents: isDragging || !isMinimized ? 'auto' : 'none', // Enable during drag or when expanded
-        display: 'flex',
-        flexDirection: 'column',
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#fff',
-        textAlign: 'center',
-        userSelect: 'none',
-        overflow: 'hidden',
+        background: isMinimized ? "transparent" : "rgba(30,30,30,0.7)",
+        pointerEvents: isDragging || !isMinimized ? "auto" : "none",
       }}
     >
       <div
-        style={{
-          position: 'absolute',
-          top: 16,
-          left: 16,
-          width: 32,
-          height: 32,
-          background: '#ff9800',
-          borderRadius: '50%',
-          cursor: 'grab',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 18,
-          fontWeight: 'bold',
-          color: '#222',
-          zIndex: 10001,
-          pointerEvents: 'auto', // Only the anchor button captures events
-        }}
+        className={styles.anchor}
         onMouseDown={handleMouseDown}
         onMouseEnter={handleAnchorMouseEnter}
         onMouseLeave={handleAnchorMouseLeave}
-        title={isMinimized ? "Click to restore, drag to move" : "Click to minimize, drag to move"}
+        title={
+          isMinimized
+            ? "Click to restore, drag to move"
+            : "Click to minimize, drag to move"
+        }
       >
-        {isMinimized ? '□' : '+'}
+        {isMinimized ? "□" : "+"}
       </div>
       {!isMinimized && selectedAccount && (
         <div
-          style={{
-            position: 'absolute',
-            top: 16,
-            left: 56,
-            padding: '6px 12px',
-            background: '#555',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 4,
-            cursor: 'pointer',
-            fontSize: 14,
-            fontWeight: 'bold',
-            zIndex: 10001,
-            pointerEvents: 'auto', // Enable pointer events
-          }}
+          className={styles.backButton}
           onClick={handleBackClick}
           title="Back"
         >
@@ -306,26 +272,7 @@ const Overlay = ({ visible }) => {
       )}
       {!isMinimized && (
         <div
-          style={{
-            position: 'absolute',
-            bottom: 4,
-            right: 4,
-            width: 20,
-            height: 20,
-            background: '#fff',
-            borderRadius: '4px',
-            border: '2px solid #ff9800',
-            cursor: 'nwse-resize',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 14,
-            fontWeight: 'bold',
-            color: '#ff9800',
-            zIndex: 10002,
-            pointerEvents: 'auto', // Enable pointer events
-            boxShadow: '0 2px 4px rgba(0,0,0,0.5)',
-          }}
+          className={styles.resizeHandle}
           onMouseDown={handleResizeMouseDown}
           title="Resize overlay"
         >
@@ -333,21 +280,7 @@ const Overlay = ({ visible }) => {
         </div>
       )}
       {!isMinimized && (
-        <div
-          style={{
-            marginTop: 48,
-            width: '100%',
-            padding: '0 20px 20px 20px',
-            boxSizing: 'border-box',
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            height: 'calc(100% - 48px)',
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            pointerEvents: 'auto', // Enable pointer events for content area
-          }}
-          className="overlay-scroll-content"
-        >
+        <div className={styles.contentArea}>
           {selectedCharacter ? (
             <CharacterData
               accountName={selectedAccount}
@@ -366,7 +299,7 @@ const Overlay = ({ visible }) => {
             />
           ) : (
             <>
-              <h2 style={{ margin: '0 0 10px 0', fontSize: 20 }}>Accounts</h2>
+              <h2 className={styles.accountsTitle}>Accounts</h2>
               <AccountList
                 accounts={accounts}
                 onAccountClick={handleAccountClick}
@@ -375,11 +308,6 @@ const Overlay = ({ visible }) => {
           )}
         </div>
       )}
-      <style>{`
-        .overlay-scroll-content::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
     </div>
   );
 };

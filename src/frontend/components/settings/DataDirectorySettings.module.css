@@ -1,0 +1,89 @@
+.title {
+  color: #ff9800;
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.pathSection {
+  margin-bottom: 15px;
+}
+
+.label {
+  color: #aaa;
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.pathDisplay {
+  background-color: #1a1a1a;
+  padding: 10px;
+  border-radius: 5px;
+  color: #fff;
+  font-family: monospace;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.chooseButton {
+  padding: 10px 20px;
+  background-color: #ff9800;
+  color: #222;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.chooseButtonDisabled {
+  padding: 10px 20px;
+  background-color: #ff9800;
+  color: #222;
+  border: none;
+  border-radius: 5px;
+  cursor: not-allowed;
+  opacity: 0.6;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.resetButton {
+  padding: 10px 20px;
+  background-color: #555;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.resetButtonDisabled {
+  padding: 10px 20px;
+  background-color: #555;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: not-allowed;
+  opacity: 0.6;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.helpText {
+  color: #888;
+  font-size: 12px;
+  margin-top: 15px;
+  line-height: 1.5;
+}
+
+.helpText code {
+  color: #aaa;
+}

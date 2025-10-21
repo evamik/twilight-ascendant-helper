@@ -4,12 +4,12 @@
  * Separated from index.jsx to maintain SRP
  */
 
-import React from 'react';
-import styles from './LoaderView.module.css';
-import AccountList from '../character/AccountList';
-import CharacterList from '../character/CharacterList';
-import CharacterData from '../character/CharacterData';
-import { useAccountCharacterNavigation } from '../../hooks/useAccountCharacterNavigation';
+import React from "react";
+import styles from "./LoaderView.module.css";
+import AccountList from "../character/AccountList";
+import CharacterList from "../character/CharacterList";
+import CharacterData from "../character/CharacterData";
+import { useAccountCharacterNavigation } from "../../hooks/useAccountCharacterNavigation";
 
 const LoaderView = () => {
   const {
@@ -31,7 +31,7 @@ const LoaderView = () => {
           ← Back
         </button>
       )}
-      
+
       {selectedCharacter ? (
         <CharacterData
           accountName={selectedAccount}
@@ -47,7 +47,7 @@ const LoaderView = () => {
           onBack={handleBackClick}
           onCharacterClick={handleCharacterClick}
           showBackButton={false}
-          buttonStyle={{ background: '#ff9800', color: '#222' }}
+          buttonStyle={{ background: "#ff9800", color: "#222" }}
         />
       ) : (
         <>
@@ -56,7 +56,7 @@ const LoaderView = () => {
             <AccountList
               accounts={accounts}
               onAccountClick={handleAccountClick}
-              buttonStyle={{ background: '#ff9800', color: '#222' }}
+              buttonStyle={{ background: "#ff9800", color: "#222" }}
             />
           </div>
         </>

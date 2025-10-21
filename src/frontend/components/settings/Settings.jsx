@@ -11,9 +11,7 @@ function Settings({ onBack }) {
         ← Back
       </button>
 
-      <h2 className={styles.title}>
-        Settings
-      </h2>
+      <h2 className={styles.title}>Settings</h2>
 
       {/* Data Directory Settings Section */}
       <div className={styles.section}>

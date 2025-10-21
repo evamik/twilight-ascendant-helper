@@ -1,0 +1,117 @@
+.container {
+  margin-bottom: 15px;
+  background: rgba(0,0,0,0.2);
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.toggleButton {
+  width: 100%;
+  padding: 8px 12px;
+  background: #ff9800;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.settingsContent {
+  margin-top: 10px;
+}
+
+.statusInfo {
+  font-size: 11px;
+  color: #aaa;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.statusActive {
+  color: #4caf50;
+}
+
+.section {
+  margin-bottom: 15px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.helpText {
+  font-size: 11px;
+  color: #aaa;
+  margin-bottom: 5px;
+}
+
+.globalInfo {
+  display: block;
+  margin-top: 3px;
+  color: #ff9800;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 8px;
+  font-size: 12px;
+  font-family: Consolas, monospace;
+  background: #2a2a2a;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.saveButton {
+  margin-top: 5px;
+  padding: 6px 10px;
+  background: #2196f3;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.useGlobalButton {
+  padding: 6px 10px;
+  background: #555;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.clearButton {
+  padding: 6px 10px;
+  background: #f44336;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.saveStatus {
+  margin-top: 10px;
+  font-size: 11px;
+  color: #4caf50;
+  font-weight: bold;
+}

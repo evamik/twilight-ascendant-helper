@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import styles from "./DataDirectorySettings.module.css";
 
 const { ipcRenderer } = window.require ? window.require("electron") : {};
 
@@ -64,51 +65,20 @@ const DataDirectorySettings = () => {
 
   return (
     <div>
-      <h3 style={{ color: "#ff9800", marginBottom: "15px", fontSize: 18 }}>
-        Data Directory
-      </h3>
+      <h3 className={styles.title}>Data Directory</h3>
 
-      <div style={{ marginBottom: "15px" }}>
-        <label
-          style={{
-            color: "#aaa",
-            display: "block",
-            marginBottom: "5px",
-            fontSize: "14px",
-          }}
-        >
-          Current Path:
-        </label>
-        <div
-          style={{
-            backgroundColor: "#1a1a1a",
-            padding: "10px",
-            borderRadius: "5px",
-            color: "#fff",
-            fontFamily: "monospace",
-            fontSize: "12px",
-            wordBreak: "break-all",
-          }}
-        >
-          {currentPath || "Loading..."}
-        </div>
+      <div className={styles.pathSection}>
+        <label className={styles.label}>Current Path:</label>
+        <div className={styles.pathDisplay}>{currentPath || "Loading..."}</div>
       </div>
 
-      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+      <div className={styles.buttonGroup}>
         <button
           onClick={handleChooseDirectory}
           disabled={isLoading}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#ff9800",
-            color: "#222",
-            border: "none",
-            borderRadius: "5px",
-            cursor: isLoading ? "not-allowed" : "pointer",
-            opacity: isLoading ? 0.6 : 1,
-            fontWeight: "bold",
-            fontSize: "13px",
-          }}
+          className={
+            isLoading ? styles.chooseButtonDisabled : styles.chooseButton
+          }
         >
           Choose Custom Directory...
         </button>
@@ -116,36 +86,19 @@ const DataDirectorySettings = () => {
         <button
           onClick={handleResetToDefault}
           disabled={isLoading}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#555",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: isLoading ? "not-allowed" : "pointer",
-            opacity: isLoading ? 0.6 : 1,
-            fontWeight: "bold",
-            fontSize: "13px",
-          }}
+          className={
+            isLoading ? styles.resetButtonDisabled : styles.resetButton
+          }
         >
           Reset to Default
         </button>
       </div>
 
-      <p
-        style={{
-          color: "#888",
-          fontSize: "12px",
-          marginTop: "15px",
-          lineHeight: "1.5",
-        }}
-      >
+      <p className={styles.helpText}>
         The data directory should contain your account folders with character
         saves. By default, this is located at:
         <br />
-        <code style={{ color: "#aaa" }}>
-          Documents\Warcraft III\CustomMapData\Twilight Ascendant
-        </code>
+        <code>Documents\Warcraft III\CustomMapData\Twilight Ascendant</code>
       </p>
     </div>
   );

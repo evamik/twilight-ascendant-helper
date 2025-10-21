@@ -4,17 +4,18 @@
  * Refactored to maintain SRP - delegates to specialized components
  */
 
-import React, { useState } from 'react';
-import { createRoot } from 'react-dom/client';
-import Settings from './components/settings/Settings';
-import LoaderView from './components/loader/LoaderView';
-import Drops from './components/drops/Drops';
-import TabNavigation from './components/common/TabNavigation';
-import OverlayToggle from './components/common/OverlayToggle';
+import React, { useState } from "react";
+import { createRoot } from "react-dom/client";
+import styles from "./index.module.css";
+import Settings from "./components/settings/Settings";
+import LoaderView from "./components/loader/LoaderView";
+import Drops from "./components/drops/Drops";
+import TabNavigation from "./components/common/TabNavigation";
+import OverlayToggle from "./components/common/OverlayToggle";
 
 const App = () => {
   const [showSettings, setShowSettings] = useState(false);
-  const [activeTab, setActiveTab] = useState('loader'); // 'loader' or 'drops'
+  const [activeTab, setActiveTab] = useState("loader"); // 'loader' or 'drops'
 
   const handleSettingsClick = () => {
     setShowSettings(true);
@@ -35,28 +36,11 @@ const App = () => {
   }
 
   return (
-    <div style={{ 
-      padding: '20px',
-      minHeight: '100vh',
-      background: '#1e1e1e',
-      color: '#ffffff',
-      fontFamily: 'Arial, sans-serif'
-    }}>
+    <div className={styles.app}>
       {/* App Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1 style={{ margin: 0, color: '#fff' }}>Twilight Ascendant Helper</h1>
-        <button
-          onClick={handleSettingsClick}
-          style={{
-            padding: '8px 16px',
-            background: '#555',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 4,
-            cursor: 'pointer',
-            fontSize: 14,
-          }}
-        >
+      <div className={styles.header}>
+        <h1 className={styles.title}>Twilight Ascendant Helper</h1>
+        <button onClick={handleSettingsClick} className={styles.settingsButton}>
           ⚙️ Settings
         </button>
       </div>
@@ -68,14 +52,14 @@ const App = () => {
       <OverlayToggle />
 
       {/* Tab Content */}
-      <div style={{ marginTop: '20px' }}>
-        {activeTab === 'loader' && <LoaderView />}
-        {activeTab === 'drops' && <Drops />}
+      <div className={styles.content}>
+        {activeTab === "loader" && <LoaderView />}
+        {activeTab === "drops" && <Drops />}
       </div>
     </div>
   );
 };
 
-const container = document.getElementById('root');
+const container = document.getElementById("root");
 const root = createRoot(container);
 root.render(<App />);
