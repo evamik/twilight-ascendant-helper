@@ -16,5 +16,6 @@ Thumbs.db
 .env
 
 .vscode/
+.github/
 *.md
 test*

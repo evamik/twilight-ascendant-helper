@@ -133,62 +133,6 @@ const setShowOnlyT4Classes = (enabled) => {
   return saveSettings(settings);
 };
 
-// Get character-specific settings
-// Returns { preloadMessages: [], postloadMessages: [] } or null if not set
-const getCharacterSettings = (accountName, characterName) => {
-  const settings = loadSettings();
-  const key = `${accountName}:${characterName}`;
-  const characterSettings = settings.characterSettings || {};
-  return characterSettings[key] || null;
-};
-
-// Set character-specific preload messages
-const setCharacterPreloadMessages = (accountName, characterName, messages) => {
-  const settings = loadSettings();
-  const key = `${accountName}:${characterName}`;
-  
-  if (!settings.characterSettings) {
-    settings.characterSettings = {};
-  }
-  
-  if (!settings.characterSettings[key]) {
-    settings.characterSettings[key] = {};
-  }
-  
-  settings.characterSettings[key].preloadMessages = Array.isArray(messages) ? messages : [];
-  return saveSettings(settings);
-};
-
-// Set character-specific postload messages
-const setCharacterPostloadMessages = (accountName, characterName, messages) => {
-  const settings = loadSettings();
-  const key = `${accountName}:${characterName}`;
-  
-  if (!settings.characterSettings) {
-    settings.characterSettings = {};
-  }
-  
-  if (!settings.characterSettings[key]) {
-    settings.characterSettings[key] = {};
-  }
-  
-  settings.characterSettings[key].postloadMessages = Array.isArray(messages) ? messages : [];
-  return saveSettings(settings);
-};
-
-// Clear all character-specific settings for a character
-const clearCharacterSettings = (accountName, characterName) => {
-  const settings = loadSettings();
-  const key = `${accountName}:${characterName}`;
-  
-  if (settings.characterSettings && settings.characterSettings[key]) {
-    delete settings.characterSettings[key];
-    return saveSettings(settings);
-  }
-  
-  return true; // Already cleared
-};
-
 module.exports = {
   loadSettings,
   saveSettings,
@@ -201,8 +145,4 @@ module.exports = {
   getUISettings,
   setOverlayEnabled,
   setShowOnlyT4Classes,
-  getCharacterSettings,
-  setCharacterPreloadMessages,
-  setCharacterPostloadMessages,
-  clearCharacterSettings,
 };

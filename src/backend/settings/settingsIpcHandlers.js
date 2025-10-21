@@ -9,11 +9,13 @@ const {
   getUISettings,
   setOverlayEnabled,
   setShowOnlyT4Classes,
+} = require("./settings");
+const {
   getCharacterSettings,
   setCharacterPreloadMessages,
   setCharacterPostloadMessages,
   clearCharacterSettings,
-} = require("./settings");
+} = require("./characterSettings");
 const { trackFeature } = require("./analytics");
 
 // Reference to overlay window (needed for broadcasting settings changes)

@@ -4,10 +4,8 @@ const {
   sendTextAsync,
 } = require("../windows/windowsApi");
 const { extractLoadCode, splitIntoChunks } = require("./loadCodeParser");
-const {
-  getLoaderSettings,
-  getCharacterSettings,
-} = require("../settings/settings");
+const { getLoaderSettings } = require("../settings/settings");
+const { getCharacterSettings } = require("../settings/characterSettings");
 
 let isExecutingCommand = false;
 
@@ -45,7 +43,11 @@ function findWarcraftWindow() {
  * @param {string} accountName - Account name (optional, for per-character messages)
  * @param {string} characterName - Character name (optional, for per-character messages)
  */
-async function sendLoadCommand(characterData, accountName = null, characterName = null) {
+async function sendLoadCommand(
+  characterData,
+  accountName = null,
+  characterName = null
+) {
   // Prevent multiple simultaneous executions
   if (isExecutingCommand) {
     console.log("Command already in progress, skipping...");
@@ -77,15 +79,22 @@ async function sendLoadCommand(characterData, accountName = null, characterName 
     // Get loader settings - check for character-specific first, then fallback to global
     let preloadMessages = [];
     let postloadMessages = [];
-    
+
     if (accountName && characterName) {
-      const characterSettings = getCharacterSettings(accountName, characterName);
+      const characterSettings = getCharacterSettings(
+        accountName,
+        characterName
+      );
       if (characterSettings) {
-        console.log(`Using character-specific settings for ${accountName}:${characterName}`);
+        console.log(
+          `Using character-specific settings for ${accountName}:${characterName}`
+        );
         preloadMessages = characterSettings.preloadMessages || [];
         postloadMessages = characterSettings.postloadMessages || [];
       } else {
-        console.log(`No character-specific settings found, using global settings`);
+        console.log(
+          `No character-specific settings found, using global settings`
+        );
         const globalSettings = getLoaderSettings();
         preloadMessages = globalSettings.preloadMessages || [];
         postloadMessages = globalSettings.postloadMessages || [];
