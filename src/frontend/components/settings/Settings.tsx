@@ -6,14 +6,20 @@ import ReplayDirectorySettings from "./ReplayDirectorySettings";
 
 interface SettingsProps {
   onBack: () => void;
+  showBackButton?: boolean;
 }
 
-const Settings: React.FC<SettingsProps> = ({ onBack }) => {
+const Settings: React.FC<SettingsProps> = ({
+  onBack,
+  showBackButton = true,
+}) => {
   return (
     <div className={styles.container}>
-      <button onClick={onBack} className={styles.backButton}>
-        ← Back
-      </button>
+      {showBackButton && (
+        <button onClick={onBack} className={styles.backButton}>
+          ← Back
+        </button>
+      )}
 
       <h2 className={styles.title}>Settings</h2>
 

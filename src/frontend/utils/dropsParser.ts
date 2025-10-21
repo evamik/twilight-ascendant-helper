@@ -6,12 +6,14 @@
 export interface ItemDrop {
   itemName: string; // e.g., "Veilshard"
   className?: string; // Class when item dropped (for repicks)
+  isLucky?: boolean; // True if this was a lucky drop
 }
 
 export interface PlayerDrop {
   playerName: string; // e.g., "RawrMcRawr#1115"
   className: string; // e.g., "Grand Templar" or "Champion → Hierophant"
   items: ItemDrop[]; // Array of item drops with class context
+  hasLuckyDrop?: boolean; // True if player has any lucky drops
 }
 
 export interface ParsedDropsData {
@@ -59,7 +61,7 @@ export function parseDropsContent(content: string): ParsedDropsData | null {
   // Map to track player data as we parse
   const playerMap = new Map<
     string,
-    { classes: string[]; items: Array<{ itemName: string; className: string }> }
+    { classes: string[]; items: Array<{ itemName: string; className: string; isLucky: boolean }> }
   >();
 
   let currentPlayer: string | null = null;
@@ -127,18 +129,31 @@ export function parseDropsContent(content: string): ParsedDropsData | null {
 
         if (cleanItem) {
           const playerData = playerMap.get(currentPlayer)!;
-          // Store item with its class (we'll decide later if we show it)
+          // Store item with its class and lucky status (we'll decide later if we show class)
           playerData.items.push({
             itemName: cleanItem,
             className: currentClass,
+            isLucky: false, // Will be updated when we parse Times line
           });
         }
       }
       continue;
     }
 
-    // Skip Times and Score lines
-    if (line.match(/^\s+Times:/) || line.match(/^\s+Score:/)) {
+    // Times line - check for LUCKY
+    if (line.match(/^\s+Times:/)) {
+      if (currentPlayer && line.includes("LUCKY")) {
+        const playerData = playerMap.get(currentPlayer);
+        if (playerData && playerData.items.length > 0) {
+          // Mark the most recent item as lucky
+          playerData.items[playerData.items.length - 1].isLucky = true;
+        }
+      }
+      continue;
+    }
+
+    // Skip Score lines
+    if (line.match(/^\s+Score:/)) {
       continue;
     }
   }
@@ -154,16 +169,21 @@ export function parseDropsContent(content: string): ParsedDropsData | null {
       className = data.classes[0] || "";
     }
 
+    // Check if player has any lucky drops
+    const hasLuckyDrop = data.items.some((item) => item.isLucky);
+
     // Map items - only show class if player has multiple classes (repicked)
     const items: ItemDrop[] = data.items.map((item) => ({
       itemName: item.itemName,
       className: data.classes.length > 1 ? item.className : undefined,
+      isLucky: item.isLucky,
     }));
 
     result.players.push({
       playerName,
       className,
       items,
+      hasLuckyDrop,
     });
   }
 

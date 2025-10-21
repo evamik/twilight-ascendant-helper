@@ -14,6 +14,7 @@ interface TabNavigationProps {
 
 interface Tab {
   id: string;
+  icon: string;
   label: string;
 }
 
@@ -22,8 +23,8 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
   onTabChange,
 }) => {
   const tabs: Tab[] = [
-    { id: "loader", label: "🔄 Loader" },
-    { id: "drops", label: "📦 Drops" },
+    { id: "loader", icon: "🔄", label: "Loader" },
+    { id: "drops", icon: "📦", label: "Drops" },
   ];
 
   return (
@@ -36,7 +37,8 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
             activeTab === tab.id ? styles.tabActive : styles.tabInactive
           }
         >
-          {tab.label}
+          <span className={styles.icon}>{tab.icon}</span>
+          <span className={styles.label}>{tab.label}</span>
         </button>
       ))}
     </div>

@@ -4,6 +4,9 @@ import styles from "./Overlay.module.css";
 import AccountList from "./components/character/AccountList";
 import CharacterList from "./components/character/CharacterList";
 import CharacterData from "./components/character/CharacterData";
+import TabNavigation from "./components/common/TabNavigation";
+import Drops from "./components/drops/Drops";
+import Settings from "./components/settings/Settings";
 import { useAccountCharacterNavigation } from "./hooks/useAccountCharacterNavigation";
 
 interface Position {
@@ -38,6 +41,8 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
     height: 300,
   });
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>("loader");
+  const [showSettings, setShowSettings] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const dragging = useRef<boolean>(false);
   const grabOffset = useRef<Position>({ x: 0, y: 0 }); // Offset from window top-left to mouse position
@@ -276,13 +281,58 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
   };
 
   if (!visible) return null;
+
+  // Handle settings view separately
+  if (showSettings) {
+    return (
+      <div
+        className={styles.overlayContainer}
+        style={{
+          width: overlaySize.width,
+          height: overlaySize.height,
+          background: "rgba(30,30,30,0.95)",
+        }}
+      >
+        <div
+          className={styles.anchor}
+          onMouseDown={handleMouseDown}
+          onMouseEnter={handleAnchorMouseEnter}
+          onMouseLeave={handleAnchorMouseLeave}
+          title="Click to minimize, drag to move"
+        >
+          +
+        </div>
+        <div
+          className={styles.backButtonSettings}
+          onClick={() => setShowSettings(false)}
+          title="Back"
+        >
+          ← Back
+        </div>
+        <div
+          className={styles.resizeHandle}
+          onMouseDown={handleResizeMouseDown}
+          title="Resize overlay"
+        >
+          ↘
+        </div>
+        <div className={styles.contentAreaSettings}>
+          <Settings
+            onBack={() => setShowSettings(false)}
+            showBackButton={false}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={styles.overlayContainer}
       style={{
         width: isMinimized ? 48 : overlaySize.width,
         height: isMinimized ? 48 : overlaySize.height,
-        background: isMinimized ? "transparent" : "rgba(30,30,30,0.7)",
+        background: isMinimized ? "transparent" : "rgba(30,30,30,0.95)",
         pointerEvents: isDragging || !isMinimized ? "auto" : "none",
       }}
     >
@@ -299,52 +349,78 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
       >
         {isMinimized ? "□" : "+"}
       </div>
-      {!isMinimized && selectedAccount && (
-        <div
-          className={styles.backButton}
-          onClick={handleBackClick}
-          title="Back"
-        >
-          ← Back
-        </div>
-      )}
       {!isMinimized && (
-        <div
-          className={styles.resizeHandle}
-          onMouseDown={handleResizeMouseDown}
-          title="Resize overlay"
-        >
-          ↘
-        </div>
-      )}
-      {!isMinimized && (
-        <div className={styles.contentArea}>
-          {selectedCharacter ? (
-            <CharacterData
-              accountName={selectedAccount!}
-              characterName={selectedCharacter}
-              characterData={characterData}
-              onBack={handleBackClick}
-              onLoad={() => loadCharacterData()}
-            />
-          ) : selectedAccount ? (
-            <CharacterList
-              accountName={selectedAccount}
-              characters={characters}
-              onBack={handleBackClick}
-              onCharacterClick={handleCharacterClick}
-              showBackButton={false}
-            />
-          ) : (
-            <>
-              <h2 className={styles.accountsTitle}>Accounts</h2>
-              <AccountList
-                accounts={accounts}
-                onAccountClick={handleAccountClick}
-              />
-            </>
+        <>
+          {/* Tab Navigation */}
+          <div className={styles.tabSection}>
+            <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+            <button
+              onClick={() => setShowSettings(true)}
+              className={styles.settingsButton}
+              title="Settings"
+            >
+              ⚙️
+            </button>
+          </div>
+
+          {/* Universal back button - shows when navigating in characters */}
+          {activeTab === "loader" && selectedAccount && (
+            <div
+              className={styles.backButtonOverlay}
+              onClick={handleBackClick}
+              title="Back"
+            >
+              ←
+            </div>
           )}
-        </div>
+
+          <div
+            className={styles.resizeHandle}
+            onMouseDown={handleResizeMouseDown}
+            title="Resize overlay"
+          >
+            ↘
+          </div>
+
+          <div
+            className={
+              activeTab === "loader" && selectedAccount
+                ? styles.contentArea
+                : styles.contentAreaNoBack
+            }
+          >
+            {activeTab === "loader" && (
+              <>
+                {selectedCharacter ? (
+                  <CharacterData
+                    accountName={selectedAccount!}
+                    characterName={selectedCharacter}
+                    characterData={characterData}
+                    onBack={handleBackClick}
+                    onLoad={() => loadCharacterData()}
+                  />
+                ) : selectedAccount ? (
+                  <CharacterList
+                    accountName={selectedAccount}
+                    characters={characters}
+                    onBack={handleBackClick}
+                    onCharacterClick={handleCharacterClick}
+                    showBackButton={false}
+                  />
+                ) : (
+                  <>
+                    <h2 className={styles.accountsTitle}>Accounts</h2>
+                    <AccountList
+                      accounts={accounts}
+                      onAccountClick={handleAccountClick}
+                    />
+                  </>
+                )}
+              </>
+            )}
+            {activeTab === "drops" && <Drops />}
+          </div>
+        </>
       )}
     </div>
   );

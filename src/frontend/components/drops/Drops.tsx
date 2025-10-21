@@ -139,10 +139,16 @@ const Drops: React.FC = () => {
                 : styles.copyReplayButton
             }
           >
-            {copyingReplay ? "⏳ Copying..." : "🎮 Copy Replay"}
+            <span className={styles.buttonIcon}>
+              {copyingReplay ? "⏳" : "🎮"}
+            </span>
+            <span className={styles.buttonLabel}>
+              {copyingReplay ? "Copying..." : "Copy Replay"}
+            </span>
           </button>
           <button onClick={openDirectory} className={styles.openExplorerButton}>
-            📂 Open in Explorer
+            <span className={styles.buttonIcon}>📂</span>
+            <span className={styles.buttonLabel}>Open in Explorer</span>
           </button>
           <button
             onClick={loadDrops}
@@ -151,7 +157,10 @@ const Drops: React.FC = () => {
               loading ? styles.refreshButtonDisabled : styles.refreshButton
             }
           >
-            {loading ? "⏳ Refreshing..." : "🔄 Refresh"}
+            <span className={styles.buttonIcon}>{loading ? "⏳" : "🔄"}</span>
+            <span className={styles.buttonLabel}>
+              {loading ? "Refreshing..." : "Refresh"}
+            </span>
           </button>
         </div>
       </div>

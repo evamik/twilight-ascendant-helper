@@ -42,9 +42,14 @@ const FormattedDrops: React.FC<FormattedDropsProps> = ({ data }) => {
           {data.players.map((player, index) => (
             <div key={index} className={styles.playerCard}>
               <div className={styles.playerHeader}>
-                <span className={styles.playerName}>{player.playerName}</span>
+                <span className={styles.playerName}>
+                  {player.playerName}
+                  {player.hasLuckyDrop && " 🍀"}
+                </span>
                 {player.className && (
-                  <span className={styles.playerClass}>({player.className})</span>
+                  <span className={styles.playerClass}>
+                    ({player.className})
+                  </span>
                 )}
               </div>
               {player.items.length > 0 && (
@@ -52,7 +57,10 @@ const FormattedDrops: React.FC<FormattedDropsProps> = ({ data }) => {
                   {player.items.map((item, itemIndex) => (
                     <div key={itemIndex} className={styles.itemRow}>
                       <span className={styles.itemBullet}>└</span>
-                      <span className={styles.itemName}>{item.itemName}</span>
+                      <span className={styles.itemName}>
+                        {item.itemName}
+                        {item.isLucky && " 🍀"}
+                      </span>
                       {item.className && (
                         <span className={styles.itemClass}>
                           ({item.className})
