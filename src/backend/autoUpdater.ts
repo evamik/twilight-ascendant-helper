@@ -5,11 +5,24 @@ import { UpdateInfo, ProgressInfo } from "electron-updater";
 // Configure auto updater
 autoUpdater.autoDownload = true; // Auto-download updates in background
 autoUpdater.autoInstallOnAppQuit = true; // Install update when app quits
+autoUpdater.allowPrerelease = false; // Don't check for pre-releases
+autoUpdater.allowDowngrade = false; // Don't allow downgrading
 
 export function setupAutoUpdater(mainWindow: BrowserWindow): void {
+  console.log("[AutoUpdater] Setting up auto-updater...");
+  console.log("[AutoUpdater] Current version:", require("../../package.json").version);
+  console.log("[AutoUpdater] App name:", require("../../package.json").name);
+  console.log("[AutoUpdater] Update feed URL:", autoUpdater.getFeedURL());
+  console.log("[AutoUpdater] Channel:", autoUpdater.channel);
+  
   // Check for updates on app start (after 3 seconds to let the app load)
   setTimeout(() => {
-    autoUpdater.checkForUpdates();
+    console.log("[AutoUpdater] Checking for updates on startup...");
+    autoUpdater.checkForUpdates().then((result) => {
+      console.log("[AutoUpdater] Check result:", result);
+    }).catch((error) => {
+      console.error("[AutoUpdater] Check failed:", error);
+    });
   }, 3000);
 
   // Check for updates every 15 minutes
@@ -20,6 +33,7 @@ export function setupAutoUpdater(mainWindow: BrowserWindow): void {
   // When update is available
   autoUpdater.on("update-available", (info: UpdateInfo) => {
     console.log("Update available:", info.version);
+    console.log("Update info:", JSON.stringify(info, null, 2));
 
     // Notify frontend that update is downloading
     if (mainWindow && !mainWindow.isDestroyed()) {
@@ -31,8 +45,9 @@ export function setupAutoUpdater(mainWindow: BrowserWindow): void {
   });
 
   // When no update is available
-  autoUpdater.on("update-not-available", () => {
+  autoUpdater.on("update-not-available", (info) => {
     console.log("No updates available");
+    console.log("Latest version checked:", info);
 
     // Notify frontend
     if (mainWindow && !mainWindow.isDestroyed()) {
@@ -74,7 +89,14 @@ export function setupAutoUpdater(mainWindow: BrowserWindow): void {
 
 // Manual check for updates (triggered by button)
 export function checkForUpdates(): void {
-  autoUpdater.checkForUpdates();
+  console.log("[AutoUpdater] Manual check for updates triggered");
+  console.log("[AutoUpdater] Current version:", require("../../package.json").version);
+  console.log("[AutoUpdater] Update feed URL:", autoUpdater.getFeedURL());
+  autoUpdater.checkForUpdates().then((result) => {
+    console.log("[AutoUpdater] Manual check result:", result);
+  }).catch((error) => {
+    console.error("[AutoUpdater] Manual check failed:", error);
+  });
 }
 
 // Install update and restart app (triggered by "Restart to Update" button)

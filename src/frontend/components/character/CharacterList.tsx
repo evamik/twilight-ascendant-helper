@@ -209,7 +209,7 @@ const CharacterList: React.FC<CharacterListProps> = ({
       ) : (
         <div className={styles.characterList}>
           {sortedCharacters.map((char, index) => {
-            const heroIconPath = `/icons/heroes/${char}.png`;
+            const heroIconPath = `./icons/heroes/${char}.png`;
             const isFavorite = favorites.has(char);
             return (
               <button

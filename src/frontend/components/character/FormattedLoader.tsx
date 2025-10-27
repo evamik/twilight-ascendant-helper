@@ -12,7 +12,7 @@ interface FormattedLoaderProps {
  */
 const FormattedLoader: React.FC<FormattedLoaderProps> = ({ data }) => {
   // Construct the hero icon path
-  const heroIconPath = `/icons/heroes/${data.hero}.png`;
+  const heroIconPath = `./icons/heroes/${data.hero}.png`;
 
   return (
     <div className={styles.container}>

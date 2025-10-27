@@ -70,7 +70,9 @@ app.whenReady().then(() => {
 
       // Check if overlay was destroyed but should be enabled - recreate it
       if (state.overlayEnabled && overlayWin.isDestroyed()) {
-        console.log("[Main] Overlay was destroyed but is enabled, recreating...");
+        console.log(
+          "[Main] Overlay was destroyed but is enabled, recreating..."
+        );
         overlayWin = createOverlayWindow();
         setOverlayWin(overlayWin);
         attachClosedHandler();
