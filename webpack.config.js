@@ -1,5 +1,6 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
   mode: process.env.NODE_ENV === "production" ? "production" : "development",
@@ -67,12 +68,26 @@ module.exports = {
       filename: "overlay.html",
       chunks: ["overlay"],
     }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: "public/icons",
+          to: "icons",
+        },
+      ],
+    }),
   ],
   target: "electron-renderer",
   devServer: {
-    static: {
-      directory: path.join(__dirname, "dist-react"),
-    },
+    static: [
+      {
+        directory: path.join(__dirname, "dist-react"),
+      },
+      {
+        directory: path.join(__dirname, "public"),
+        publicPath: "/",
+      },
+    ],
     port: 3000,
     hot: true,
     open: false,

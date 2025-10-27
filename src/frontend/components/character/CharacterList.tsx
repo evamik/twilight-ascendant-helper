@@ -44,6 +44,7 @@ const NON_T4_CLASSES: string[] = [
 
 interface UISettings {
   showOnlyT4Classes?: boolean;
+  favoriteCharacters?: string[]; // Array of "accountName:characterName"
 }
 
 interface CharacterListProps {
@@ -64,10 +65,11 @@ const CharacterList: React.FC<CharacterListProps> = ({
   showBackButton = true,
 }) => {
   const [showOnlyT4, setShowOnlyT4] = useState<boolean>(false);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
-  // Load T4 filter state from settings on mount
+  // Load T4 filter state and favorites from settings on mount
   useEffect(() => {
-    const loadT4FilterSetting = async () => {
+    const loadSettings = async () => {
       if (!ipcRenderer) return;
 
       try {
@@ -77,13 +79,20 @@ const CharacterList: React.FC<CharacterListProps> = ({
         if (uiSettings.showOnlyT4Classes !== undefined) {
           setShowOnlyT4(uiSettings.showOnlyT4Classes);
         }
+        if (uiSettings.favoriteCharacters) {
+          // Filter favorites for current account
+          const accountFavorites = uiSettings.favoriteCharacters
+            .filter((fav) => fav.startsWith(`${accountName}:`))
+            .map((fav) => fav.substring(accountName.length + 1));
+          setFavorites(new Set(accountFavorites));
+        }
       } catch (error) {
-        console.error("Error loading T4 filter preference:", error);
+        console.error("Error loading settings:", error);
       }
     };
 
-    loadT4FilterSetting();
-  }, []);
+    loadSettings();
+  }, [accountName]);
 
   const handleT4FilterChange = async (checked: boolean) => {
     setShowOnlyT4(checked);
@@ -98,6 +107,46 @@ const CharacterList: React.FC<CharacterListProps> = ({
     }
   };
 
+  const toggleFavorite = async (e: React.MouseEvent, characterName: string) => {
+    e.stopPropagation(); // Prevent character selection
+
+    const newFavorites = new Set(favorites);
+    const favoriteKey = `${accountName}:${characterName}`;
+
+    if (favorites.has(characterName)) {
+      newFavorites.delete(characterName);
+    } else {
+      newFavorites.add(characterName);
+    }
+
+    setFavorites(newFavorites);
+
+    // Save to settings
+    if (ipcRenderer) {
+      try {
+        // Load current favorites from all accounts
+        const uiSettings = (await ipcRenderer.invoke(
+          "get-ui-settings"
+        )) as UISettings;
+        const allFavorites = uiSettings.favoriteCharacters || [];
+
+        // Remove old favorite for this character (if exists)
+        const otherFavorites = allFavorites.filter(
+          (fav) => fav !== favoriteKey
+        );
+
+        // Add new favorite if favorited
+        const updatedFavorites = newFavorites.has(characterName)
+          ? [...otherFavorites, favoriteKey]
+          : otherFavorites;
+
+        await ipcRenderer.invoke("set-favorite-characters", updatedFavorites);
+      } catch (error) {
+        console.error("Error saving favorite:", error);
+      }
+    }
+  };
+
   const isT4Character = (characterName: string): boolean => {
     // Check if character name starts with any non-T4 class
     return !NON_T4_CLASSES.some((nonT4Class) =>
@@ -108,6 +157,16 @@ const CharacterList: React.FC<CharacterListProps> = ({
   const filteredCharacters = showOnlyT4
     ? characters.filter(isT4Character)
     : characters;
+
+  // Sort characters: favorites first, then alphabetically
+  const sortedCharacters = [...filteredCharacters].sort((a, b) => {
+    const aIsFavorite = favorites.has(a);
+    const bIsFavorite = favorites.has(b);
+
+    if (aIsFavorite && !bIsFavorite) return -1;
+    if (!aIsFavorite && bIsFavorite) return 1;
+    return a.localeCompare(b);
+  });
 
   return (
     <>
@@ -138,16 +197,38 @@ const CharacterList: React.FC<CharacterListProps> = ({
         </p>
       ) : (
         <div className={styles.characterList}>
-          {filteredCharacters.map((char, index) => (
-            <button
-              key={index}
-              onClick={() => onCharacterClick(char)}
-              className={styles.characterButton}
-              style={buttonStyle}
-            >
-              {char}
-            </button>
-          ))}
+          {sortedCharacters.map((char, index) => {
+            const heroIconPath = `/icons/heroes/${char}.png`;
+            const isFavorite = favorites.has(char);
+            return (
+              <button
+                key={index}
+                onClick={() => onCharacterClick(char)}
+                className={styles.characterButton}
+                style={buttonStyle}
+              >
+                <img
+                  src={heroIconPath}
+                  alt={char}
+                  className={styles.heroIcon}
+                  onError={(e) => {
+                    // Hide icon if image fails to load
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+                <span className={styles.characterName}>{char}</span>
+                <button
+                  onClick={(e) => toggleFavorite(e, char)}
+                  className={styles.favoriteButton}
+                  title={
+                    isFavorite ? "Remove from favorites" : "Add to favorites"
+                  }
+                >
+                  {isFavorite ? "⭐" : "☆"}
+                </button>
+              </button>
+            );
+          })}
         </div>
       )}
     </>

@@ -33,12 +33,15 @@
 }
 
 .characterList {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 8px;
 }
 
 .characterButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 8px 12px;
   background: #2196f3;
   color: #fff;
@@ -48,4 +51,43 @@
   font-size: 14px;
   font-weight: bold;
   text-align: left;
+  min-width: 0; /* Allow text to shrink */
+  position: relative;
+}
+
+.characterName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.heroIcon {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.favoriteButton {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 20px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-left: auto;
+  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.678);
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.356));
+}
+
+.favoriteButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.15);
+  color: #ffd700;
 }

@@ -20,6 +20,8 @@ interface Settings {
   showOnlyT4Classes: boolean;
   overlayPosition?: Position; // Saved overlay anchor offset
   overlaySize?: Size; // Saved overlay size
+  favoriteCharacters?: string[]; // Array of "accountName:characterName"
+  lastUsedAccount?: string; // Last selected account name
   characterSettings: Record<string, CharacterSettings>;
 }
 
@@ -148,6 +150,8 @@ export const getUISettings = (): UISettings => {
         : false,
     overlayPosition: settings.overlayPosition, // Return saved position or undefined
     overlaySize: settings.overlaySize, // Return saved size or undefined
+    favoriteCharacters: settings.favoriteCharacters || [], // Return favorites or empty array
+    lastUsedAccount: settings.lastUsedAccount, // Return last used account or undefined
   };
 };
 
@@ -199,5 +203,19 @@ export const resetOverlayPositionAndSize = (): boolean => {
   const settings = loadSettings();
   settings.overlayPosition = undefined;
   settings.overlaySize = undefined;
+  return saveSettings(settings);
+};
+
+// Set favorite characters
+export const setFavoriteCharacters = (favorites: string[]): boolean => {
+  const settings = loadSettings();
+  settings.favoriteCharacters = Array.isArray(favorites) ? favorites : [];
+  return saveSettings(settings);
+};
+
+// Set last used account
+export const setLastUsedAccount = (accountName: string): boolean => {
+  const settings = loadSettings();
+  settings.lastUsedAccount = accountName;
   return saveSettings(settings);
 };

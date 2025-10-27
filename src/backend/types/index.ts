@@ -41,6 +41,8 @@ export interface UISettings {
   showOnlyT4Classes: boolean;
   overlayPosition?: Position; // Saved overlay anchor offset
   overlaySize?: Size; // Saved overlay size
+  favoriteCharacters?: string[]; // Array of "accountName:characterName"
+  lastUsedAccount?: string; // Last selected account name
 }
 
 // Character-specific settings

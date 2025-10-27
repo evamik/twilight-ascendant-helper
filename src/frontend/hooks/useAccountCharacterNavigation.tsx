@@ -42,6 +42,16 @@ export const useAccountCharacterNavigation =
     useEffect(() => {
       loadAccounts();
 
+      // Load last used account and auto-navigate
+      if (ipcRenderer) {
+        ipcRenderer.invoke("get-ui-settings").then((settings: any) => {
+          if (settings.lastUsedAccount) {
+            // Auto-navigate to last used account
+            handleAccountClick(settings.lastUsedAccount);
+          }
+        });
+      }
+
       // Listen for settings changes
       if (ipcRenderer) {
         const handleSettingsChanged = () => {
@@ -74,6 +84,9 @@ export const useAccountCharacterNavigation =
             setSelectedAccount(accountName);
             setSelectedCharacter(null);
             setCharacterData(null);
+            
+            // Save as last used account
+            ipcRenderer.invoke("set-last-used-account", accountName);
           });
       }
     };

@@ -9,6 +9,8 @@ import {
   getUISettings,
   setOverlayEnabled,
   setShowOnlyT4Classes,
+  setFavoriteCharacters,
+  setLastUsedAccount,
   getReplayBaseDirectory,
   setReplayBaseDirectory,
 } from "./settings";
@@ -169,6 +171,33 @@ export const registerSettingsIpcHandlers = (): void => {
       trackFeature("t4_filter_preference_saved", {
         enabled,
       });
+      return { success };
+    }
+  );
+
+  // Set favorite characters
+  ipcMain.handle(
+    "set-favorite-characters",
+    async (
+      _event: IpcMainInvokeEvent,
+      favorites: string[]
+    ): Promise<SaveResult> => {
+      const success = setFavoriteCharacters(favorites);
+      trackFeature("favorite_characters_saved", {
+        count: favorites.length,
+      });
+      return { success };
+    }
+  );
+
+  // Set last used account
+  ipcMain.handle(
+    "set-last-used-account",
+    async (
+      _event: IpcMainInvokeEvent,
+      accountName: string
+    ): Promise<SaveResult> => {
+      const success = setLastUsedAccount(accountName);
       return { success };
     }
   );

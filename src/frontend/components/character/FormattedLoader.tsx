@@ -11,10 +11,24 @@ interface FormattedLoaderProps {
  * Displays parsed loader data in a clean, readable format
  */
 const FormattedLoader: React.FC<FormattedLoaderProps> = ({ data }) => {
+  // Construct the hero icon path
+  const heroIconPath = `/icons/heroes/${data.hero}.png`;
+
   return (
     <div className={styles.container}>
-      {/* Hero Name - Big Header */}
-      <h2 className={styles.heroName}>{data.hero}</h2>
+      {/* Hero Name - Big Header with Icon */}
+      <div className={styles.heroHeader}>
+        <img
+          src={heroIconPath}
+          alt={data.hero}
+          className={styles.heroIcon}
+          onError={(e) => {
+            // Hide icon if image fails to load
+            e.currentTarget.style.display = "none";
+          }}
+        />
+        <h2 className={styles.heroName}>{data.hero}</h2>
+      </div>
 
       {/* Resources Section */}
       <div className={styles.resources}>
