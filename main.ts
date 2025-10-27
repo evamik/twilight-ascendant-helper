@@ -29,12 +29,14 @@ app.whenReady().then(() => {
 
   setOverlayWin(overlayWin);
 
-  // Recreate overlay window if it's closed (e.g., Alt+F4)
-  overlayWin.on("closed", () => {
-    console.log("[Main] Overlay window closed, recreating...");
-    overlayWin = createOverlayWindow();
-    setOverlayWin(overlayWin);
-  });
+  // Function to attach closed event handler
+  const attachClosedHandler = () => {
+    overlayWin.on("closed", () => {
+      console.log("[Main] Overlay window closed, will be recreated if needed");
+    });
+  };
+
+  attachClosedHandler();
 
   // Setup auto-updater (only in production)
   if (!process.defaultApp) {
@@ -54,7 +56,26 @@ app.whenReady().then(() => {
 
   setInterval(async () => {
     try {
+      // Check if main window is destroyed - if so, close overlay and exit
+      if (mainWin.isDestroyed()) {
+        console.log("[Main] Main window destroyed, closing overlay...");
+        if (overlayWin && !overlayWin.isDestroyed()) {
+          overlayWin.destroy();
+        }
+        app.quit();
+        return;
+      }
+
       const state = getOverlayState();
+
+      // Check if overlay was destroyed but should be enabled - recreate it
+      if (state.overlayEnabled && overlayWin.isDestroyed()) {
+        console.log("[Main] Overlay was destroyed but is enabled, recreating...");
+        overlayWin = createOverlayWindow();
+        setOverlayWin(overlayWin);
+        attachClosedHandler();
+      }
+
       if (state.isDraggingOverlay) {
         return;
       }

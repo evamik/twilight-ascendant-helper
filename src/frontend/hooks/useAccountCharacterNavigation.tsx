@@ -12,6 +12,7 @@ interface UseAccountCharacterNavigationReturn {
   selectedAccount: string | null;
   selectedCharacter: string | null;
   characterData: CharacterData | null;
+  isLoading: boolean;
   handleAccountClick: (accountName: string) => void;
   handleCharacterClick: (characterName: string) => void;
   handleBackClick: () => void;
@@ -29,28 +30,38 @@ export const useAccountCharacterNavigation =
     const [characterData, setCharacterData] = useState<CharacterData | null>(
       null
     );
-
-    // Load accounts on mount and when settings change
-    const loadAccounts = () => {
-      if (ipcRenderer) {
-        ipcRenderer.invoke("get-account-folders").then((folders: string[]) => {
-          setAccounts(folders);
-        });
-      }
-    };
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
-      loadAccounts();
+      const initialize = async () => {
+        if (!ipcRenderer) {
+          setIsLoading(false);
+          return;
+        }
 
-      // Load last used account and auto-navigate
-      if (ipcRenderer) {
-        ipcRenderer.invoke("get-ui-settings").then((settings: any) => {
-          if (settings.lastUsedAccount) {
-            // Auto-navigate to last used account
-            handleAccountClick(settings.lastUsedAccount);
-          }
-        });
-      }
+        setIsLoading(true);
+
+        // Load accounts first
+        const folders = await ipcRenderer.invoke("get-account-folders");
+        setAccounts(folders);
+
+        // Check for last used account
+        const settings = await ipcRenderer.invoke("get-ui-settings");
+        if (settings.lastUsedAccount) {
+          // Auto-navigate to last used account (load characters)
+          const characterFolders = await ipcRenderer.invoke(
+            "get-character-folders",
+            settings.lastUsedAccount
+          );
+          setCharacters(characterFolders);
+          setSelectedAccount(settings.lastUsedAccount);
+        }
+
+        // Done loading - now safe to render
+        setIsLoading(false);
+      };
+
+      initialize();
 
       // Listen for settings changes
       if (ipcRenderer) {
@@ -62,7 +73,7 @@ export const useAccountCharacterNavigation =
           setCharacterData(null);
           setCharacters([]);
           // Reload accounts
-          loadAccounts();
+          initialize();
         };
 
         ipcRenderer.on("settings-changed", handleSettingsChanged);
@@ -77,6 +88,7 @@ export const useAccountCharacterNavigation =
 
     const handleAccountClick = (accountName: string) => {
       if (ipcRenderer) {
+        setIsLoading(true);
         ipcRenderer
           .invoke("get-character-folders", accountName)
           .then((folders: string[]) => {
@@ -84,6 +96,7 @@ export const useAccountCharacterNavigation =
             setSelectedAccount(accountName);
             setSelectedCharacter(null);
             setCharacterData(null);
+            setIsLoading(false);
 
             // Save as last used account
             ipcRenderer.invoke("set-last-used-account", accountName);
@@ -92,12 +105,14 @@ export const useAccountCharacterNavigation =
     };
 
     const handleCharacterClick = (characterName: string) => {
+      setIsLoading(true);
       setSelectedCharacter(characterName);
       loadCharacterData(characterName);
     };
 
     const loadCharacterData = (characterName?: string) => {
       if (ipcRenderer && selectedAccount) {
+        setIsLoading(true);
         ipcRenderer
           .invoke(
             "get-character-data",
@@ -106,6 +121,7 @@ export const useAccountCharacterNavigation =
           )
           .then((data: CharacterData) => {
             setCharacterData(data);
+            setIsLoading(false);
           });
       }
     };
@@ -128,6 +144,7 @@ export const useAccountCharacterNavigation =
       selectedAccount,
       selectedCharacter,
       characterData,
+      isLoading,
       handleAccountClick,
       handleCharacterClick,
       handleBackClick,

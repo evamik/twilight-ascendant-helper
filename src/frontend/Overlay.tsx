@@ -37,8 +37,8 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
   } = useAccountCharacterNavigation();
 
   const [overlaySize, setOverlaySize] = useState<Size>({
-    width: 400,
-    height: 300,
+    width: 450,
+    height: 350,
   });
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("loader");
@@ -48,7 +48,7 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
   const grabOffset = useRef<Position>({ x: 0, y: 0 }); // Offset from overlay top-left to initial click position
   const resizing = useRef<boolean>(false);
   const resizeStart = useRef<Position>({ x: 0, y: 0 });
-  const sizeStart = useRef<Size>({ width: 400, height: 300 });
+  const sizeStart = useRef<Size>({ width: 450, height: 350 });
   const isHoveringAnchor = useRef<boolean>(false); // Track if mouse is over anchor
   const mouseDownPos = useRef<Position>({ x: 0, y: 0 }); // Track initial mouse position
   const lastMinimizeToggleTime = useRef<number>(0); // Track last minimize toggle time
@@ -59,6 +59,22 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
       const { ipcRenderer } = window.require("electron") as {
         ipcRenderer: IpcRenderer;
       };
+
+      // Load saved overlay size from settings
+      ipcRenderer.invoke("get-ui-settings").then((settings: any) => {
+        if (settings.overlaySize) {
+          setOverlaySize(settings.overlaySize);
+          sizeStart.current = settings.overlaySize;
+          // Resize the window to match saved size
+          ipcRenderer.send("resize-overlay", settings.overlaySize);
+        } else {
+          // On mount, resize the window to match the default overlay size
+          ipcRenderer.send("resize-overlay", {
+            width: overlaySize.width,
+            height: overlaySize.height,
+          });
+        }
+      });
 
       ipcRenderer.on("set-anchor", (_event: any, anchorPos: Position) => {
         // Update anchor position if needed in future
@@ -275,8 +291,8 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
     if (!resizing.current) return;
     const dx = e.clientX - resizeStart.current.x;
     const dy = e.clientY - resizeStart.current.y;
-    const newWidth = Math.max(200, sizeStart.current.width + dx);
-    const newHeight = Math.max(100, sizeStart.current.height + dy);
+    const newWidth = sizeStart.current.width + dx;
+    const newHeight = sizeStart.current.height + dy;
     setOverlaySize({ width: newWidth, height: newHeight });
     if (window.require) {
       const { ipcRenderer } = window.require("electron") as {

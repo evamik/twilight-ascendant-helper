@@ -134,7 +134,7 @@
 }
 
 .resizeHandle {
-  position: absolute;
+  position: fixed;
   bottom: 4px;
   right: 4px;
   width: 20px;
@@ -149,9 +149,15 @@
   font-size: 14px;
   font-weight: bold;
   color: #ff9800;
-  z-index: 10002;
+  z-index: 99999;
   pointer-events: auto;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.resizeHandle:hover {
+  background: #ff9800;
+  color: #fff;
+  transform: scale(1.1);
 }
 
 .contentArea {

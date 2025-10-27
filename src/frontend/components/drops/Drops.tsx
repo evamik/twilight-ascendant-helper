@@ -29,6 +29,8 @@ interface OperationResult {
 const Drops: React.FC = () => {
   const [dropsContent, setDropsContent] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [initialLoadComplete, setInitialLoadComplete] =
+    useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [lastModified, setLastModified] = useState<string | null>(null);
   const [copyingReplay, setCopyingReplay] = useState<boolean>(false);
@@ -74,6 +76,7 @@ const Drops: React.FC = () => {
       setError((err as Error).message);
     } finally {
       setLoading(false);
+      setInitialLoadComplete(true);
     }
   };
 
@@ -124,6 +127,11 @@ const Drops: React.FC = () => {
       setCopyingReplay(false);
     }
   };
+
+  // Don't render until initial load is complete to prevent layout shifts
+  if (!initialLoadComplete) {
+    return null;
+  }
 
   return (
     <div className={styles.container}>

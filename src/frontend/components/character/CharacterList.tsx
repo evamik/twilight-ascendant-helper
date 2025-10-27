@@ -66,11 +66,15 @@ const CharacterList: React.FC<CharacterListProps> = ({
 }) => {
   const [showOnlyT4, setShowOnlyT4] = useState<boolean>(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [settingsLoaded, setSettingsLoaded] = useState<boolean>(false);
 
   // Load T4 filter state and favorites from settings on mount
   useEffect(() => {
     const loadSettings = async () => {
-      if (!ipcRenderer) return;
+      if (!ipcRenderer) {
+        setSettingsLoaded(true);
+        return;
+      }
 
       try {
         const uiSettings = (await ipcRenderer.invoke(
@@ -88,6 +92,8 @@ const CharacterList: React.FC<CharacterListProps> = ({
         }
       } catch (error) {
         console.error("Error loading settings:", error);
+      } finally {
+        setSettingsLoaded(true);
       }
     };
 
@@ -167,6 +173,11 @@ const CharacterList: React.FC<CharacterListProps> = ({
     if (!aIsFavorite && bIsFavorite) return 1;
     return a.localeCompare(b);
   });
+
+  // Don't render until settings are loaded to prevent flashing
+  if (!settingsLoaded) {
+    return null;
+  }
 
   return (
     <>

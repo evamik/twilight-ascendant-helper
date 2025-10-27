@@ -18,11 +18,17 @@ const LoaderView: React.FC = () => {
     selectedAccount,
     selectedCharacter,
     characterData,
+    isLoading,
     handleAccountClick,
     handleCharacterClick,
     handleBackClick,
     loadCharacterData,
   } = useAccountCharacterNavigation();
+
+  // Don't render content until data is loaded
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <div>
