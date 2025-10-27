@@ -1,5 +1,4 @@
 .title {
-  color: #ff9800;
   margin-bottom: 15px;
   font-size: 18px;
 }
@@ -29,6 +28,8 @@
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
 .chooseButton {
@@ -77,13 +78,28 @@
   font-size: 13px;
 }
 
+.statusSuccess {
+  color: #4caf50;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.statusError {
+  color: #f44336;
+  font-size: 13px;
+  font-weight: bold;
+}
+
 .helpText {
   color: #888;
   font-size: 12px;
-  margin-top: 15px;
   line-height: 1.5;
 }
 
 .helpText code {
+  color: #aaa;
+}
+
+.loadingText {
   color: #aaa;
 }

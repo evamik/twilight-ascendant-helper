@@ -101,6 +101,7 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
     dragging.current = true;
     didDrag.current = false;
     mouseDownPos.current = { x: e.screenX, y: e.screenY }; // Store initial position
+    console.log("Mouse down at:", mouseDownPos.current);
 
     // Calculate grab offset immediately on mousedown (not on first move)
     if (window.require) {
