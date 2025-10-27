@@ -6,6 +6,7 @@
 
 import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
+import "./styles/variables.css";
 import styles from "./index.module.css";
 import Settings from "./components/settings/Settings";
 import LoaderView from "./components/loader/LoaderView";

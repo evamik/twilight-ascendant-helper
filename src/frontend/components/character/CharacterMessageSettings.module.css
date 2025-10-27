@@ -76,7 +76,7 @@
 .saveButton {
   margin-top: 5px;
   padding: 6px 10px;
-  background: #2196f3;
+  background: var(--button-primary-bg);
   color: #fff;
   border: none;
   border-radius: 4px;

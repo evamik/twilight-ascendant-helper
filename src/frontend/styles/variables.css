@@ -1,0 +1,31 @@
+/**
+ * Global CSS Variables
+ * Used across the entire application for consistency
+ */
+
+:root {
+  /* Primary button color */
+  --button-primary-bg: #ff9800;
+  --button-primary-hover: #e68900;
+  --button-primary-active: #cc7a00;
+  
+  /* Secondary button color */
+  --button-secondary-bg: #555;
+  --button-secondary-hover: #666;
+  
+  /* Accent colors */
+  --color-gold: #ffd700;
+  
+  /* Background colors */
+  --bg-dark: rgba(0, 0, 0, 0.2);
+  --bg-light: rgba(255, 255, 255, 0.05);
+  --bg-lighter: rgba(255, 255, 255, 0.1);
+  
+  /* Border colors */
+  --border-color: rgba(255, 255, 255, 0.1);
+  
+  /* Text colors */
+  --text-primary: #fff;
+  --text-secondary: #aaa;
+  --text-muted: #666;
+}

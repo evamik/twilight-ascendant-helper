@@ -84,7 +84,7 @@ export const useAccountCharacterNavigation =
             setSelectedAccount(accountName);
             setSelectedCharacter(null);
             setCharacterData(null);
-            
+
             // Save as last used account
             ipcRenderer.invoke("set-last-used-account", accountName);
           });

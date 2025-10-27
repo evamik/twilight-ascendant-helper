@@ -5,12 +5,10 @@ import { getAppOptions } from "./appOptions";
 export const createMainWindow = (): BrowserWindow => {
   const options = getAppOptions();
   const win = new BrowserWindow(options);
-  if (
-    options.frame === false ||
-    options.webPreferences?.nodeIntegration === false
-  ) {
-    win.setMenu(null);
-  }
+
+  // Always hide the menu bar
+  win.setMenu(null);
+
   if (process.env.NODE_ENV === "development") {
     win.loadURL("http://localhost:3000");
   } else {
