@@ -39,6 +39,8 @@ export interface LoaderSettings {
 export interface UISettings {
   overlayEnabled: boolean;
   showOnlyT4Classes: boolean;
+  overlayPosition?: Position; // Saved overlay anchor offset
+  overlaySize?: Size; // Saved overlay size
 }
 
 // Character-specific settings

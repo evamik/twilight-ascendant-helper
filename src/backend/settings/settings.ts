@@ -2,7 +2,13 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import { app } from "electron";
-import { LoaderSettings, UISettings, CharacterSettings } from "../types";
+import {
+  LoaderSettings,
+  UISettings,
+  CharacterSettings,
+  Position,
+  Size,
+} from "../types";
 
 // Settings file structure
 interface Settings {
@@ -12,6 +18,8 @@ interface Settings {
   postloadMessages: string[];
   overlayEnabled: boolean;
   showOnlyT4Classes: boolean;
+  overlayPosition?: Position; // Saved overlay anchor offset
+  overlaySize?: Size; // Saved overlay size
   characterSettings: Record<string, CharacterSettings>;
 }
 
@@ -138,6 +146,8 @@ export const getUISettings = (): UISettings => {
       settings.showOnlyT4Classes !== undefined
         ? settings.showOnlyT4Classes
         : false,
+    overlayPosition: settings.overlayPosition, // Return saved position or undefined
+    overlaySize: settings.overlaySize, // Return saved size or undefined
   };
 };
 
@@ -167,5 +177,27 @@ export const getReplayBaseDirectory = (): string => {
 export const setReplayBaseDirectory = (directory: string): boolean => {
   const settings = loadSettings();
   settings.replayBaseDirectory = directory;
+  return saveSettings(settings);
+};
+
+// Set overlay position
+export const setOverlayPosition = (position: Position): boolean => {
+  const settings = loadSettings();
+  settings.overlayPosition = position;
+  return saveSettings(settings);
+};
+
+// Set overlay size
+export const setOverlaySize = (size: Size): boolean => {
+  const settings = loadSettings();
+  settings.overlaySize = size;
+  return saveSettings(settings);
+};
+
+// Reset overlay position and size to defaults
+export const resetOverlayPositionAndSize = (): boolean => {
+  const settings = loadSettings();
+  settings.overlayPosition = undefined;
+  settings.overlaySize = undefined;
   return saveSettings(settings);
 };

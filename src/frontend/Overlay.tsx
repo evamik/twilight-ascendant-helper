@@ -45,12 +45,14 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const dragging = useRef<boolean>(false);
-  const grabOffset = useRef<Position>({ x: 0, y: 0 }); // Offset from window top-left to mouse position
+  const grabOffset = useRef<Position>({ x: 0, y: 0 }); // Offset from overlay top-left to initial click position
   const resizing = useRef<boolean>(false);
   const resizeStart = useRef<Position>({ x: 0, y: 0 });
   const sizeStart = useRef<Size>({ width: 400, height: 300 });
   const isHoveringAnchor = useRef<boolean>(false); // Track if mouse is over anchor
   const mouseDownPos = useRef<Position>({ x: 0, y: 0 }); // Track initial mouse position
+  const lastMinimizeToggleTime = useRef<number>(0); // Track last minimize toggle time
+  const MINIMIZE_COOLDOWN_MS = 0; // Minimum time between minimize toggles (disabled)
 
   useEffect(() => {
     if (window.require) {
@@ -98,21 +100,31 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    // Prevent drag if we just toggled minimize recently
+    const timeSinceLastToggle = Date.now() - lastMinimizeToggleTime.current;
+    if (timeSinceLastToggle < MINIMIZE_COOLDOWN_MS) {
+      console.log("Ignoring mousedown - too soon after minimize toggle");
+      return;
+    }
+
     dragging.current = true;
     didDrag.current = false;
     mouseDownPos.current = { x: e.screenX, y: e.screenY }; // Store initial position
     console.log("Mouse down at:", mouseDownPos.current);
 
-    // Calculate grab offset immediately on mousedown (not on first move)
     if (window.require) {
       const { ipcRenderer } = window.require("electron") as {
         ipcRenderer: IpcRenderer;
       };
+
+      // Calculate where the user clicked relative to the overlay window
+      // This is the offset we'll maintain during dragging
       const pos = ipcRenderer.sendSync("get-overlay-position-sync") as Position;
       grabOffset.current = {
-        x: e.clientX - pos.x,
-        y: e.clientY - pos.y,
+        x: e.screenX - pos.x,
+        y: e.screenY - pos.y,
       };
+      console.log("Grab offset:", grabOffset.current);
 
       // Disable mouse forwarding when potentially dragging
       ipcRenderer.send("set-mouse-forward", false);
@@ -150,7 +162,8 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
       const { ipcRenderer } = window.require("electron") as {
         ipcRenderer: IpcRenderer;
       };
-      // Simply set window position to mouse position minus grab offset
+      // Position overlay at mouse cursor minus the initial grab offset
+      // This maintains the relative position where the user clicked
       const newX = e.screenX - grabOffset.current.x;
       const newY = e.screenY - grabOffset.current.y;
       ipcRenderer.send("set-overlay-position", { x: newX, y: newY });
@@ -203,6 +216,7 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
       }
     } else {
       // Simple click - toggle minimize
+      lastMinimizeToggleTime.current = Date.now(); // Record toggle time
       const wasMinimized = isMinimized;
       handleMinimizeToggle();
       // Just notify drag ended, no anchor update

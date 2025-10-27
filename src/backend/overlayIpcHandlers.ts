@@ -5,7 +5,12 @@
 
 import { ipcMain, BrowserWindow, IpcMainEvent } from "electron";
 import { trackFeature } from "./settings/analytics";
-import { getUISettings } from "./settings/settings";
+import {
+  getUISettings,
+  setOverlayPosition as saveOverlayPosition,
+  setOverlaySize as saveOverlaySize,
+  resetOverlayPositionAndSize,
+} from "./settings/settings";
 import { Position, Size, OverlayState } from "./types";
 
 // Overlay state
@@ -21,6 +26,22 @@ const initializeOverlayState = (): void => {
   try {
     const uiSettings = getUISettings();
     overlayEnabled = uiSettings.overlayEnabled || false;
+
+    // Load saved position and size if available
+    if (uiSettings.overlayPosition) {
+      anchorOffset = uiSettings.overlayPosition;
+      console.log(
+        `[Overlay] Loaded saved position: ${JSON.stringify(anchorOffset)}`
+      );
+    }
+
+    if (uiSettings.overlaySize) {
+      overlaySize = uiSettings.overlaySize;
+      console.log(
+        `[Overlay] Loaded saved size: ${JSON.stringify(overlaySize)}`
+      );
+    }
+
     console.log(`[Overlay] Initialized overlayEnabled: ${overlayEnabled}`);
   } catch (error) {
     console.error("[Overlay] Error loading initial state:", error);
@@ -48,6 +69,8 @@ export const registerOverlayIpcHandlers = (): void => {
     if (overlayWin) {
       overlayWin.webContents.send("set-anchor", anchorOffset);
     }
+    // Save position to settings
+    saveOverlayPosition(anchor);
   });
 
   // Get overlay position (async)
@@ -186,6 +209,42 @@ export const registerOverlayIpcHandlers = (): void => {
       });
 
       overlayWin.webContents.send("set-overlay-size", overlaySize);
+
+      // Save size to settings
+      saveOverlaySize(overlaySize);
+    }
+  });
+
+  // Reset overlay position and size to defaults
+  ipcMain.handle("reset-overlay-position-size", async (): Promise<boolean> => {
+    try {
+      // Reset in-memory state to defaults
+      anchorOffset = { x: 0, y: 0 };
+      overlaySize = { width: 400, height: 300 };
+
+      // Reset saved settings
+      const success = resetOverlayPositionAndSize();
+
+      if (success && overlayWin) {
+        // Update overlay window immediately
+        overlayWin.webContents.send("set-anchor", anchorOffset);
+        overlayWin.webContents.send("set-overlay-size", overlaySize);
+
+        const bounds = overlayWin.getBounds();
+        overlayWin.setBounds({
+          x: bounds.x,
+          y: bounds.y,
+          width: overlaySize.width,
+          height: overlaySize.height,
+        });
+      }
+
+      trackFeature("reset_overlay_position_size", { success });
+      return success;
+    } catch (error) {
+      console.error("[Overlay] Error resetting position/size:", error);
+      trackFeature("reset_overlay_position_size", { success: false, error });
+      return false;
     }
   });
 };

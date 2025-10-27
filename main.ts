@@ -23,9 +23,16 @@ registerIpcHandlers();
 
 app.whenReady().then(() => {
   const mainWin: BrowserWindow = createMainWindow();
-  const overlayWin: BrowserWindow = createOverlayWindow();
+  let overlayWin: BrowserWindow = createOverlayWindow();
 
   setOverlayWin(overlayWin);
+
+  // Recreate overlay window if it's closed (e.g., Alt+F4)
+  overlayWin.on("closed", () => {
+    console.log("[Main] Overlay window closed, recreating...");
+    overlayWin = createOverlayWindow();
+    setOverlayWin(overlayWin);
+  });
 
   // Setup auto-updater (only in production)
   if (!process.defaultApp) {
@@ -41,6 +48,7 @@ app.whenReady().then(() => {
 
   // Track if we've seen Warcraft III focused at least once
   let hasSeenWarcraftFocused = false;
+  let isOverlayVisible = false; // Track overlay visibility state
 
   setInterval(async () => {
     try {
@@ -58,10 +66,11 @@ app.whenReady().then(() => {
       }
 
       // Only show overlay if enabled AND (Warcraft is focused OR (overlay is focused AND we've previously seen Warcraft))
-      if (
+      const shouldShowOverlay =
         state.overlayEnabled &&
-        (isWarcraft || (isOverlay && hasSeenWarcraftFocused))
-      ) {
+        (isWarcraft || (isOverlay && hasSeenWarcraftFocused));
+
+      if (shouldShowOverlay) {
         if (overlayWin) {
           if (isWarcraft && winInfo.bounds) {
             overlayWin.setBounds({
@@ -71,13 +80,20 @@ app.whenReady().then(() => {
               height: state.overlaySize.height,
             });
           }
-          overlayWin.show();
-          overlayWin.setAlwaysOnTop(true, "screen-saver");
+          // Only show/focus if not already visible
+          if (!isOverlayVisible) {
+            console.log("[Main] Showing and focusing overlay");
+            overlayWin.show();
+            overlayWin.setAlwaysOnTop(true, "screen-saver");
+            isOverlayVisible = true;
+          }
           overlayWin.webContents.send("window-info", JSON.stringify(winInfo));
         }
       } else {
-        if (overlayWin) {
+        if (overlayWin && isOverlayVisible) {
+          console.log("[Main] Hiding overlay");
           overlayWin.hide();
+          isOverlayVisible = false;
         }
       }
     } catch (e) {
