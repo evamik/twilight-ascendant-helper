@@ -8,6 +8,7 @@ import {
   setLastWarcraftBounds,
 } from "./src/backend/ipcHandlers";
 import { setupAutoUpdater } from "./src/backend/autoUpdater";
+import { setupUpdaterIpcHandlers } from "./src/backend/updaterIpcHandlers";
 import {
   initAnalytics,
   shutdownAnalytics,
@@ -20,6 +21,7 @@ initAnalytics();
 
 // Register all IPC handlers
 registerIpcHandlers();
+setupUpdaterIpcHandlers();
 
 app.whenReady().then(() => {
   const mainWin: BrowserWindow = createMainWindow();

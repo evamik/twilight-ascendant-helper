@@ -1,9 +1,9 @@
 import { autoUpdater } from "electron-updater";
-import { dialog, BrowserWindow } from "electron";
+import { BrowserWindow } from "electron";
 import { UpdateInfo, ProgressInfo } from "electron-updater";
 
 // Configure auto updater
-autoUpdater.autoDownload = false; // Don't auto-download, ask user first
+autoUpdater.autoDownload = true; // Auto-download updates in background
 autoUpdater.autoInstallOnAppQuit = true; // Install update when app quits
 
 export function setupAutoUpdater(mainWindow: BrowserWindow): void {
@@ -12,34 +12,32 @@ export function setupAutoUpdater(mainWindow: BrowserWindow): void {
     autoUpdater.checkForUpdates();
   }, 3000);
 
+  // Check for updates every 15 minutes
+  setInterval(() => {
+    autoUpdater.checkForUpdates();
+  }, 15 * 60 * 1000); // 15 minutes in milliseconds
+
   // When update is available
   autoUpdater.on("update-available", (info: UpdateInfo) => {
     console.log("Update available:", info.version);
 
-    const response = dialog.showMessageBoxSync(mainWindow, {
-      type: "info",
-      title: "Update Available",
-      message: `A new version ${info.version} is available!`,
-      detail:
-        "Would you like to download it now? The update will be installed when you close the app.",
-      buttons: ["Download Update", "Later"],
-      defaultId: 0,
-      cancelId: 1,
-    });
-
-    if (response === 0) {
-      autoUpdater.downloadUpdate();
-
-      // Show downloading notification
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.webContents.send("update-status", "Downloading update...");
-      }
+    // Notify frontend that update is downloading
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("update-available", {
+        version: info.version,
+        downloading: true,
+      });
     }
   });
 
   // When no update is available
   autoUpdater.on("update-not-available", () => {
     console.log("No updates available");
+
+    // Notify frontend
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("update-not-available");
+    }
   });
 
   // Download progress
@@ -48,7 +46,7 @@ export function setupAutoUpdater(mainWindow: BrowserWindow): void {
     console.log(`Download progress: ${percent}%`);
 
     if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send("update-progress", percent);
+      mainWindow.webContents.send("update-download-progress", percent);
     }
   });
 
@@ -56,18 +54,11 @@ export function setupAutoUpdater(mainWindow: BrowserWindow): void {
   autoUpdater.on("update-downloaded", (info: UpdateInfo) => {
     console.log("Update downloaded:", info.version);
 
-    const response = dialog.showMessageBoxSync(mainWindow, {
-      type: "info",
-      title: "Update Ready",
-      message: "Update downloaded successfully!",
-      detail: `Version ${info.version} has been downloaded. The app will update when you close it.\n\nWould you like to restart now?`,
-      buttons: ["Restart Now", "Later"],
-      defaultId: 0,
-      cancelId: 1,
-    });
-
-    if (response === 0) {
-      autoUpdater.quitAndInstall();
+    // Notify frontend that update is ready to install
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("update-downloaded", {
+        version: info.version,
+      });
     }
   });
 
@@ -81,7 +72,12 @@ export function setupAutoUpdater(mainWindow: BrowserWindow): void {
   });
 }
 
-// Manual check for updates (can be triggered from menu)
-export function checkForUpdates(_mainWindow: BrowserWindow): void {
+// Manual check for updates (triggered by button)
+export function checkForUpdates(): void {
   autoUpdater.checkForUpdates();
+}
+
+// Install update and restart app (triggered by "Restart to Update" button)
+export function installUpdateAndRestart(): void {
+  autoUpdater.quitAndInstall();
 }
