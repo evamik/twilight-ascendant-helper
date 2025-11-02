@@ -35,6 +35,13 @@ export interface LoaderSettings {
   postloadMessages: string[];
 }
 
+// Tag definition
+export interface Tag {
+  id: string; // Unique ID for the tag
+  name: string; // Display name (e.g., "IMP1", "IMP2 HM")
+  color: string; // Hex color for the tag (e.g., "#ff9800")
+}
+
 // UI settings
 export interface UISettings {
   overlayEnabled: boolean;
@@ -43,6 +50,8 @@ export interface UISettings {
   overlaySize?: Size; // Saved overlay size
   favoriteCharacters?: string[]; // Array of "accountName:characterName"
   lastUsedAccount?: string; // Last selected account name
+  availableTags?: Tag[]; // User-defined tags
+  characterTags?: Record<string, string[]>; // Map of "accountName:characterName" to array of tag IDs
 }
 
 // Character-specific settings

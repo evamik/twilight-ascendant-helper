@@ -1,16 +1,87 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import type { ParsedLoaderData } from "../../utils/loaderParser";
+import type { IpcRenderer } from "../../types/electron";
 import styles from "./FormattedLoader.module.css";
+
+const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
+  ipcRenderer?: IpcRenderer;
+};
+
+interface Tag {
+  id: string;
+  name: string;
+  color: string;
+}
 
 interface FormattedLoaderProps {
   data: ParsedLoaderData;
+  accountName?: string;
+  characterName?: string;
 }
 
 /**
  * FormattedLoader Component
  * Displays parsed loader data in a clean, readable format
  */
-const FormattedLoader: React.FC<FormattedLoaderProps> = ({ data }) => {
+const FormattedLoader: React.FC<FormattedLoaderProps> = ({
+  data,
+  accountName,
+  characterName,
+}) => {
+  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
+  const [characterTags, setCharacterTags] = useState<string[]>([]);
+
+  // Load tags on mount
+  useEffect(() => {
+    const loadTags = async () => {
+      if (!ipcRenderer || !accountName || !characterName) return;
+
+      try {
+        const tags = await ipcRenderer.invoke("get-available-tags");
+        setAvailableTags(tags);
+
+        const charTags = await ipcRenderer.invoke(
+          "get-character-tags",
+          accountName,
+          characterName
+        );
+        setCharacterTags(charTags);
+      } catch (error) {
+        console.error("Error loading tags:", error);
+      }
+    };
+
+    loadTags();
+  }, [accountName, characterName]);
+
+  const toggleTag = async (tagId: string) => {
+    if (!ipcRenderer || !accountName || !characterName) return;
+
+    const hasTag = characterTags.includes(tagId);
+
+    try {
+      if (hasTag) {
+        await ipcRenderer.invoke(
+          "remove-character-tag",
+          accountName,
+          characterName,
+          tagId
+        );
+        setCharacterTags(characterTags.filter((id) => id !== tagId));
+      } else {
+        await ipcRenderer.invoke(
+          "add-character-tag",
+          accountName,
+          characterName,
+          tagId
+        );
+        setCharacterTags([...characterTags, tagId]);
+      }
+    } catch (error) {
+      console.error("Error toggling tag:", error);
+    }
+  };
+
   // Construct the hero icon path
   const heroIconPath = `./icons/heroes/${data.hero}.png`;
 
@@ -29,6 +100,33 @@ const FormattedLoader: React.FC<FormattedLoaderProps> = ({ data }) => {
         />
         <h2 className={styles.heroName}>{data.hero}</h2>
       </div>
+
+      {/* Tags Section */}
+      {accountName && characterName && (
+        <div className={styles.tagsSection}>
+          <h3 className={styles.tagsSectionTitle}>Tags</h3>
+          <div className={styles.tagsContainer}>
+            {availableTags.map((tag) => {
+              const isActive = characterTags.includes(tag.id);
+              return (
+                <button
+                  key={tag.id}
+                  className={`${styles.tagButton} ${
+                    isActive ? styles.tagActive : ""
+                  }`}
+                  style={isActive ? { backgroundColor: tag.color } : undefined}
+                  onClick={() => toggleTag(tag.id)}
+                  title={
+                    isActive ? `Remove ${tag.name} tag` : `Add ${tag.name} tag`
+                  }
+                >
+                  {tag.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Resources Section */}
       <div className={styles.resources}>

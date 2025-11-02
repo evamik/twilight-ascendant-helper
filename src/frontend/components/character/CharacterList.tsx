@@ -1,50 +1,24 @@
 import React, { useState, useEffect } from "react";
 import type { IpcRenderer } from "../../types/electron";
 import styles from "./CharacterList.module.css";
+import CharacterCard from "./CharacterCard";
+import TagFilterButtons from "./TagFilterButtons";
+import { isT4Character } from "../../constants/classTypes";
 
 const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
   ipcRenderer?: IpcRenderer;
 };
 
-const NON_T4_CLASSES: string[] = [
-  "Novice",
-  "Acolyte",
-  "Initiate",
-  "Thief",
-  "Archer",
-  "Swordsman",
-  "Witch Hunter",
-  "Templar",
-  "Druid",
-  "Cleric",
-  "Mage",
-  "Rogue",
-  "Hunter",
-  "Knight",
-  "Slayer",
-  "Arch Templar",
-  "Arch Druid",
-  "Priest",
-  "Matriarch",
-  "Sage",
-  "Wizard",
-  "Stalker",
-  "Assassin",
-  "Marksman",
-  "Tracker",
-  "Imperial Knight",
-  "Crusader",
-  "Witcher",
-  "Inquisitor",
-  "Dark Templar",
-  "High Templar",
-  "Shapeshifter",
-  "Shaman",
-];
+interface Tag {
+  id: string;
+  name: string;
+  color: string;
+}
 
 interface UISettings {
-  showOnlyT4Classes?: boolean;
   favoriteCharacters?: string[]; // Array of "accountName:characterName"
+  availableTags?: Tag[];
+  characterTags?: Record<string, string[]>; // "accountName:characterName" → tag IDs
 }
 
 interface CharacterListProps {
@@ -64,9 +38,58 @@ const CharacterList: React.FC<CharacterListProps> = ({
   buttonStyle,
   showBackButton = true,
 }) => {
-  const [showOnlyT4, setShowOnlyT4] = useState<boolean>(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [settingsLoaded, setSettingsLoaded] = useState<boolean>(false);
+  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
+  const [characterTags, setCharacterTags] = useState<Record<string, string[]>>(
+    {}
+  );
+  const [selectedTagFilters, setSelectedTagFilters] = useState<Set<string>>(
+    new Set()
+  );
+
+  // Auto-tag T4 characters that don't have the T4 tag yet
+  const autoTagT4Characters = async (
+    currentCharacterTags: Record<string, string[]>
+  ) => {
+    if (!ipcRenderer) return;
+
+    let hasChanges = false;
+
+    for (const char of characters) {
+      const characterKey = `${accountName}:${char}`;
+      const existingTags = currentCharacterTags[characterKey] || [];
+
+      // If character is T4 and doesn't have the T4 tag, add it
+      if (isT4Character(char) && !existingTags.includes("t4")) {
+        try {
+          await ipcRenderer.invoke(
+            "add-character-tag",
+            accountName,
+            char,
+            "t4"
+          );
+          hasChanges = true;
+        } catch (error) {
+          console.error(`Error auto-tagging ${char}:`, error);
+        }
+      }
+    }
+
+    // Reload character tags if any changes were made
+    if (hasChanges) {
+      try {
+        const uiSettings = (await ipcRenderer.invoke(
+          "get-ui-settings"
+        )) as UISettings;
+        if (uiSettings.characterTags) {
+          setCharacterTags(uiSettings.characterTags);
+        }
+      } catch (error) {
+        console.error("Error reloading character tags:", error);
+      }
+    }
+  };
 
   // Load T4 filter state and favorites from settings on mount
   useEffect(() => {
@@ -80,9 +103,6 @@ const CharacterList: React.FC<CharacterListProps> = ({
         const uiSettings = (await ipcRenderer.invoke(
           "get-ui-settings"
         )) as UISettings;
-        if (uiSettings.showOnlyT4Classes !== undefined) {
-          setShowOnlyT4(uiSettings.showOnlyT4Classes);
-        }
         if (uiSettings.favoriteCharacters) {
           // Filter favorites for current account
           const accountFavorites = uiSettings.favoriteCharacters
@@ -90,6 +110,23 @@ const CharacterList: React.FC<CharacterListProps> = ({
             .map((fav) => fav.substring(accountName.length + 1));
           setFavorites(new Set(accountFavorites));
         }
+        if (uiSettings.availableTags) {
+          setAvailableTags(uiSettings.availableTags);
+        }
+        if (uiSettings.characterTags) {
+          setCharacterTags(uiSettings.characterTags);
+        }
+
+        // Load selected tag filters
+        const savedFilters = (await ipcRenderer.invoke(
+          "get-selected-tag-filters"
+        )) as string[];
+        if (savedFilters && savedFilters.length > 0) {
+          setSelectedTagFilters(new Set(savedFilters));
+        }
+
+        // Auto-tag T4 characters
+        await autoTagT4Characters(uiSettings.characterTags || {});
       } catch (error) {
         console.error("Error loading settings:", error);
       } finally {
@@ -98,20 +135,7 @@ const CharacterList: React.FC<CharacterListProps> = ({
     };
 
     loadSettings();
-  }, [accountName]);
-
-  const handleT4FilterChange = async (checked: boolean) => {
-    setShowOnlyT4(checked);
-
-    // Save preference
-    if (ipcRenderer) {
-      try {
-        await ipcRenderer.invoke("set-show-only-t4", checked);
-      } catch (error) {
-        console.error("Error saving T4 filter preference:", error);
-      }
-    }
-  };
+  }, [accountName, characters]);
 
   const toggleFavorite = async (e: React.MouseEvent, characterName: string) => {
     e.stopPropagation(); // Prevent character selection
@@ -153,16 +177,59 @@ const CharacterList: React.FC<CharacterListProps> = ({
     }
   };
 
-  const isT4Character = (characterName: string): boolean => {
-    // Check if character name starts with any non-T4 class
-    return !NON_T4_CLASSES.some((nonT4Class) =>
-      characterName.startsWith(nonT4Class)
-    );
+  const getCharacterTags = (characterName: string): string[] => {
+    const characterKey = `${accountName}:${characterName}`;
+    return characterTags[characterKey] || [];
   };
 
-  const filteredCharacters = showOnlyT4
-    ? characters.filter(isT4Character)
-    : characters;
+  const toggleTagFilter = async (tagId: string) => {
+    const newFilters = new Set(selectedTagFilters);
+    if (newFilters.has(tagId)) {
+      newFilters.delete(tagId);
+    } else {
+      newFilters.add(tagId);
+    }
+    setSelectedTagFilters(newFilters);
+
+    // Save to settings
+    if (ipcRenderer) {
+      try {
+        await ipcRenderer.invoke(
+          "set-selected-tag-filters",
+          Array.from(newFilters)
+        );
+      } catch (error) {
+        console.error("Error saving tag filters:", error);
+      }
+    }
+  };
+
+  const clearAllTagFilters = async () => {
+    setSelectedTagFilters(new Set());
+
+    // Save to settings
+    if (ipcRenderer) {
+      try {
+        await ipcRenderer.invoke("set-selected-tag-filters", []);
+      } catch (error) {
+        console.error("Error clearing tag filters:", error);
+      }
+    }
+  };
+
+  // Apply filters
+  let filteredCharacters = characters;
+
+  // Tag filter - character must have ALL selected tags (AND logic)
+  if (selectedTagFilters.size > 0) {
+    filteredCharacters = filteredCharacters.filter((char) => {
+      const charTags = getCharacterTags(char);
+      // Check if character has all selected tags
+      return Array.from(selectedTagFilters).every((tagId) =>
+        charTags.includes(tagId)
+      );
+    });
+  }
 
   // Sort characters: favorites first, then alphabetically
   const sortedCharacters = [...filteredCharacters].sort((a, b) => {
@@ -192,52 +259,40 @@ const CharacterList: React.FC<CharacterListProps> = ({
       )}
       <h2 className={styles.title}>Characters in {accountName}</h2>
 
-      <label className={styles.filterLabel}>
-        <input
-          type="checkbox"
-          checked={showOnlyT4}
-          onChange={(e) => handleT4FilterChange(e.target.checked)}
-          className={styles.filterCheckbox}
-        />
-        <span>Show only T4 classes</span>
-      </label>
+      {/* Tag Filter Buttons */}
+      <TagFilterButtons
+        availableTags={availableTags}
+        selectedTagFilters={selectedTagFilters}
+        onToggleTag={toggleTagFilter}
+        onClearAll={clearAllTagFilters}
+      />
 
       {filteredCharacters.length === 0 ? (
         <p className={styles.emptyMessage}>
-          {showOnlyT4 ? "No T4 characters found" : "No characters found"}
+          {selectedTagFilters.size > 0
+            ? `No characters with selected tag${
+                selectedTagFilters.size > 1 ? "s" : ""
+              }`
+            : "No characters found"}
         </p>
       ) : (
         <div className={styles.characterList}>
-          {sortedCharacters.map((char, index) => {
-            const heroIconPath = `./icons/heroes/${char}.png`;
+          {sortedCharacters.map((char) => {
             const isFavorite = favorites.has(char);
+            const charTags = getCharacterTags(char);
+
             return (
-              <button
-                key={index}
-                onClick={() => onCharacterClick(char)}
-                className={styles.characterButton}
-                style={buttonStyle}
-              >
-                <img
-                  src={heroIconPath}
-                  alt={char}
-                  className={styles.heroIcon}
-                  onError={(e) => {
-                    // Hide icon if image fails to load
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
-                <span className={styles.characterName}>{char}</span>
-                <button
-                  onClick={(e) => toggleFavorite(e, char)}
-                  className={styles.favoriteButton}
-                  title={
-                    isFavorite ? "Remove from favorites" : "Add to favorites"
-                  }
-                >
-                  {isFavorite ? "⭐" : "☆"}
-                </button>
-              </button>
+              <CharacterCard
+                key={`${accountName}:${char}`}
+                characterName={char}
+                accountName={accountName}
+                isFavorite={isFavorite}
+                tags={charTags}
+                availableTags={availableTags}
+                buttonStyle={buttonStyle}
+                onCharacterClick={onCharacterClick}
+                onToggleFavorite={toggleFavorite}
+              />
             );
           })}
         </div>

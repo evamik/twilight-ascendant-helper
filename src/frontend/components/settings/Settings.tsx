@@ -4,6 +4,7 @@ import DataDirectorySettings from "./DataDirectorySettings";
 import LoaderSettings from "./LoaderSettings";
 import ReplayDirectorySettings from "./ReplayDirectorySettings";
 import UpdateSettings from "./UpdateSettings";
+import TagManager from "./TagManager";
 
 interface SettingsProps {
   onBack: () => void;
@@ -37,6 +38,11 @@ const Settings: React.FC<SettingsProps> = ({
       {/* Replay Directory Settings Section */}
       <div className={styles.section}>
         <ReplayDirectorySettings />
+      </div>
+
+      {/* Tag Manager Section */}
+      <div className={styles.section}>
+        <TagManager />
       </div>
 
       {/* Loader Settings Section */}

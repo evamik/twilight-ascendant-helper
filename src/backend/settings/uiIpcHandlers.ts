@@ -1,0 +1,88 @@
+import { ipcMain, IpcMainInvokeEvent, BrowserWindow } from "electron";
+import {
+  getUISettings,
+  setShowOnlyT4Classes,
+  setFavoriteCharacters,
+  setLastUsedAccount,
+} from "./uiSettings";
+import { setOverlayEnabled } from "./overlaySettings";
+import { trackFeature } from "./analytics";
+import { UISettings, SaveResult } from "../types";
+
+// Reference to overlay window (needed for broadcasting settings changes)
+// @ts-ignore - Used by setOverlayWin but not read in this file
+let overlayWin: BrowserWindow | null = null;
+
+/**
+ * Set the overlay window reference for broadcasting settings changes
+ */
+export const setOverlayWin = (win: BrowserWindow | null): void => {
+  overlayWin = win;
+};
+
+/**
+ * Register IPC handlers for UI preference operations
+ */
+export const registerUIIpcHandlers = (): void => {
+  // Get UI settings (overlay enabled, T4 filter)
+  ipcMain.handle("get-ui-settings", async (): Promise<UISettings> => {
+    return getUISettings();
+  });
+
+  // Set overlay enabled state
+  ipcMain.handle(
+    "set-overlay-enabled",
+    async (
+      _event: IpcMainInvokeEvent,
+      enabled: boolean
+    ): Promise<SaveResult> => {
+      const success = setOverlayEnabled(enabled);
+      trackFeature("overlay_preference_saved", {
+        enabled,
+      });
+      return { success };
+    }
+  );
+
+  // Set show only T4 classes filter state
+  ipcMain.handle(
+    "set-show-only-t4",
+    async (
+      _event: IpcMainInvokeEvent,
+      enabled: boolean
+    ): Promise<SaveResult> => {
+      const success = setShowOnlyT4Classes(enabled);
+      trackFeature("t4_filter_preference_saved", {
+        enabled,
+      });
+      return { success };
+    }
+  );
+
+  // Set favorite characters
+  ipcMain.handle(
+    "set-favorite-characters",
+    async (
+      _event: IpcMainInvokeEvent,
+      favorites: string[]
+    ): Promise<SaveResult> => {
+      const success = setFavoriteCharacters(favorites);
+      trackFeature("favorite_characters_saved", {
+        count: favorites.length,
+      });
+      return { success };
+    }
+  );
+
+  // Set last used account
+  ipcMain.handle(
+    "set-last-used-account",
+    async (
+      _event: IpcMainInvokeEvent,
+      accountName: string
+    ): Promise<SaveResult> => {
+      const success = setLastUsedAccount(accountName);
+      return { success };
+    }
+  );
+};

@@ -9,7 +9,7 @@ import { registerGameIpcHandlers } from "./game/gameIpcHandlers";
 import {
   registerSettingsIpcHandlers,
   setOverlayWin as setSettingsOverlayWin,
-} from "./settings/settingsIpcHandlers";
+} from "./settings";
 import {
   registerOverlayIpcHandlers,
   setOverlayWin as setOverlayIpcHandlersWin,

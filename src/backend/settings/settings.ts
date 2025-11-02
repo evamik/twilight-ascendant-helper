@@ -2,16 +2,11 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import { app } from "electron";
-import {
-  LoaderSettings,
-  UISettings,
-  CharacterSettings,
-  Position,
-  Size,
-} from "../types";
+import { CharacterSettings, Position, Size, Tag } from "../types";
+import { DEFAULT_TAGS, migrateTagSettings } from "./tagSettings";
 
 // Settings file structure
-interface Settings {
+export interface Settings {
   customDataPath: string | null;
   replayBaseDirectory: string;
   preloadMessages: string[];
@@ -22,6 +17,9 @@ interface Settings {
   overlaySize?: Size; // Saved overlay size
   favoriteCharacters?: string[]; // Array of "accountName:characterName"
   lastUsedAccount?: string; // Last selected account name
+  availableTags?: Tag[]; // User-defined tags
+  characterTags?: Record<string, string[]>; // Map of "accountName:characterName" to array of tag IDs
+  selectedTagFilters?: string[]; // Array of currently selected tag filter IDs
   characterSettings: Record<string, CharacterSettings>;
 }
 
@@ -47,8 +45,18 @@ const getDefaultSettings = (): Settings => {
     postloadMessages: [], // Global messages to send after loading character
     overlayEnabled: false, // Remember if overlay is enabled
     showOnlyT4Classes: false, // Remember T4 class filter state
+    availableTags: DEFAULT_TAGS, // Initialize with default tags
+    characterTags: {}, // Initialize with empty character tag mappings
     characterSettings: {}, // Per-character settings { "accountName:characterName": { preloadMessages, postloadMessages } }
   };
+};
+
+// Migrate old settings data to new format
+const migrateSettings = (settings: Partial<Settings>): void => {
+  // Migrate tag-related settings
+  migrateTagSettings(settings);
+
+  // Add other migration logic here as needed
 };
 
 // Load settings from file
@@ -58,8 +66,17 @@ export const loadSettings = (): Settings => {
     if (fs.existsSync(settingsPath)) {
       const data = fs.readFileSync(settingsPath, "utf-8");
       const settings = JSON.parse(data) as Partial<Settings>;
+
+      // Run migration
+      migrateSettings(settings);
+
       console.log("Loaded settings:", settings);
-      return { ...getDefaultSettings(), ...settings };
+      const mergedSettings = { ...getDefaultSettings(), ...settings };
+
+      // Save migrated settings back
+      saveSettings(mergedSettings);
+
+      return mergedSettings;
     }
   } catch (error) {
     console.error("Error loading settings:", error);
@@ -115,107 +132,9 @@ export const resetToDefaultPath = (): boolean => {
   return saveSettings(settings);
 };
 
-// Get loader settings (preload/postload messages)
-export const getLoaderSettings = (): LoaderSettings => {
-  const settings = loadSettings();
-  return {
-    preloadMessages: settings.preloadMessages || [],
-    postloadMessages: settings.postloadMessages || [],
-  };
-};
-
-// Set preload messages
-export const setPreloadMessages = (messages: string[]): boolean => {
-  const settings = loadSettings();
-  settings.preloadMessages = Array.isArray(messages) ? messages : [];
-  return saveSettings(settings);
-};
-
-// Set postload messages
-export const setPostloadMessages = (messages: string[]): boolean => {
-  const settings = loadSettings();
-  settings.postloadMessages = Array.isArray(messages) ? messages : [];
-  return saveSettings(settings);
-};
-
-// Get UI settings (overlay and filter preferences)
-export const getUISettings = (): UISettings => {
-  const settings = loadSettings();
-  return {
-    overlayEnabled:
-      settings.overlayEnabled !== undefined ? settings.overlayEnabled : false,
-    showOnlyT4Classes:
-      settings.showOnlyT4Classes !== undefined
-        ? settings.showOnlyT4Classes
-        : false,
-    overlayPosition: settings.overlayPosition, // Return saved position or undefined
-    overlaySize: settings.overlaySize, // Return saved size or undefined
-    favoriteCharacters: settings.favoriteCharacters || [], // Return favorites or empty array
-    lastUsedAccount: settings.lastUsedAccount, // Return last used account or undefined
-  };
-};
-
-// Set overlay enabled state
-export const setOverlayEnabled = (enabled: boolean): boolean => {
-  const settings = loadSettings();
-  settings.overlayEnabled = Boolean(enabled);
-  return saveSettings(settings);
-};
-
-// Set show only T4 classes filter state
-export const setShowOnlyT4Classes = (enabled: boolean): boolean => {
-  const settings = loadSettings();
-  settings.showOnlyT4Classes = Boolean(enabled);
-  return saveSettings(settings);
-};
-
-// Get replay base directory
-export const getReplayBaseDirectory = (): string => {
-  const settings = loadSettings();
-  return (
-    settings.replayBaseDirectory || getDefaultSettings().replayBaseDirectory
-  );
-};
-
-// Set replay base directory
-export const setReplayBaseDirectory = (directory: string): boolean => {
-  const settings = loadSettings();
-  settings.replayBaseDirectory = directory;
-  return saveSettings(settings);
-};
-
-// Set overlay position
-export const setOverlayPosition = (position: Position): boolean => {
-  const settings = loadSettings();
-  settings.overlayPosition = position;
-  return saveSettings(settings);
-};
-
-// Set overlay size
-export const setOverlaySize = (size: Size): boolean => {
-  const settings = loadSettings();
-  settings.overlaySize = size;
-  return saveSettings(settings);
-};
-
-// Reset overlay position and size to defaults
-export const resetOverlayPositionAndSize = (): boolean => {
-  const settings = loadSettings();
-  settings.overlayPosition = undefined;
-  settings.overlaySize = undefined;
-  return saveSettings(settings);
-};
-
-// Set favorite characters
-export const setFavoriteCharacters = (favorites: string[]): boolean => {
-  const settings = loadSettings();
-  settings.favoriteCharacters = Array.isArray(favorites) ? favorites : [];
-  return saveSettings(settings);
-};
-
-// Set last used account
-export const setLastUsedAccount = (accountName: string): boolean => {
-  const settings = loadSettings();
-  settings.lastUsedAccount = accountName;
-  return saveSettings(settings);
-};
+// Re-export from feature-specific modules
+export * from "./tagSettings";
+export * from "./overlaySettings";
+export * from "./loaderSettings";
+export * from "./replaySettings";
+export * from "./uiSettings";

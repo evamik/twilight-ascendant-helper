@@ -103,7 +103,11 @@ const CharacterData: React.FC<CharacterDataProps> = ({
           {/* Formatted View */}
           {parsedData && (
             <div className={styles.formattedSection}>
-              <FormattedLoader data={parsedData} />
+              <FormattedLoader
+                data={parsedData}
+                accountName={accountName}
+                characterName={characterName}
+              />
             </div>
           )}
 

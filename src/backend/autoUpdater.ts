@@ -10,19 +10,25 @@ autoUpdater.allowDowngrade = false; // Don't allow downgrading
 
 export function setupAutoUpdater(mainWindow: BrowserWindow): void {
   console.log("[AutoUpdater] Setting up auto-updater...");
-  console.log("[AutoUpdater] Current version:", require("../../package.json").version);
+  console.log(
+    "[AutoUpdater] Current version:",
+    require("../../package.json").version
+  );
   console.log("[AutoUpdater] App name:", require("../../package.json").name);
   console.log("[AutoUpdater] Update feed URL:", autoUpdater.getFeedURL());
   console.log("[AutoUpdater] Channel:", autoUpdater.channel);
-  
+
   // Check for updates on app start (after 3 seconds to let the app load)
   setTimeout(() => {
     console.log("[AutoUpdater] Checking for updates on startup...");
-    autoUpdater.checkForUpdates().then((result) => {
-      console.log("[AutoUpdater] Check result:", result);
-    }).catch((error) => {
-      console.error("[AutoUpdater] Check failed:", error);
-    });
+    autoUpdater
+      .checkForUpdates()
+      .then((result) => {
+        console.log("[AutoUpdater] Check result:", result);
+      })
+      .catch((error) => {
+        console.error("[AutoUpdater] Check failed:", error);
+      });
   }, 3000);
 
   // Check for updates every 15 minutes
@@ -90,13 +96,19 @@ export function setupAutoUpdater(mainWindow: BrowserWindow): void {
 // Manual check for updates (triggered by button)
 export function checkForUpdates(): void {
   console.log("[AutoUpdater] Manual check for updates triggered");
-  console.log("[AutoUpdater] Current version:", require("../../package.json").version);
+  console.log(
+    "[AutoUpdater] Current version:",
+    require("../../package.json").version
+  );
   console.log("[AutoUpdater] Update feed URL:", autoUpdater.getFeedURL());
-  autoUpdater.checkForUpdates().then((result) => {
-    console.log("[AutoUpdater] Manual check result:", result);
-  }).catch((error) => {
-    console.error("[AutoUpdater] Manual check failed:", error);
-  });
+  autoUpdater
+    .checkForUpdates()
+    .then((result) => {
+      console.log("[AutoUpdater] Manual check result:", result);
+    })
+    .catch((error) => {
+      console.error("[AutoUpdater] Manual check failed:", error);
+    });
 }
 
 // Install update and restart app (triggered by "Restart to Update" button)
