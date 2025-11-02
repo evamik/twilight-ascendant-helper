@@ -13,6 +13,7 @@ import {
   initAnalytics,
   shutdownAnalytics,
 } from "./src/backend/settings/analytics";
+import { watchDropsFile, stopAllWatchers } from "./src/backend/fileWatcher";
 import activeWin from "active-win";
 import { WindowInfo } from "./src/backend/types";
 
@@ -43,7 +44,11 @@ app.whenReady().then(() => {
     setupAutoUpdater(mainWin);
   }
 
+  // Start watching drops file
+  watchDropsFile(mainWin, overlayWin);
+
   mainWin.on("closed", () => {
+    stopAllWatchers();
     if (overlayWin) {
       overlayWin.close();
     }

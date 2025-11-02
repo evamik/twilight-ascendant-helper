@@ -48,6 +48,23 @@ const Drops: React.FC = () => {
     loadDrops();
   }, []);
 
+  // Listen for drops file changes
+  useEffect(() => {
+    if (!ipcRenderer) return;
+
+    const handleDropsFileChange = () => {
+      console.log("[Drops] File changed, reloading...");
+      loadDrops();
+    };
+
+    ipcRenderer.on("drops-file-changed", handleDropsFileChange);
+
+    // Cleanup
+    return () => {
+      ipcRenderer.removeListener("drops-file-changed", handleDropsFileChange);
+    };
+  }, [ipcRenderer]);
+
   const loadDrops = async () => {
     if (!ipcRenderer) {
       setError("IPC Renderer not available");

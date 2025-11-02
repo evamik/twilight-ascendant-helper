@@ -1,10 +1,17 @@
-import { ipcMain, IpcMainInvokeEvent } from "electron";
+import { ipcMain, IpcMainInvokeEvent, BrowserWindow } from "electron";
 import {
   getAccountFolders,
   getCharacterFolders,
   getLatestCharacterData,
+  getCharacterSummaries,
 } from "./characters";
-import { AccountList, CharacterList, CharacterData } from "../types";
+import {
+  AccountList,
+  CharacterList,
+  CharacterData,
+  CharacterSummaryList,
+} from "../types";
+import { watchCharacterFile, unwatchCharacterFile } from "../fileWatcher";
 
 /**
  * Register IPC handlers for character-related operations
@@ -35,6 +42,53 @@ export const registerCharacterIpcHandlers = (): void => {
       characterName: string
     ): Promise<CharacterData | null> => {
       return getLatestCharacterData(accountName, characterName);
+    }
+  );
+
+  // Get character summaries (name, level, power shards) for all characters
+  ipcMain.handle(
+    "get-character-summaries",
+    async (
+      _event: IpcMainInvokeEvent,
+      accountName: string
+    ): Promise<CharacterSummaryList> => {
+      return getCharacterSummaries(accountName);
+    }
+  );
+
+  // Start watching a character file
+  ipcMain.handle(
+    "watch-character-file",
+    async (
+      event: IpcMainInvokeEvent,
+      accountName: string,
+      characterName: string
+    ): Promise<void> => {
+      const mainWindow = BrowserWindow.fromWebContents(event.sender);
+      if (mainWindow) {
+        const allWindows = BrowserWindow.getAllWindows();
+        const overlayWindow = allWindows.find(
+          (win) => win !== mainWindow && win.getTitle().includes("Overlay")
+        );
+        watchCharacterFile(
+          accountName,
+          characterName,
+          mainWindow,
+          overlayWindow
+        );
+      }
+    }
+  );
+
+  // Stop watching a character file
+  ipcMain.handle(
+    "unwatch-character-file",
+    async (
+      _event: IpcMainInvokeEvent,
+      accountName: string,
+      characterName: string
+    ): Promise<void> => {
+      unwatchCharacterFile(accountName, characterName);
     }
   );
 };

@@ -9,6 +9,8 @@ interface Tag {
 
 interface CharacterCardProps {
   characterName: string;
+  level: number;
+  powerShards: number;
   accountName: string;
   isFavorite: boolean;
   tags: string[];
@@ -20,6 +22,8 @@ interface CharacterCardProps {
 
 const CharacterCard: React.FC<CharacterCardProps> = ({
   characterName,
+  level,
+  powerShards,
   isFavorite,
   tags,
   availableTags,
@@ -35,21 +39,56 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
       className={styles.characterButton}
       style={buttonStyle}
     >
-      {/* Icon container - always reserves space */}
-      <div className={styles.iconContainer}>
-        <img
-          src={heroIconPath}
-          alt={characterName}
-          className={styles.heroIcon}
-          onError={(e) => {
-            e.currentTarget.style.display = "none";
+      {/* Icon and load button column */}
+      <div className={styles.leftColumn}>
+        <div className={styles.iconContainer}>
+          <img
+            src={heroIconPath}
+            alt={characterName}
+            className={styles.heroIcon}
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+          />
+        </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onCharacterClick(characterName);
           }}
-        />
+          className={styles.loadButton}
+          title={`Load ${characterName}`}
+        >
+          Load
+        </button>
       </div>
 
-      {/* Content section with name and tags */}
+      {/* Content section with name, stats, and tags */}
       <div className={styles.contentSection}>
         <span className={styles.characterName}>{characterName}</span>
+
+        {/* Character stats */}
+        <div
+          style={{
+            display: "flex",
+            gap: "12px",
+            marginBottom: "4px",
+            fontSize: "0.75rem",
+            color: "#fff",
+          }}
+        >
+          <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            Level {level}
+          </span>
+          <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            <img
+              src="icons/general/shard.png"
+              alt="Power Shards"
+              style={{ width: "12px", height: "12px" }}
+            />
+            {powerShards.toLocaleString()}
+          </span>
+        </div>
 
         {/* Tag chips - visual only, no click events */}
         <div className={styles.tagsContainer}>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { IpcRenderer } from "../types/electron";
-import type { CharacterData } from "../types";
+import type { CharacterData, CharacterSummary } from "../types";
 
 const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
   ipcRenderer?: IpcRenderer;
@@ -8,7 +8,7 @@ const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
 
 interface UseAccountCharacterNavigationReturn {
   accounts: string[];
-  characters: string[];
+  characters: CharacterSummary[];
   selectedAccount: string | null;
   selectedCharacter: string | null;
   characterData: CharacterData | null;
@@ -22,7 +22,7 @@ interface UseAccountCharacterNavigationReturn {
 export const useAccountCharacterNavigation =
   (): UseAccountCharacterNavigationReturn => {
     const [accounts, setAccounts] = useState<string[]>([]);
-    const [characters, setCharacters] = useState<string[]>([]);
+    const [characters, setCharacters] = useState<CharacterSummary[]>([]);
     const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
     const [selectedCharacter, setSelectedCharacter] = useState<string | null>(
       null
@@ -49,11 +49,11 @@ export const useAccountCharacterNavigation =
         const settings = await ipcRenderer.invoke("get-ui-settings");
         if (settings.lastUsedAccount) {
           // Auto-navigate to last used account (load characters)
-          const characterFolders = await ipcRenderer.invoke(
-            "get-character-folders",
+          const characterSummaries = await ipcRenderer.invoke(
+            "get-character-summaries",
             settings.lastUsedAccount
           );
-          setCharacters(characterFolders);
+          setCharacters(characterSummaries);
           setSelectedAccount(settings.lastUsedAccount);
         }
 
@@ -86,13 +86,44 @@ export const useAccountCharacterNavigation =
       return undefined;
     }, []);
 
+    // Listen for character file changes to update summaries
+    useEffect(() => {
+      if (!ipcRenderer || !selectedAccount) return;
+
+      const handleCharacterFileChange = (
+        _event: any,
+        data: { accountName: string; characterName: string }
+      ) => {
+        if (data.accountName === selectedAccount) {
+          console.log(
+            `[Navigation] Character file changed: ${data.characterName}, reloading summaries...`
+          );
+          // Reload character summaries for this account
+          ipcRenderer
+            .invoke("get-character-summaries", selectedAccount)
+            .then((summaries: CharacterSummary[]) => {
+              setCharacters(summaries);
+            });
+        }
+      };
+
+      ipcRenderer.on("character-file-changed", handleCharacterFileChange);
+
+      return () => {
+        ipcRenderer.removeListener(
+          "character-file-changed",
+          handleCharacterFileChange
+        );
+      };
+    }, [selectedAccount, ipcRenderer]);
+
     const handleAccountClick = (accountName: string) => {
       if (ipcRenderer) {
         setIsLoading(true);
         ipcRenderer
-          .invoke("get-character-folders", accountName)
-          .then((folders: string[]) => {
-            setCharacters(folders);
+          .invoke("get-character-summaries", accountName)
+          .then((summaries: CharacterSummary[]) => {
+            setCharacters(summaries);
             setSelectedAccount(accountName);
             setSelectedCharacter(null);
             setCharacterData(null);

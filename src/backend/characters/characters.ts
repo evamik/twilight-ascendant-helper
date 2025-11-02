@@ -1,7 +1,13 @@
 import fs from "fs";
 import path from "path";
 import { getDataPath } from "../settings/settings";
-import { CharacterData, AccountList, CharacterList } from "../types";
+import {
+  CharacterData,
+  AccountList,
+  CharacterList,
+  CharacterSummary,
+  CharacterSummaryList,
+} from "../types";
 
 const getBasePath = (): string => {
   return getDataPath();
@@ -130,5 +136,106 @@ export const getLatestCharacterData = (
   } catch (error) {
     console.error("Error reading character data:", error);
     return null;
+  }
+};
+
+/**
+ * Extract level and power shards from character file
+ */
+const extractCharacterStats = (
+  fileName: string,
+  content: string
+): { level: number; powerShards: number } => {
+  let level = 0;
+  let powerShards = 0;
+
+  // Extract level from filename like "[Level 300].txt"
+  const levelMatch = fileName.match(/\[Level (\d+)\]/);
+  if (levelMatch) {
+    level = parseInt(levelMatch[1], 10);
+  }
+
+  // Extract power shards from file content
+  const lines = content.split("\n");
+  for (const line of lines) {
+    const match = line.match(/call Preload\(\s*"([^"]*)"\s*\)/);
+    if (match) {
+      const preloadLine = match[1];
+      if (preloadLine.startsWith("Power Shards:")) {
+        const shardsStr = preloadLine.replace("Power Shards:", "").trim();
+        powerShards = parseInt(shardsStr, 10) || 0;
+        break;
+      }
+    }
+  }
+
+  return { level, powerShards };
+};
+
+/**
+ * Get character summaries (name, level, power shards) for all characters in an account
+ */
+export const getCharacterSummaries = (
+  accountName: string
+): CharacterSummaryList => {
+  try {
+    const basePath = getBasePath();
+    const accountPath = path.join(basePath, accountName);
+
+    if (!fs.existsSync(accountPath)) {
+      console.log("Account directory not found:", accountPath);
+      return [];
+    }
+
+    const items = fs.readdirSync(accountPath, { withFileTypes: true });
+
+    const summaries: CharacterSummaryList = [];
+
+    for (const item of items) {
+      if (!item.isDirectory()) continue;
+
+      const characterName = item.name;
+      const characterPath = path.join(accountPath, characterName);
+
+      // Check if it's a valid character folder
+      if (!isValidCharacterFolder(characterPath)) {
+        continue;
+      }
+
+      // Get the latest file for this character
+      const files = fs
+        .readdirSync(characterPath)
+        .filter((file) => file.endsWith(".txt"))
+        .map((file) => ({
+          name: file,
+          path: path.join(characterPath, file),
+          mtime: fs.statSync(path.join(characterPath, file)).mtime,
+        }))
+        .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
+
+      if (files.length > 0) {
+        const latestFile = files[0];
+        const content = fs.readFileSync(latestFile.path, "utf-8");
+        const stats = extractCharacterStats(latestFile.name, content);
+
+        const summary: CharacterSummary = {
+          name: characterName,
+          level: stats.level,
+          powerShards: stats.powerShards,
+        };
+        summaries.push(summary);
+      }
+    }
+
+    console.log(
+      "Found character summaries for",
+      accountName,
+      ":",
+      summaries.length
+    );
+    return summaries;
+  } catch (error) {
+    console.error("Error reading character summaries:", error);
+    return [];
   }
 };

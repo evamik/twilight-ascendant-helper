@@ -21,9 +21,15 @@ interface UISettings {
   characterTags?: Record<string, string[]>; // "accountName:characterName" → tag IDs
 }
 
+interface CharacterSummary {
+  name: string;
+  level: number;
+  powerShards: number;
+}
+
 interface CharacterListProps {
   accountName: string;
-  characters: string[];
+  characters: CharacterSummary[];
   onBack: () => void;
   onCharacterClick: (characterName: string) => void;
   buttonStyle?: React.CSSProperties;
@@ -57,21 +63,21 @@ const CharacterList: React.FC<CharacterListProps> = ({
     let hasChanges = false;
 
     for (const char of characters) {
-      const characterKey = `${accountName}:${char}`;
+      const characterKey = `${accountName}:${char.name}`;
       const existingTags = currentCharacterTags[characterKey] || [];
 
       // If character is T4 and doesn't have the T4 tag, add it
-      if (isT4Character(char) && !existingTags.includes("t4")) {
+      if (isT4Character(char.name) && !existingTags.includes("t4")) {
         try {
           await ipcRenderer.invoke(
             "add-character-tag",
             accountName,
-            char,
+            char.name,
             "t4"
           );
           hasChanges = true;
         } catch (error) {
-          console.error(`Error auto-tagging ${char}:`, error);
+          console.error(`Error auto-tagging ${char.name}:`, error);
         }
       }
     }
@@ -223,7 +229,7 @@ const CharacterList: React.FC<CharacterListProps> = ({
   // Tag filter - character must have ALL selected tags (AND logic)
   if (selectedTagFilters.size > 0) {
     filteredCharacters = filteredCharacters.filter((char) => {
-      const charTags = getCharacterTags(char);
+      const charTags = getCharacterTags(char.name);
       // Check if character has all selected tags
       return Array.from(selectedTagFilters).every((tagId) =>
         charTags.includes(tagId)
@@ -233,12 +239,12 @@ const CharacterList: React.FC<CharacterListProps> = ({
 
   // Sort characters: favorites first, then alphabetically
   const sortedCharacters = [...filteredCharacters].sort((a, b) => {
-    const aIsFavorite = favorites.has(a);
-    const bIsFavorite = favorites.has(b);
+    const aIsFavorite = favorites.has(a.name);
+    const bIsFavorite = favorites.has(b.name);
 
     if (aIsFavorite && !bIsFavorite) return -1;
     if (!aIsFavorite && bIsFavorite) return 1;
-    return a.localeCompare(b);
+    return a.name.localeCompare(b.name);
   });
 
   // Don't render until settings are loaded to prevent flashing
@@ -278,13 +284,15 @@ const CharacterList: React.FC<CharacterListProps> = ({
       ) : (
         <div className={styles.characterList}>
           {sortedCharacters.map((char) => {
-            const isFavorite = favorites.has(char);
-            const charTags = getCharacterTags(char);
+            const isFavorite = favorites.has(char.name);
+            const charTags = getCharacterTags(char.name);
 
             return (
               <CharacterCard
-                key={`${accountName}:${char}`}
-                characterName={char}
+                key={`${accountName}:${char.name}`}
+                characterName={char.name}
+                level={char.level}
+                powerShards={char.powerShards}
                 accountName={accountName}
                 isFavorite={isFavorite}
                 tags={charTags}

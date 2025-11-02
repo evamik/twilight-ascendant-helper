@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import type { IpcRenderer } from "../../types/electron";
 import type { CharacterData as CharacterDataType } from "../../types";
 import styles from "./CharacterData.module.css";
@@ -31,6 +31,38 @@ const CharacterData: React.FC<CharacterDataProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showRawText, setShowRawText] = useState<boolean>(false);
+
+  // Watch for character file changes
+  useEffect(() => {
+    if (!ipcRenderer || !accountName || !characterName) return;
+
+    // Start watching this character file
+    ipcRenderer.invoke("watch-character-file", accountName, characterName);
+
+    // Listen for file change events
+    const handleFileChange = (
+      _event: any,
+      data: { accountName: string; characterName: string }
+    ) => {
+      if (
+        data.accountName === accountName &&
+        data.characterName === characterName
+      ) {
+        console.log("[CharacterData] File changed, reloading data...");
+        if (onLoad) {
+          onLoad();
+        }
+      }
+    };
+
+    ipcRenderer.on("character-file-changed", handleFileChange);
+
+    // Cleanup: stop watching and remove listener
+    return () => {
+      ipcRenderer.invoke("unwatch-character-file", accountName, characterName);
+      ipcRenderer.removeListener("character-file-changed", handleFileChange);
+    };
+  }, [accountName, characterName, onLoad, ipcRenderer]);
 
   // Parse loader content into structured data
   const parsedData = useMemo(() => {

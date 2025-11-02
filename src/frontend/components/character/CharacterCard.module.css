@@ -17,6 +17,14 @@
   min-height: 70px; /* Ensure consistent height */
 }
 
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .iconContainer {
   width: 42px;
   height: 42px;
@@ -31,6 +39,24 @@
   height: 42px;
   object-fit: cover;
   flex-shrink: 0;
+}
+
+.loadButton {
+  width: 42px;
+  padding: 4px 6px;
+  background: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.loadButton:hover {
+  background: #45a049;
+  transform: scale(1.05);
 }
 
 .contentSection {
@@ -48,21 +74,23 @@
   white-space: nowrap;
   font-size: 14px;
   line-height: 1.2;
+  color: #fff;
 }
 
 .favoriteButton {
-  width: 32px;
-  height: 32px;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   background: transparent;
   color: rgba(255, 255, 255, 0.5);
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 18px;
   transition: all 0.2s;
-  flex-shrink: 0;
-  align-self: center;
   -webkit-text-stroke: 1px rgba(0, 0, 0, 0.678);
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.356));
 }

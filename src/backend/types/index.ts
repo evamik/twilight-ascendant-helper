@@ -117,6 +117,15 @@ export interface GameSendResult {
 export type AccountList = string[];
 export type CharacterList = string[];
 
+// Character summary (for character list display)
+export interface CharacterSummary {
+  name: string;
+  level: number;
+  powerShards: number;
+}
+
+export type CharacterSummaryList = CharacterSummary[];
+
 // IPC Handler registration function type
 export type IpcHandlerRegistration = () => void;
 

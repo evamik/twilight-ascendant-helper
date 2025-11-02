@@ -18,3 +18,9 @@ export interface Account {
 export interface Character {
   name: string;
 }
+
+export interface CharacterSummary {
+  name: string;
+  level: number;
+  powerShards: number;
+}
