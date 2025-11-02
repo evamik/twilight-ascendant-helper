@@ -62,10 +62,17 @@
   white-space: nowrap;
 }
 
+/* Cards Grid Container */
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
 /* Card Styles */
 .inventoryCard,
 .stashCard {
-  margin-bottom: 12px;
   padding: 10px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -87,35 +94,28 @@
   color: #fff;
 }
 
-/* Items Grid */
+/* Items Grid - 2 columns, 3 rows */
 .itemsGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 0px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
 }
 
 .itemSlot {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
+  padding: 6px 8px;
   background: rgba(0, 0, 0, 0.3);
   border-radius: 3px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 0;
+  cursor: help;
+  transition: background 0.2s ease;
 }
 
-.slotNumber {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-  font-size: 11px;
-  font-weight: bold;
-  color: #aaa;
-  flex-shrink: 0;
+.itemSlot:hover {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .itemName {
@@ -123,6 +123,11 @@
   font-size: 13px;
   font-weight: 500;
   line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 }
 
 .emptySlot {

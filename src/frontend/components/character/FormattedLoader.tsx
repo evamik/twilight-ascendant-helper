@@ -132,54 +132,47 @@ const FormattedLoader: React.FC<FormattedLoaderProps> = ({
       <div className={styles.resources}>
         {data.level && (
           <div className={styles.resourceItem}>
-            <span className={styles.resourceLabel}>⭐ Level:</span>
+            <span className={styles.resourceLabel}>Level:</span>
             <span className={styles.resourceValue}>{data.level}</span>
           </div>
         )}
         <div className={styles.resourceItem}>
-          <span className={styles.resourceLabel}>💰 Gold:</span>
+          <img
+            src="icons/general/gold.png"
+            alt="Gold"
+            style={{ width: "16px", height: "16px" }}
+          />
           <span className={styles.resourceValue}>
             {parseInt(data.gold).toLocaleString()}
           </span>
         </div>
         <div className={styles.resourceItem}>
-          <span className={styles.resourceLabel}>⚡ Power Shards:</span>
+          <img
+            src="icons/general/shard.png"
+            alt="Power Shards"
+            style={{ width: "16px", height: "16px" }}
+          />
           <span className={styles.resourceValue}>
             {parseInt(data.powerShards).toLocaleString()}
           </span>
         </div>
       </div>
 
-      {/* Inventory Card */}
-      <div className={styles.inventoryCard}>
-        <h3 className={styles.cardTitle}>
-          🎒 Inventory ({data.inventory.length}/6)
-        </h3>
-        <div className={styles.itemsGrid}>
-          {data.inventory.length > 0 ? (
-            data.inventory.map((item) => (
-              <div key={item.slot} className={styles.itemSlot}>
-                <span className={styles.slotNumber}>{item.slot}</span>
-                <span className={styles.itemName}>{item.itemName}</span>
-              </div>
-            ))
-          ) : (
-            <div className={styles.emptySlot}>No items</div>
-          )}
-        </div>
-      </div>
-
-      {/* Stash Cards */}
-      {data.stashes.map((stash) => (
-        <div key={stash.stashNumber} className={styles.stashCard}>
+      {/* Cards Grid Container - Inventory and Stashes */}
+      <div className={styles.cardsGrid}>
+        {/* Inventory Card */}
+        <div className={styles.inventoryCard}>
           <h3 className={styles.cardTitle}>
-            📦 Stash {stash.stashNumber} ({stash.items.length}/6)
+            🎒 Inventory ({data.inventory.length}/6)
           </h3>
           <div className={styles.itemsGrid}>
-            {stash.items.length > 0 ? (
-              stash.items.map((item) => (
-                <div key={item.slot} className={styles.itemSlot}>
-                  <span className={styles.slotNumber}>{item.slot}</span>
+            {data.inventory.length > 0 ? (
+              data.inventory.map((item) => (
+                <div
+                  key={item.slot}
+                  className={styles.itemSlot}
+                  title={item.itemName}
+                >
                   <span className={styles.itemName}>{item.itemName}</span>
                 </div>
               ))
@@ -188,7 +181,31 @@ const FormattedLoader: React.FC<FormattedLoaderProps> = ({
             )}
           </div>
         </div>
-      ))}
+
+        {/* Stash Cards */}
+        {data.stashes.map((stash) => (
+          <div key={stash.stashNumber} className={styles.stashCard}>
+            <h3 className={styles.cardTitle}>
+              📦 Stash {stash.stashNumber} ({stash.items.length}/6)
+            </h3>
+            <div className={styles.itemsGrid}>
+              {stash.items.length > 0 ? (
+                stash.items.map((item) => (
+                  <div
+                    key={item.slot}
+                    className={styles.itemSlot}
+                    title={item.itemName}
+                  >
+                    <span className={styles.itemName}>{item.itemName}</span>
+                  </div>
+                ))
+              ) : (
+                <div className={styles.emptySlot}>No items</div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
