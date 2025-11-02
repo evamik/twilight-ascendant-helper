@@ -24,3 +24,10 @@ export interface CharacterSummary {
   level: number;
   powerShards: number;
 }
+
+export interface BackupFileInfo {
+  fileName: string;
+  filePath: string;
+  modifiedDate: string;
+  modifiedTime: number;
+}

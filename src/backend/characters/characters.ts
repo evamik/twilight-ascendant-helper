@@ -7,6 +7,7 @@ import {
   CharacterList,
   CharacterSummary,
   CharacterSummaryList,
+  BackupFileList,
 } from "../types";
 
 const getBasePath = (): string => {
@@ -108,7 +109,7 @@ export const getLatestCharacterData = (
       return null;
     }
 
-    // Get all .txt files in the character folder
+    // Get all .txt files in the character folder (not in Backup subfolder)
     const files = fs
       .readdirSync(characterPath)
       .filter((file) => file.endsWith(".txt"))
@@ -135,6 +136,89 @@ export const getLatestCharacterData = (
     };
   } catch (error) {
     console.error("Error reading character data:", error);
+    return null;
+  }
+};
+
+/**
+ * Get list of backup files for a character
+ */
+export const getCharacterBackups = (
+  accountName: string,
+  characterName: string
+): BackupFileList => {
+  try {
+    const basePath = getBasePath();
+    const backupPath = path.join(
+      basePath,
+      accountName,
+      characterName,
+      "Backup"
+    );
+
+    if (!fs.existsSync(backupPath)) {
+      console.log("Backup directory not found:", backupPath);
+      return [];
+    }
+
+    // Get all .txt files in the backup folder
+    const files = fs
+      .readdirSync(backupPath)
+      .filter((file) => file.endsWith(".txt"))
+      .map((file) => {
+        const filePath = path.join(backupPath, file);
+        const stats = fs.statSync(filePath);
+        return {
+          fileName: file,
+          filePath: filePath,
+          modifiedDate: stats.mtime.toISOString(),
+          modifiedTime: stats.mtime.getTime(),
+        };
+      })
+      .sort((a, b) => b.modifiedTime - a.modifiedTime); // Sort by modified time, newest first
+
+    console.log("Found", files.length, "backup files for", characterName);
+    return files;
+  } catch (error) {
+    console.error("Error reading backup files:", error);
+    return [];
+  }
+};
+
+/**
+ * Load a specific backup file
+ */
+export const loadCharacterBackup = (
+  accountName: string,
+  characterName: string,
+  fileName: string
+): CharacterData | null => {
+  try {
+    const basePath = getBasePath();
+    const backupPath = path.join(
+      basePath,
+      accountName,
+      characterName,
+      "Backup",
+      fileName
+    );
+
+    if (!fs.existsSync(backupPath)) {
+      console.log("Backup file not found:", backupPath);
+      return null;
+    }
+
+    const content = fs.readFileSync(backupPath, "utf-8");
+    const stats = fs.statSync(backupPath);
+
+    console.log("Loaded backup file:", fileName);
+    return {
+      fileName: fileName,
+      content: content,
+      lastModified: stats.mtime,
+    };
+  } catch (error) {
+    console.error("Error loading backup file:", error);
     return null;
   }
 };

@@ -97,7 +97,8 @@ export function parseLoaderContent(
     }
 
     // Inventory items (Item 1-6)
-    const invMatch = line.match(/^Item (\d+):\s*(.*)$/);
+    // Handle both formats: "Item 1: ItemName" and "Item 1ItemName" (backup file bug)
+    const invMatch = line.match(/^Item (\d+):?\s*(.*)$/);
     if (invMatch) {
       const slot = parseInt(invMatch[1], 10);
       const itemName = invMatch[2].trim();
@@ -108,7 +109,8 @@ export function parseLoaderContent(
     }
 
     // Stash items (Stash1-6 Item 1-6)
-    const stashMatch = line.match(/^Stash(\d+) Item (\d+):\s*(.*)$/);
+    // Handle both formats: "Stash1 Item 1: ItemName" and "Stash1 Item 1ItemName" (just in case)
+    const stashMatch = line.match(/^Stash(\d+) Item (\d+):?\s*(.*)$/);
     if (stashMatch) {
       const stashNum = parseInt(stashMatch[1], 10);
       const slot = parseInt(stashMatch[2], 10);

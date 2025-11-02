@@ -4,12 +4,15 @@ import {
   getCharacterFolders,
   getLatestCharacterData,
   getCharacterSummaries,
+  getCharacterBackups,
+  loadCharacterBackup,
 } from "./characters";
 import {
   AccountList,
   CharacterList,
   CharacterData,
   CharacterSummaryList,
+  BackupFileList,
 } from "../types";
 import { watchCharacterFile, unwatchCharacterFile } from "../fileWatcher";
 
@@ -89,6 +92,31 @@ export const registerCharacterIpcHandlers = (): void => {
       characterName: string
     ): Promise<void> => {
       unwatchCharacterFile(accountName, characterName);
+    }
+  );
+
+  // Get backup files for a character
+  ipcMain.handle(
+    "get-character-backups",
+    async (
+      _event: IpcMainInvokeEvent,
+      accountName: string,
+      characterName: string
+    ): Promise<BackupFileList> => {
+      return getCharacterBackups(accountName, characterName);
+    }
+  );
+
+  // Load a specific backup file
+  ipcMain.handle(
+    "load-character-backup",
+    async (
+      _event: IpcMainInvokeEvent,
+      accountName: string,
+      characterName: string,
+      fileName: string
+    ): Promise<CharacterData | null> => {
+      return loadCharacterBackup(accountName, characterName, fileName);
     }
   );
 };

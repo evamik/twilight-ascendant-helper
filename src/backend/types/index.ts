@@ -126,6 +126,16 @@ export interface CharacterSummary {
 
 export type CharacterSummaryList = CharacterSummary[];
 
+// Backup file info
+export interface BackupFileInfo {
+  fileName: string;
+  filePath: string;
+  modifiedDate: string; // ISO date string
+  modifiedTime: number; // Unix timestamp for sorting
+}
+
+export type BackupFileList = BackupFileInfo[];
+
 // IPC Handler registration function type
 export type IpcHandlerRegistration = () => void;
 
