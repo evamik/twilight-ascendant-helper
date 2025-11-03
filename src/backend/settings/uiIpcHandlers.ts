@@ -4,6 +4,10 @@ import {
   setShowOnlyT4Classes,
   setFavoriteCharacters,
   setLastUsedAccount,
+  getMainAppScale,
+  setMainAppScale,
+  getOverlayScale,
+  setOverlayScale,
 } from "./uiSettings";
 import { setOverlayEnabled } from "./overlaySettings";
 import { trackFeature } from "./analytics";
@@ -82,6 +86,42 @@ export const registerUIIpcHandlers = (): void => {
       accountName: string
     ): Promise<SaveResult> => {
       const success = setLastUsedAccount(accountName);
+      return { success };
+    }
+  );
+
+  // Get main app UI scale
+  ipcMain.handle("get-main-app-scale", async (): Promise<number> => {
+    return getMainAppScale();
+  });
+
+  // Set main app UI scale
+  ipcMain.handle(
+    "set-main-app-scale",
+    async (_event: IpcMainInvokeEvent, scale: number): Promise<SaveResult> => {
+      const success = setMainAppScale(scale);
+      trackFeature("main_app_scale_saved", { scale });
+      return { success };
+    }
+  );
+
+  // Get overlay UI scale
+  ipcMain.handle("get-overlay-scale", async (): Promise<number> => {
+    return getOverlayScale();
+  });
+
+  // Set overlay UI scale
+  ipcMain.handle(
+    "set-overlay-scale",
+    async (_event: IpcMainInvokeEvent, scale: number): Promise<SaveResult> => {
+      const success = setOverlayScale(scale);
+      trackFeature("overlay_scale_saved", { scale });
+
+      // Notify overlay window to apply the new scale
+      if (success && overlayWin) {
+        overlayWin.webContents.send("overlay-scale-changed", scale);
+      }
+
       return { success };
     }
   );

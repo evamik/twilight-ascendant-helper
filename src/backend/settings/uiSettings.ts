@@ -42,3 +42,35 @@ export const setLastUsedAccount = (accountName: string): boolean => {
   settings.lastUsedAccount = accountName;
   return saveSettings(settings);
 };
+
+// Get main app UI scale (default 1.0 = 100%)
+export const getMainAppScale = (): number => {
+  const settings = loadSettings();
+  const scale = settings.mainAppScale ?? 1.0;
+  // Clamp between 0.5 and 2.0
+  return Math.max(0.5, Math.min(2.0, scale));
+};
+
+// Set main app UI scale
+export const setMainAppScale = (scale: number): boolean => {
+  const settings = loadSettings();
+  // Clamp between 0.5 and 2.0
+  settings.mainAppScale = Math.max(0.5, Math.min(2.0, scale));
+  return saveSettings(settings);
+};
+
+// Get overlay UI scale (default 1.0 = 100%)
+export const getOverlayScale = (): number => {
+  const settings = loadSettings();
+  const scale = settings.overlayScale ?? 1.0;
+  // Clamp between 0.5 and 2.0
+  return Math.max(0.5, Math.min(2.0, scale));
+};
+
+// Set overlay UI scale
+export const setOverlayScale = (scale: number): boolean => {
+  const settings = loadSettings();
+  // Clamp between 0.5 and 2.0
+  settings.overlayScale = Math.max(0.5, Math.min(2.0, scale));
+  return saveSettings(settings);
+};

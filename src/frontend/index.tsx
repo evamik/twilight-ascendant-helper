@@ -4,7 +4,7 @@
  * Refactored to maintain SRP - delegates to specialized components
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles/variables.css";
 import styles from "./index.module.css";
@@ -17,6 +17,19 @@ import OverlayToggle from "./components/common/OverlayToggle";
 const App: React.FC = () => {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("loader"); // 'loader' or 'drops'
+  const [appScale, setAppScale] = useState<number>(1);
+
+  // Load main app scale from settings
+  useEffect(() => {
+    if (window.require) {
+      const { ipcRenderer } = window.require("electron") as {
+        ipcRenderer: { invoke: (channel: string) => Promise<any> };
+      };
+      ipcRenderer.invoke("get-main-app-scale").then((scale: number) => {
+        setAppScale(scale);
+      });
+    }
+  }, []);
 
   const handleSettingsClick = () => {
     setShowSettings(true);
@@ -37,7 +50,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={styles.app}>
+    <div className={styles.app} style={{ zoom: appScale }}>
       {/* App Header */}
       <div className={styles.header}>
         <h1 className={styles.title}>Twilight Ascendant Helper</h1>

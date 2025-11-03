@@ -21,6 +21,8 @@ export interface Settings {
   characterTags?: Record<string, string[]>; // Map of "accountName:characterName" to array of tag IDs
   selectedTagFilters?: string[]; // Array of currently selected tag filter IDs
   showFavoritesOnly?: boolean; // Whether favorites filter is active
+  mainAppScale?: number; // UI scale for main app (default 1.0 = 100%)
+  overlayScale?: number; // UI scale for overlay (default 1.0 = 100%)
   characterSettings: Record<string, CharacterSettings>;
   overlayToggleKeybind?: string; // Global keybind to toggle overlay expand/minimize
 }

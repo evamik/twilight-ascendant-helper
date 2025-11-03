@@ -45,6 +45,7 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
   const [activeTab, setActiveTab] = useState<string>("loader");
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [overlayScale, setOverlayScale] = useState<number>(1);
   const dragging = useRef<boolean>(false);
   const grabOffset = useRef<Position>({ x: 0, y: 0 }); // Offset from overlay top-left to initial click position
   const resizing = useRef<boolean>(false);
@@ -77,6 +78,11 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
         }
       });
 
+      // Load overlay scale from settings
+      ipcRenderer.invoke("get-overlay-scale").then((scale: number) => {
+        setOverlayScale(scale);
+      });
+
       ipcRenderer.on("set-anchor", (_event: any, anchorPos: Position) => {
         // Update anchor position if needed in future
         console.log("Anchor updated:", anchorPos);
@@ -92,10 +98,18 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
           return newState;
         });
       });
+
+      // Listen for overlay scale changes
+      ipcRenderer.on("overlay-scale-changed", (_event: any, scale: number) => {
+        console.log("Overlay scale changed:", scale);
+        setOverlayScale(scale);
+      });
+
       return () => {
         ipcRenderer.removeAllListeners("set-anchor");
         ipcRenderer.removeAllListeners("set-overlay-size");
         ipcRenderer.removeAllListeners("toggle-overlay-minimize");
+        ipcRenderer.removeAllListeners("overlay-scale-changed");
       };
     }
     return undefined;
@@ -367,35 +381,40 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
         }}
       >
         <div
-          className={styles.anchor}
-          onMouseDown={handleMouseDown}
-          onMouseEnter={handleAnchorMouseEnter}
-          onMouseLeave={handleAnchorMouseLeave}
-          title="Click to minimize, drag to move"
+          className={styles.overlayZoomContainer}
+          style={{ zoom: overlayScale }}
         >
-          +
-        </div>
-        <Button
-          className={styles.backButtonSettings}
-          onClick={() => setShowSettings(false)}
-          variant="secondary"
-          size="medium"
-          title="Back"
-        >
-          ← Back
-        </Button>
-        <div
-          className={styles.resizeHandle}
-          onMouseDown={handleResizeMouseDown}
-          title="Resize overlay"
-        >
-          ↘
-        </div>
-        <div className={styles.contentAreaSettings}>
-          <Settings
-            onBack={() => setShowSettings(false)}
-            showBackButton={false}
-          />
+          <div
+            className={styles.anchor}
+            onMouseDown={handleMouseDown}
+            onMouseEnter={handleAnchorMouseEnter}
+            onMouseLeave={handleAnchorMouseLeave}
+            title="Click to minimize, drag to move"
+          >
+            +
+          </div>
+          <Button
+            className={styles.backButtonSettings}
+            onClick={() => setShowSettings(false)}
+            variant="secondary"
+            size="medium"
+            title="Back"
+          >
+            ← Back
+          </Button>
+          <div
+            className={styles.resizeHandle}
+            onMouseDown={handleResizeMouseDown}
+            title="Resize overlay"
+          >
+            ↘
+          </div>
+          <div className={styles.contentAreaSettings}>
+            <Settings
+              onBack={() => setShowSettings(false)}
+              showBackButton={false}
+            />
+          </div>
         </div>
       </div>
     );
@@ -412,96 +431,101 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
       }}
     >
       <div
-        className={styles.anchor}
-        onMouseDown={handleMouseDown}
-        onMouseEnter={handleAnchorMouseEnter}
-        onMouseLeave={handleAnchorMouseLeave}
-        title={
-          isMinimized
-            ? "Click to restore, drag to move"
-            : "Click to minimize, drag to move"
-        }
+        className={styles.overlayZoomContainer}
+        style={{ zoom: overlayScale }}
       >
-        {isMinimized ? "□" : "+"}
-      </div>
-      {!isMinimized && (
-        <>
-          {/* Tab Navigation */}
-          <div className={styles.tabSection}>
-            <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-            <IconButton
-              onClick={() => setShowSettings(true)}
-              className={styles.settingsButton}
-              variant="ghost"
-              size="medium"
-              icon="⚙️"
-              title="Settings"
-            />
-          </div>
+        <div
+          className={styles.anchor}
+          onMouseDown={handleMouseDown}
+          onMouseEnter={handleAnchorMouseEnter}
+          onMouseLeave={handleAnchorMouseLeave}
+          title={
+            isMinimized
+              ? "Click to restore, drag to move"
+              : "Click to minimize, drag to move"
+          }
+        >
+          {isMinimized ? "□" : "+"}
+        </div>
+        {!isMinimized && (
+          <>
+            {/* Tab Navigation */}
+            <div className={styles.tabSection}>
+              <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+              <IconButton
+                onClick={() => setShowSettings(true)}
+                className={styles.settingsButton}
+                variant="ghost"
+                size="medium"
+                icon="⚙️"
+                title="Settings"
+              />
+            </div>
 
-          {/* Universal back button - shows when navigating in characters */}
-          {activeTab === "loader" && selectedAccount && (
-            <Button
-              className={styles.backButtonOverlay}
-              onClick={handleBackClick}
-              variant="secondary"
-              size="medium"
-              title="Back"
-            >
-              ← Back
-            </Button>
-          )}
-
-          <div
-            className={styles.resizeHandle}
-            onMouseDown={handleResizeMouseDown}
-            title="Resize overlay"
-          >
-            ↘
-          </div>
-
-          <div
-            className={
-              activeTab === "loader" && selectedAccount
-                ? styles.contentArea
-                : styles.contentAreaNoBack
-            }
-          >
-            {activeTab === "loader" && (
-              <>
-                {selectedCharacter ? (
-                  <CharacterData
-                    accountName={selectedAccount!}
-                    characterName={selectedCharacter}
-                    characterData={characterData}
-                    onBack={handleBackClick}
-                    onLoad={() => loadCharacterData()}
-                    showBackButton={false}
-                  />
-                ) : selectedAccount ? (
-                  <CharacterList
-                    accountName={selectedAccount}
-                    characters={characters}
-                    onBack={handleBackClick}
-                    onCharacterClick={handleCharacterClick}
-                    onLoad={handleQuickLoad}
-                    showBackButton={false}
-                  />
-                ) : (
-                  <>
-                    <h2 className={styles.accountsTitle}>Accounts</h2>
-                    <AccountList
-                      accounts={accounts}
-                      onAccountClick={handleAccountClick}
-                    />
-                  </>
-                )}
-              </>
+            {/* Universal back button - shows when navigating in characters */}
+            {activeTab === "loader" && selectedAccount && (
+              <Button
+                className={styles.backButtonOverlay}
+                onClick={handleBackClick}
+                variant="secondary"
+                size="medium"
+                title="Back"
+              >
+                ← Back
+              </Button>
             )}
-            {activeTab === "drops" && <Drops />}
-          </div>
-        </>
-      )}
+
+            <div
+              className={styles.resizeHandle}
+              onMouseDown={handleResizeMouseDown}
+              title="Resize overlay"
+            >
+              ↘
+            </div>
+
+            <div
+              className={
+                activeTab === "loader" && selectedAccount
+                  ? styles.contentArea
+                  : styles.contentAreaNoBack
+              }
+            >
+              {activeTab === "loader" && (
+                <>
+                  {selectedCharacter ? (
+                    <CharacterData
+                      accountName={selectedAccount!}
+                      characterName={selectedCharacter}
+                      characterData={characterData}
+                      onBack={handleBackClick}
+                      onLoad={() => loadCharacterData()}
+                      showBackButton={false}
+                    />
+                  ) : selectedAccount ? (
+                    <CharacterList
+                      accountName={selectedAccount}
+                      characters={characters}
+                      onBack={handleBackClick}
+                      onCharacterClick={handleCharacterClick}
+                      onLoad={handleQuickLoad}
+                      showBackButton={false}
+                    />
+                  ) : (
+                    <>
+                      <h2 className={styles.accountsTitle}>Accounts</h2>
+                      <AccountList
+                        accounts={accounts}
+                        onAccountClick={handleAccountClick}
+                      />
+                    </>
+                  )}
+                </>
+              )}
+              {activeTab === "drops" && <Drops />}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

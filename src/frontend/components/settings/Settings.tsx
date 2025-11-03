@@ -6,6 +6,7 @@ import ReplayDirectorySettings from "./ReplayDirectorySettings";
 import UpdateSettings from "./UpdateSettings";
 import TagManager from "./TagManager";
 import KeybindSettings from "./KeybindSettings";
+import UIScaleSettings from "./UIScaleSettings";
 import { Button } from "../common/buttons";
 
 interface SettingsProps {
@@ -34,6 +35,11 @@ const Settings: React.FC<SettingsProps> = ({
       {/* Update Settings Section */}
       <div className={styles.section}>
         <UpdateSettings />
+      </div>
+
+      {/* UI Scale Settings Section */}
+      <div className={styles.section}>
+        <UIScaleSettings />
       </div>
 
       {/* Data Directory Settings Section */}
