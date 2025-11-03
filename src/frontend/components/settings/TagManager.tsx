@@ -19,6 +19,18 @@ const TagManager: React.FC = () => {
   // Load tags on mount
   useEffect(() => {
     loadTags();
+
+    // Listen for settings changes from other windows
+    const handleSettingsChanged = () => {
+      console.log("Settings changed, reloading tags...");
+      loadTags();
+    };
+
+    ipcRenderer.on("settings-changed", handleSettingsChanged);
+
+    return () => {
+      ipcRenderer.removeListener("settings-changed", handleSettingsChanged);
+    };
   }, []);
 
   const loadTags = async () => {

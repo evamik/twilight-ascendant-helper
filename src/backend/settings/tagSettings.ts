@@ -205,3 +205,16 @@ export const setSelectedTagFilters = (tagIds: string[]): boolean => {
   settings.selectedTagFilters = Array.isArray(tagIds) ? tagIds : [];
   return saveSettings(settings);
 };
+
+// Get favorites filter state
+export const getShowFavoritesOnly = (): boolean => {
+  const settings = loadSettings();
+  return settings.showFavoritesOnly || false;
+};
+
+// Set favorites filter state
+export const setShowFavoritesOnly = (show: boolean): boolean => {
+  const settings = loadSettings();
+  settings.showFavoritesOnly = show;
+  return saveSettings(settings);
+};

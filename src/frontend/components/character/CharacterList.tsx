@@ -55,6 +55,7 @@ const CharacterList: React.FC<CharacterListProps> = ({
   const [selectedTagFilters, setSelectedTagFilters] = useState<Set<string>>(
     new Set()
   );
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState<boolean>(false);
 
   // Auto-tag T4 characters that don't have the T4 tag yet
   const autoTagT4Characters = async (
@@ -132,6 +133,12 @@ const CharacterList: React.FC<CharacterListProps> = ({
         if (savedFilters && savedFilters.length > 0) {
           setSelectedTagFilters(new Set(savedFilters));
         }
+
+        // Load favorites filter state
+        const savedShowFavoritesOnly = (await ipcRenderer.invoke(
+          "get-show-favorites-only"
+        )) as boolean;
+        setShowFavoritesOnly(savedShowFavoritesOnly);
 
         // Auto-tag T4 characters
         await autoTagT4Characters(uiSettings.characterTags || {});
@@ -214,19 +221,42 @@ const CharacterList: React.FC<CharacterListProps> = ({
 
   const clearAllTagFilters = async () => {
     setSelectedTagFilters(new Set());
+    setShowFavoritesOnly(false);
 
     // Save to settings
     if (ipcRenderer) {
       try {
         await ipcRenderer.invoke("set-selected-tag-filters", []);
+        await ipcRenderer.invoke("set-show-favorites-only", false);
       } catch (error) {
         console.error("Error clearing tag filters:", error);
       }
     }
   };
 
+  const toggleFavoritesFilter = async () => {
+    const newValue = !showFavoritesOnly;
+    setShowFavoritesOnly(newValue);
+
+    // Save to settings
+    if (ipcRenderer) {
+      try {
+        await ipcRenderer.invoke("set-show-favorites-only", newValue);
+      } catch (error) {
+        console.error("Error saving favorites filter state:", error);
+      }
+    }
+  };
+
   // Apply filters
   let filteredCharacters = characters;
+
+  // Favorites filter
+  if (showFavoritesOnly) {
+    filteredCharacters = filteredCharacters.filter((char) =>
+      favorites.has(char.name)
+    );
+  }
 
   // Tag filter - character must have ALL selected tags (AND logic)
   if (selectedTagFilters.size > 0) {
@@ -271,13 +301,21 @@ const CharacterList: React.FC<CharacterListProps> = ({
       <TagFilterButtons
         availableTags={availableTags}
         selectedTagFilters={selectedTagFilters}
+        showFavoritesOnly={showFavoritesOnly}
         onToggleTag={toggleTagFilter}
+        onToggleFavorites={toggleFavoritesFilter}
         onClearAll={clearAllTagFilters}
       />
 
       {filteredCharacters.length === 0 ? (
         <p className={styles.emptyMessage}>
-          {selectedTagFilters.size > 0
+          {showFavoritesOnly && selectedTagFilters.size > 0
+            ? `No favorite characters with selected tag${
+                selectedTagFilters.size > 1 ? "s" : ""
+              }`
+            : showFavoritesOnly
+            ? "No favorite characters"
+            : selectedTagFilters.size > 0
             ? `No characters with selected tag${
                 selectedTagFilters.size > 1 ? "s" : ""
               }`

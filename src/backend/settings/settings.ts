@@ -20,6 +20,7 @@ export interface Settings {
   availableTags?: Tag[]; // User-defined tags
   characterTags?: Record<string, string[]>; // Map of "accountName:characterName" to array of tag IDs
   selectedTagFilters?: string[]; // Array of currently selected tag filter IDs
+  showFavoritesOnly?: boolean; // Whether favorites filter is active
   characterSettings: Record<string, CharacterSettings>;
   overlayToggleKeybind?: string; // Global keybind to toggle overlay expand/minimize
 }

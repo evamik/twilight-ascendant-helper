@@ -28,7 +28,7 @@ const LoaderView: React.FC = () => {
 
   const handleQuickLoad = async (characterName: string) => {
     if (!window.require || !selectedAccount) return;
-    
+
     const { ipcRenderer } = window.require("electron") as {
       ipcRenderer: any;
     };
@@ -40,7 +40,7 @@ const LoaderView: React.FC = () => {
         selectedAccount,
         characterName
       );
-      
+
       // Send load command
       const result = await ipcRenderer.invoke(
         "send-load-command",
@@ -48,7 +48,7 @@ const LoaderView: React.FC = () => {
         selectedAccount,
         characterName
       );
-      
+
       if (!result.success) {
         alert(`Failed to load character: ${result.error}`);
       }

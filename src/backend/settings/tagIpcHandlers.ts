@@ -1,4 +1,4 @@
-import { ipcMain, IpcMainInvokeEvent } from "electron";
+import { ipcMain, IpcMainInvokeEvent, BrowserWindow } from "electron";
 import {
   getAvailableTags,
   setAvailableTags,
@@ -10,6 +10,8 @@ import {
   getAllCharacterTags,
   getSelectedTagFilters,
   setSelectedTagFilters,
+  getShowFavoritesOnly,
+  setShowFavoritesOnly,
 } from "./tagSettings";
 import { trackFeature } from "./analytics";
 import { SaveResult } from "../types";
@@ -30,6 +32,12 @@ export const registerTagIpcHandlers = (): void => {
       const success = setAvailableTags(tags);
       if (success) {
         trackFeature("custom_tags_updated", { count: tags.length });
+
+        // Notify all windows that settings changed
+        const allWindows = BrowserWindow.getAllWindows();
+        allWindows.forEach((win) => {
+          win.webContents.send("settings-changed");
+        });
       }
       return { success };
     }
@@ -100,6 +108,13 @@ export const registerTagIpcHandlers = (): void => {
       try {
         const tag = createCustomTag(name, color);
         trackFeature("custom_tag_created", { name, color });
+
+        // Notify all windows that settings changed
+        const allWindows = BrowserWindow.getAllWindows();
+        allWindows.forEach((win) => {
+          win.webContents.send("settings-changed");
+        });
+
         return { success: true, tag };
       } catch (error) {
         console.error("Error creating custom tag:", error);
@@ -115,6 +130,12 @@ export const registerTagIpcHandlers = (): void => {
       const success = deleteCustomTag(tagId);
       if (success) {
         trackFeature("custom_tag_deleted", { tagId });
+
+        // Notify all windows that settings changed
+        const allWindows = BrowserWindow.getAllWindows();
+        allWindows.forEach((win) => {
+          win.webContents.send("settings-changed");
+        });
       }
       return { success };
     }
@@ -138,6 +159,20 @@ export const registerTagIpcHandlers = (): void => {
       tagIds: string[]
     ): Promise<SaveResult> => {
       const success = setSelectedTagFilters(tagIds);
+      return { success };
+    }
+  );
+
+  // Get favorites filter state
+  ipcMain.handle("get-show-favorites-only", async (): Promise<boolean> => {
+    return getShowFavoritesOnly();
+  });
+
+  // Set favorites filter state
+  ipcMain.handle(
+    "set-show-favorites-only",
+    async (_event: IpcMainInvokeEvent, show: boolean): Promise<SaveResult> => {
+      const success = setShowFavoritesOnly(show);
       return { success };
     }
   );
