@@ -288,6 +288,38 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
     }
   };
 
+  const handleQuickLoad = async (characterName: string) => {
+    if (!window.require || !selectedAccount) return;
+    
+    const { ipcRenderer } = window.require("electron") as {
+      ipcRenderer: IpcRenderer;
+    };
+
+    try {
+      // Get character data
+      const data = await ipcRenderer.invoke(
+        "get-character-data",
+        selectedAccount,
+        characterName
+      );
+      
+      // Send load command
+      const result = await ipcRenderer.invoke(
+        "send-load-command",
+        data,
+        selectedAccount,
+        characterName
+      );
+      
+      if (!result.success) {
+        alert(`Failed to load character: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Quick load error:", error);
+      alert("Failed to load character");
+    }
+  };
+
   const handleResizeMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
     resizing.current = true;
@@ -452,6 +484,7 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
                     characters={characters}
                     onBack={handleBackClick}
                     onCharacterClick={handleCharacterClick}
+                    onLoad={handleQuickLoad}
                     showBackButton={false}
                   />
                 ) : (

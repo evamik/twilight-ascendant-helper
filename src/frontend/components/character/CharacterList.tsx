@@ -32,6 +32,7 @@ interface CharacterListProps {
   characters: CharacterSummary[];
   onBack: () => void;
   onCharacterClick: (characterName: string) => void;
+  onLoad?: (characterName: string) => void;
   buttonStyle?: React.CSSProperties;
   showBackButton?: boolean;
 }
@@ -41,6 +42,7 @@ const CharacterList: React.FC<CharacterListProps> = ({
   characters,
   onBack,
   onCharacterClick,
+  onLoad,
   buttonStyle,
   showBackButton = true,
 }) => {
@@ -299,6 +301,7 @@ const CharacterList: React.FC<CharacterListProps> = ({
                 availableTags={availableTags}
                 buttonStyle={buttonStyle}
                 onCharacterClick={onCharacterClick}
+                onLoad={onLoad}
                 onToggleFavorite={toggleFavorite}
               />
             );

@@ -18,6 +18,7 @@ interface CharacterCardProps {
   availableTags: Tag[];
   buttonStyle?: React.CSSProperties;
   onCharacterClick: (characterName: string) => void;
+  onLoad?: (characterName: string) => void;
   onToggleFavorite: (e: React.MouseEvent, characterName: string) => void;
 }
 
@@ -30,6 +31,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
   availableTags,
   buttonStyle,
   onCharacterClick,
+  onLoad,
   onToggleFavorite,
 }) => {
   const heroIconPath = `./icons/heroes/${characterName}.png`;
@@ -55,7 +57,11 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
         <Button
           onClick={(e) => {
             e.stopPropagation();
-            onCharacterClick(characterName);
+            if (onLoad) {
+              onLoad(characterName);
+            } else {
+              onCharacterClick(characterName);
+            }
           }}
           variant="success"
           size="small"

@@ -26,6 +26,38 @@ const LoaderView: React.FC = () => {
     loadCharacterData,
   } = useAccountCharacterNavigation();
 
+  const handleQuickLoad = async (characterName: string) => {
+    if (!window.require || !selectedAccount) return;
+    
+    const { ipcRenderer } = window.require("electron") as {
+      ipcRenderer: any;
+    };
+
+    try {
+      // Get character data
+      const data = await ipcRenderer.invoke(
+        "get-character-data",
+        selectedAccount,
+        characterName
+      );
+      
+      // Send load command
+      const result = await ipcRenderer.invoke(
+        "send-load-command",
+        data,
+        selectedAccount,
+        characterName
+      );
+      
+      if (!result.success) {
+        alert(`Failed to load character: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Quick load error:", error);
+      alert("Failed to load character");
+    }
+  };
+
   // Don't render content until data is loaded
   if (isLoading) {
     return null;
@@ -55,6 +87,7 @@ const LoaderView: React.FC = () => {
             characters={characters}
             onBack={handleBackClick}
             onCharacterClick={handleCharacterClick}
+            onLoad={handleQuickLoad}
             showBackButton={false}
             buttonStyle={{ background: "#ff9800", color: "#222" }}
           />
