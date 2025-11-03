@@ -56,6 +56,7 @@ const CharacterList: React.FC<CharacterListProps> = ({
     new Set()
   );
   const [showFavoritesOnly, setShowFavoritesOnly] = useState<boolean>(false);
+  const [characterListScale, setCharacterListScale] = useState<number>(1.0);
 
   // Auto-tag T4 characters that don't have the T4 tag yet
   const autoTagT4Characters = async (
@@ -139,6 +140,12 @@ const CharacterList: React.FC<CharacterListProps> = ({
           "get-show-favorites-only"
         )) as boolean;
         setShowFavoritesOnly(savedShowFavoritesOnly);
+
+        // Load character list scale
+        const savedCharacterListScale = (await ipcRenderer.invoke(
+          "get-character-list-scale"
+        )) as number;
+        setCharacterListScale(savedCharacterListScale);
 
         // Auto-tag T4 characters
         await autoTagT4Characters(uiSettings.characterTags || {});
@@ -322,7 +329,10 @@ const CharacterList: React.FC<CharacterListProps> = ({
             : "No characters found"}
         </p>
       ) : (
-        <div className={styles.characterList}>
+        <div
+          className={styles.characterList}
+          style={{ zoom: characterListScale }}
+        >
           {sortedCharacters.map((char) => {
             const isFavorite = favorites.has(char.name);
             const charTags = getCharacterTags(char.name);

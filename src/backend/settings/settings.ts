@@ -23,6 +23,7 @@ export interface Settings {
   showFavoritesOnly?: boolean; // Whether favorites filter is active
   mainAppScale?: number; // UI scale for main app (default 1.0 = 100%)
   overlayScale?: number; // UI scale for overlay (default 1.0 = 100%)
+  characterListScale?: number; // UI scale for character list grid (default 1.0 = 100%)
   characterSettings: Record<string, CharacterSettings>;
   overlayToggleKeybind?: string; // Global keybind to toggle overlay expand/minimize
 }

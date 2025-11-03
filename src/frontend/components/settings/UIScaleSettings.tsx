@@ -4,6 +4,7 @@ import styles from "./UIScaleSettings.module.css";
 const UIScaleSettings: React.FC = () => {
   const [mainAppScale, setMainAppScale] = useState<number>(1.0);
   const [overlayScale, setOverlayScale] = useState<number>(1.0);
+  const [characterListScale, setCharacterListScale] = useState<number>(1.0);
   const [hasChanges, setHasChanges] = useState<boolean>(false);
 
   useEffect(() => {
@@ -18,9 +19,11 @@ const UIScaleSettings: React.FC = () => {
       Promise.all([
         ipcRenderer.invoke("get-main-app-scale"),
         ipcRenderer.invoke("get-overlay-scale"),
-      ]).then(([mainScale, overlayScaleValue]) => {
+        ipcRenderer.invoke("get-character-list-scale"),
+      ]).then(([mainScale, overlayScaleValue, characterListScaleValue]) => {
         setMainAppScale(mainScale);
         setOverlayScale(overlayScaleValue);
+        setCharacterListScale(characterListScaleValue);
       });
     }
   }, []);
@@ -35,6 +38,13 @@ const UIScaleSettings: React.FC = () => {
     setHasChanges(true);
   };
 
+  const handleCharacterListScaleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setCharacterListScale(parseFloat(e.target.value));
+    setHasChanges(true);
+  };
+
   const handleSaveChanges = () => {
     if (window.require) {
       const { ipcRenderer } = window.require("electron") as {
@@ -46,9 +56,10 @@ const UIScaleSettings: React.FC = () => {
       Promise.all([
         ipcRenderer.invoke("set-main-app-scale", mainAppScale),
         ipcRenderer.invoke("set-overlay-scale", overlayScale),
+        ipcRenderer.invoke("set-character-list-scale", characterListScale),
       ]).then(() => {
         setHasChanges(false);
-        // Reload the page to apply main app scale
+        // Reload the page to apply main app and character list scale
         window.location.reload();
       });
     }
@@ -57,6 +68,7 @@ const UIScaleSettings: React.FC = () => {
   const handleReset = () => {
     setMainAppScale(1.0);
     setOverlayScale(1.0);
+    setCharacterListScale(1.0);
     setHasChanges(true);
   };
 
@@ -93,6 +105,21 @@ const UIScaleSettings: React.FC = () => {
           step="0.1"
           value={overlayScale}
           onChange={handleOverlayScaleChange}
+          className={styles.slider}
+        />
+      </div>
+
+      <div className={styles.scaleControl}>
+        <label className={styles.label}>
+          Character List Scale: {Math.round(characterListScale * 100)}%
+        </label>
+        <input
+          type="range"
+          min="0.5"
+          max="2.0"
+          step="0.1"
+          value={characterListScale}
+          onChange={handleCharacterListScaleChange}
           className={styles.slider}
         />
       </div>

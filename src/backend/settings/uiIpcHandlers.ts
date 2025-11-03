@@ -8,6 +8,8 @@ import {
   setMainAppScale,
   getOverlayScale,
   setOverlayScale,
+  getCharacterListScale,
+  setCharacterListScale,
 } from "./uiSettings";
 import { setOverlayEnabled } from "./overlaySettings";
 import { trackFeature } from "./analytics";
@@ -122,6 +124,21 @@ export const registerUIIpcHandlers = (): void => {
         overlayWin.webContents.send("overlay-scale-changed", scale);
       }
 
+      return { success };
+    }
+  );
+
+  // Get character list UI scale
+  ipcMain.handle("get-character-list-scale", async (): Promise<number> => {
+    return getCharacterListScale();
+  });
+
+  // Set character list UI scale
+  ipcMain.handle(
+    "set-character-list-scale",
+    async (_event: IpcMainInvokeEvent, scale: number): Promise<SaveResult> => {
+      const success = setCharacterListScale(scale);
+      trackFeature("character_list_scale_saved", { scale });
       return { success };
     }
   );

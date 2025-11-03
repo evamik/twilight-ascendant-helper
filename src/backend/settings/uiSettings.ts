@@ -74,3 +74,19 @@ export const setOverlayScale = (scale: number): boolean => {
   settings.overlayScale = Math.max(0.5, Math.min(2.0, scale));
   return saveSettings(settings);
 };
+
+// Get character list UI scale (default 1.0 = 100%)
+export const getCharacterListScale = (): number => {
+  const settings = loadSettings();
+  const scale = settings.characterListScale ?? 1.0;
+  // Clamp between 0.5 and 2.0
+  return Math.max(0.5, Math.min(2.0, scale));
+};
+
+// Set character list UI scale
+export const setCharacterListScale = (scale: number): boolean => {
+  const settings = loadSettings();
+  // Clamp between 0.5 and 2.0
+  settings.characterListScale = Math.max(0.5, Math.min(2.0, scale));
+  return saveSettings(settings);
+};
