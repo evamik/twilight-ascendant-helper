@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./TagFilterButtons.module.css";
+import { Button } from "../common/buttons";
 
 interface Tag {
   id: string;
@@ -23,25 +24,23 @@ const TagFilterButtons: React.FC<TagFilterButtonsProps> = ({
   return (
     <div className={styles.tagFilterGrid}>
       {/* Show All button */}
-      <button
+      <Button
         onClick={onClearAll}
-        className={`${styles.tagFilterButton} ${
-          selectedTagFilters.size === 0 ? styles.tagFilterActive : ""
-        }`}
+        variant={selectedTagFilters.size === 0 ? "primary" : "secondary"}
+        className={styles.tagFilterButton}
       >
         Show All
-      </button>
+      </Button>
 
       {/* Individual tag buttons */}
       {availableTags.map((tag) => {
         const isActive = selectedTagFilters.has(tag.id);
         return (
-          <button
+          <Button
             key={tag.id}
             onClick={() => onToggleTag(tag.id)}
-            className={`${styles.tagFilterButton} ${
-              isActive ? styles.tagFilterActive : ""
-            }`}
+            variant={isActive ? "primary" : "secondary"}
+            className={styles.tagFilterButton}
             style={
               isActive
                 ? {
@@ -51,7 +50,7 @@ const TagFilterButtons: React.FC<TagFilterButtonsProps> = ({
             }
           >
             {tag.name}
-          </button>
+          </Button>
         );
       })}
     </div>

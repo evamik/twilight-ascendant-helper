@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./AccountList.module.css";
+import { Button } from "../common/buttons";
 
 interface AccountListProps {
   accounts: string[];
@@ -19,14 +20,15 @@ const AccountList: React.FC<AccountListProps> = ({
   return (
     <div className={styles.container}>
       {accounts.map((account, index) => (
-        <button
+        <Button
           key={index}
           onClick={() => onAccountClick(account)}
+          variant="primary"
           className={styles.button}
           style={buttonStyle}
         >
           {account}
-        </button>
+        </Button>
       ))}
     </div>
   );

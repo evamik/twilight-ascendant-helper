@@ -6,6 +6,7 @@ import ReplayDirectorySettings from "./ReplayDirectorySettings";
 import UpdateSettings from "./UpdateSettings";
 import TagManager from "./TagManager";
 import KeybindSettings from "./KeybindSettings";
+import { Button } from "../common/buttons";
 
 interface SettingsProps {
   onBack: () => void;
@@ -19,9 +20,13 @@ const Settings: React.FC<SettingsProps> = ({
   return (
     <div className={styles.container}>
       {showBackButton && (
-        <button onClick={onBack} className={styles.backButton}>
+        <Button
+          onClick={onBack}
+          variant="secondary"
+          className={styles.backButton}
+        >
           ← Back
-        </button>
+        </Button>
       )}
 
       <h2 className={styles.title}>Settings</h2>

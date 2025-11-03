@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./CharacterData.module.css";
 import CharacterMessageSettings from "./CharacterMessageSettings";
+import { Button } from "../common/buttons";
 
 interface CharacterActionsProps {
   accountName: string;
@@ -28,19 +29,20 @@ const CharacterActions: React.FC<CharacterActionsProps> = ({
   return (
     <div className={styles.buttonRow}>
       {showBackButton && (
-        <button onClick={onBack} className={styles.backButton}>
+        <Button onClick={onBack} variant="secondary">
           ← Back
-        </button>
+        </Button>
       )}
 
-      <button
+      <Button
         onClick={onLoad}
         disabled={isLoading}
-        className={isLoading ? styles.loadButtonDisabled : styles.loadButton}
+        variant="success"
+        isLoading={isLoading}
         style={buttonStyle}
       >
-        {isLoading ? "⏳ Loading..." : "🔄 Load"}
-      </button>
+        {isLoading ? "Loading..." : "🔄 Load"}
+      </Button>
 
       {/* Character-specific message settings (inline button) */}
       <CharacterMessageSettings

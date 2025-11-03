@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styles from "./CharacterData.module.css";
+import { Button } from "../common/buttons";
 
 interface RawTextViewerProps {
   content: string;
@@ -14,12 +15,13 @@ const RawTextViewer: React.FC<RawTextViewerProps> = ({ content }) => {
 
   return (
     <div className={styles.rawTextSection}>
-      <button
+      <Button
         onClick={() => setShowRawText(!showRawText)}
+        variant="ghost"
         className={styles.toggleButton}
       >
         {showRawText ? "▼" : "▶"} Raw Text Data
-      </button>
+      </Button>
       {showRawText && (
         <div className={styles.rawContent}>
           <pre className={styles.rawText}>{content}</pre>

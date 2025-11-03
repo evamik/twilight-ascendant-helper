@@ -5,16 +5,10 @@
   flex: 1;
 }
 
+/* Toggle button now uses standardized Button component with variant="ghost" */
 .toggleButton {
   width: 100%;
-  padding: 8px 12px;
-  background: #ff9800;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
   font-size: 13px;
-  font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -73,42 +67,15 @@
   resize: vertical;
 }
 
-.saveButton {
-  margin-top: 5px;
-  padding: 6px 10px;
-  background: var(--button-primary-bg);
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: bold;
-}
+/* Save buttons now use standardized Button component with variant="success" */
 
 .actionButtons {
   display: flex;
   gap: 8px;
 }
 
-.useGlobalButton {
-  padding: 6px 10px;
-  background: #555;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 11px;
-}
-
-.clearButton {
-  padding: 6px 10px;
-  background: #f44336;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 11px;
-}
+/* Use Global button now uses standardized Button component with variant="info" */
+/* Clear button now uses standardized Button component with variant="danger" */
 
 .saveStatus {
   margin-top: 10px;

@@ -13,30 +13,7 @@
   gap: 12px;
 }
 
-.button {
-  padding: 10px 20px;
-  background: var(--button-primary-bg);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s;
-  width: fit-content;
-}
-
-.button:hover:not(:disabled) {
-  background: var(--button-primary-hover);
-}
-
-.button:active:not(:disabled) {
-  background: var(--button-primary-active);
-}
-
-.button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+/* Check for Updates button now uses standardized Button component with variant="info" */
 
 .progressContainer {
   display: flex;
@@ -87,25 +64,4 @@
   margin: 0;
 }
 
-.restartButton {
-  padding: 10px 20px;
-  background: var(--color-gold);
-  color: #1e1e1e;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-  transition: all 0.2s;
-  width: fit-content;
-}
-
-.restartButton:hover {
-  background: #ffed4e;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
-}
-
-.restartButton:active {
-  transform: translateY(0);
-}
+/* Restart button now uses standardized Button component with variant="warning" */

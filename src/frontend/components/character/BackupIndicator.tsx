@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "../common/buttons";
 
 interface BackupIndicatorProps {
   fileName: string;
@@ -29,20 +30,9 @@ const BackupIndicator: React.FC<BackupIndicatorProps> = ({
       <span style={{ color: "#ffa500", fontWeight: "bold" }}>
         📂 Viewing Backup: {fileName}
       </span>
-      <button
-        onClick={onClose}
-        style={{
-          padding: "4px 12px",
-          background: "#555",
-          color: "#fff",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-          fontSize: "12px",
-        }}
-      >
+      <Button onClick={onClose} variant="secondary" size="small">
         ← Back to Current
-      </button>
+      </Button>
     </div>
   );
 };

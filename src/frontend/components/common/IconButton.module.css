@@ -1,0 +1,143 @@
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.iconButton:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+.iconButton:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.iconButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Size variants */
+.small {
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+}
+
+.medium {
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
+}
+
+.large {
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+}
+
+/* Color variants */
+.primary {
+  background: #ff9800;
+  color: #222;
+}
+
+.primary:hover:not(:disabled) {
+  background: #fb8c00;
+}
+
+.secondary {
+  background: #555;
+  color: #fff;
+}
+
+.secondary:hover:not(:disabled) {
+  background: #666;
+}
+
+.success {
+  background: #4caf50;
+  color: #fff;
+}
+
+.success:hover:not(:disabled) {
+  background: #45a049;
+}
+
+.danger {
+  background: #f44336;
+  color: #fff;
+}
+
+.danger:hover:not(:disabled) {
+  background: #da190b;
+}
+
+.warning {
+  background: #ff9800;
+  color: #222;
+}
+
+.warning:hover:not(:disabled) {
+  background: #fb8c00;
+}
+
+.ghost {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Loading state */
+.loading {
+  pointer-events: none;
+}
+
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 500px) {
+  .small {
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
+  }
+
+  .medium {
+    width: 32px;
+    height: 32px;
+    font-size: 15px;
+  }
+
+  .large {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+}

@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./CharacterCard.module.css";
+import { Button, IconButton } from "../common/buttons";
 
 interface Tag {
   id: string;
@@ -51,16 +52,17 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
             }}
           />
         </div>
-        <button
+        <Button
           onClick={(e) => {
             e.stopPropagation();
             onCharacterClick(characterName);
           }}
-          className={styles.loadButton}
+          variant="success"
+          size="small"
           title={`Load ${characterName}`}
         >
           Load
-        </button>
+        </Button>
       </div>
 
       {/* Content section with name, stats, and tags */}
@@ -109,13 +111,13 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
       </div>
 
       {/* Favorite button */}
-      <button
+      <IconButton
         onClick={(e) => onToggleFavorite(e, characterName)}
-        className={styles.favoriteButton}
+        variant="ghost"
+        size="small"
+        icon={isFavorite ? "⭐" : "☆"}
         title={isFavorite ? "Remove from favorites" : "Add to favorites"}
-      >
-        {isFavorite ? "⭐" : "☆"}
-      </button>
+      />
     </button>
   );
 };

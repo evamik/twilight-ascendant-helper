@@ -161,33 +161,10 @@
   gap: 6px;
 }
 
+/* Tag buttons now use standardized Button component */
+/* Inactive tags: variant="secondary", Active tags: variant="success" with custom background color */
 .tagButton {
-  padding: 6px 12px;
-  border-radius: 4px;
   font-size: 12px;
-  font-weight: 600;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.7);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.tagButton:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: rgba(255, 255, 255, 0.9);
-  transform: translateY(-1px);
-}
-
-.tagActive {
-  color: white;
-  border-color: transparent;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.tagActive:hover {
-  filter: brightness(1.1);
 }
 
 /* Responsive adjustments */

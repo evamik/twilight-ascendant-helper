@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import type { IpcRenderer } from "../../types/electron";
 import styles from "./CharacterMessageSettings.module.css";
+import { Button } from "../common/buttons";
 
 const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
   ipcRenderer?: IpcRenderer;
@@ -152,13 +153,14 @@ const CharacterMessageSettings: React.FC<CharacterMessageSettingsProps> = ({
 
   return (
     <div className={styles.container}>
-      <button
+      <Button
         onClick={() => setShowSettings(!showSettings)}
+        variant="ghost"
         className={styles.toggleButton}
       >
         <span>⚙️ Preload/Postload</span>
         <span>{showSettings ? "▼" : "▶"}</span>
-      </button>
+      </Button>
 
       {showSettings && (
         <div className={styles.settingsContent}>
@@ -191,9 +193,9 @@ const CharacterMessageSettings: React.FC<CharacterMessageSettingsProps> = ({
               placeholder="Enter custom preload messages&#10;Leave empty to use global settings"
               className={styles.textarea}
             />
-            <button onClick={handleSavePreload} className={styles.saveButton}>
+            <Button onClick={handleSavePreload} variant="success">
               Save Preload
-            </button>
+            </Button>
           </div>
 
           {/* Postload Messages */}
@@ -213,22 +215,19 @@ const CharacterMessageSettings: React.FC<CharacterMessageSettingsProps> = ({
               placeholder="Enter custom postload messages&#10;Leave empty to use global settings"
               className={styles.textarea}
             />
-            <button onClick={handleSavePostload} className={styles.saveButton}>
+            <Button onClick={handleSavePostload} variant="success">
               Save Postload
-            </button>
+            </Button>
           </div>
 
           {/* Action Buttons */}
           <div className={styles.actionButtons}>
-            <button
-              onClick={handleUseGlobal}
-              className={styles.useGlobalButton}
-            >
+            <Button onClick={handleUseGlobal} variant="info">
               Use Global
-            </button>
-            <button onClick={handleClear} className={styles.clearButton}>
+            </Button>
+            <Button onClick={handleClear} variant="danger">
               Clear
-            </button>
+            </Button>
           </div>
 
           {/* Save Status */}

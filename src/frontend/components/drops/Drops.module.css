@@ -20,107 +20,19 @@
   gap: 10px;
 }
 
-.copyReplayButton {
-  padding: 8px 16px;
-  background: #9c27b0;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+/* Buttons now use standardized Button component */
+/* Copy Replay: variant="primary" with isLoading */
+/* Open in Explorer: variant="info" */
+/* Refresh: variant="secondary" with isLoading */
+
+.buttonText {
   white-space: nowrap;
 }
 
-.copyReplayButtonDisabled {
-  padding: 8px 16px;
-  background: #666;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: not-allowed;
-  font-size: 14px;
-  font-weight: bold;
-  opacity: 0.6;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-
-.openExplorerButton {
-  padding: 8px 16px;
-  background: #4caf50;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-
-.refreshButton {
-  padding: 8px 16px;
-  background: var(--button-primary-bg);
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-
-.refreshButtonDisabled {
-  padding: 8px 16px;
-  background: #666;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: not-allowed;
-  font-size: 14px;
-  font-weight: bold;
-  opacity: 0.6;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-
-.buttonIcon {
-  font-size: 16px;
-}
-
-.buttonLabel {
-  font-size: 14px;
-}
-
-/* Responsive: hide button labels on smaller widths */
+/* Responsive: hide button text on smaller widths, show only icons */
 @media (max-width: 600px) {
-  .buttonLabel {
+  .buttonText {
     display: none;
-  }
-  
-  .buttonIcon {
-    font-size: 18px;
-  }
-  
-  .copyReplayButton,
-  .copyReplayButtonDisabled,
-  .openExplorerButton,
-  .refreshButton,
-  .refreshButtonDisabled {
-    padding: 8px 12px;
   }
 }
 
@@ -237,27 +149,9 @@
   margin-top: 20px;
 }
 
+/* Toggle button now uses standardized Button component with variant="ghost" */
 .toggleButton {
-  padding: 10px 16px;
-  background: rgba(0, 0, 0, 0.3);
-  color: #aaa;
-  border: 1px solid #555;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
   width: 100%;
   text-align: left;
-  transition: all 0.2s ease;
   margin-bottom: 10px;
-}
-
-.toggleButton:hover {
-  background: rgba(0, 0, 0, 0.4);
-  border-color: #666;
-  color: #fff;
-}
-
-.toggleButton:active {
-  transform: scale(0.98);
 }

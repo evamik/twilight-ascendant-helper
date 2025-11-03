@@ -1,38 +1,6 @@
-.backButton {
-  padding: 8px 16px;
-  background: #555;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.loadButton {
-  padding: 8px 12px;
-  background: #4caf50;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-  min-width: 80px;
-}
-
-.loadButtonDisabled {
-  padding: 8px 12px;
-  background: #999;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: not-allowed;
-  font-size: 14px;
-  font-weight: bold;
-  opacity: 0.6;
-  min-width: 80px;
-}
+/* Back and Load buttons now use standardized Button component */
+/* Back button: variant="secondary" */
+/* Load button: variant="success" with isLoading prop */
 
 .buttonRow {
   display: flex;

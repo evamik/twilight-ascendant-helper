@@ -2,18 +2,12 @@
   padding: 20px;
 }
 
+/* Back button now uses standardized Button component with variant="secondary" */
 .backButton {
   position: sticky;
   top: 10px;
   margin-bottom: 20px;
-  padding: 10px 20px;
-  background-color: #444;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
   z-index: 1;
-  font-weight: bold;
 }
 
 .title {

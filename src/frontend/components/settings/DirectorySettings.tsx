@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import type { IpcRenderer } from "../../types/electron";
+import { Button } from "../common/buttons";
 import styles from "./DirectorySettings.module.css";
 
 const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
@@ -122,25 +123,23 @@ const DirectorySettings: React.FC<DirectorySettingsProps> = ({
       </div>
 
       <div className={styles.buttonGroup}>
-        <button
+        <Button
+          variant="primary"
+          size="medium"
           onClick={handleChooseDirectory}
           disabled={isLoading}
-          className={
-            isLoading ? styles.chooseButtonDisabled : styles.chooseButton
-          }
         >
           Choose Directory...
-        </button>
+        </Button>
 
-        <button
+        <Button
+          variant="secondary"
+          size="medium"
           onClick={handleResetToDefault}
           disabled={isLoading}
-          className={
-            isLoading ? styles.resetButtonDisabled : styles.resetButton
-          }
         >
           Reset to Default
-        </button>
+        </Button>
 
         {statusMessage && (
           <span

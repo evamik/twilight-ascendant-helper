@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "./UpdateSettings.module.css";
+import { Button } from "../common/buttons";
 
 const { ipcRenderer } = window.require("electron");
 
@@ -89,13 +90,14 @@ const UpdateSettings: React.FC = () => {
       <div className={styles.content}>
         {/* Check for Updates Button */}
         {!updateDownloaded && (
-          <button
+          <Button
             onClick={handleCheckForUpdates}
             disabled={checking || updateAvailable !== null}
-            className={styles.button}
+            variant="info"
+            isLoading={checking}
           >
             {checking ? "Checking..." : "Check for Updates"}
-          </button>
+          </Button>
         )}
 
         {/* Download Progress */}
@@ -120,12 +122,9 @@ const UpdateSettings: React.FC = () => {
             <p className={styles.updateReadyText}>
               Update {updateDownloaded.version} is ready to install!
             </p>
-            <button
-              onClick={handleRestartAndUpdate}
-              className={styles.restartButton}
-            >
+            <Button onClick={handleRestartAndUpdate} variant="warning">
               Restart to Update
-            </button>
+            </Button>
           </div>
         )}
       </div>

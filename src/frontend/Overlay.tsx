@@ -8,6 +8,7 @@ import TabNavigation from "./components/common/TabNavigation";
 import Drops from "./components/drops/Drops";
 import Settings from "./components/settings/Settings";
 import { useAccountCharacterNavigation } from "./hooks/useAccountCharacterNavigation";
+import { Button, IconButton } from "./components/common/buttons";
 
 interface Position {
   x: number;
@@ -342,13 +343,15 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
         >
           +
         </div>
-        <div
+        <Button
           className={styles.backButtonSettings}
           onClick={() => setShowSettings(false)}
+          variant="secondary"
+          size="medium"
           title="Back"
         >
           ← Back
-        </div>
+        </Button>
         <div
           className={styles.resizeHandle}
           onMouseDown={handleResizeMouseDown}
@@ -394,24 +397,27 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
           {/* Tab Navigation */}
           <div className={styles.tabSection}>
             <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-            <button
+            <IconButton
               onClick={() => setShowSettings(true)}
               className={styles.settingsButton}
+              variant="ghost"
+              size="medium"
+              icon="⚙️"
               title="Settings"
-            >
-              ⚙️
-            </button>
+            />
           </div>
 
           {/* Universal back button - shows when navigating in characters */}
           {activeTab === "loader" && selectedAccount && (
-            <div
+            <Button
               className={styles.backButtonOverlay}
               onClick={handleBackClick}
+              variant="secondary"
+              size="medium"
               title="Back"
             >
-              ←
-            </div>
+              ← Back
+            </Button>
           )}
 
           <div

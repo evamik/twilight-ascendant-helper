@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import type { IpcRenderer } from "../../types/electron";
+import { Button } from "../common/buttons";
 import styles from "./LoaderSettings.module.css";
 
 const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
@@ -86,9 +87,9 @@ const LoaderSettings: React.FC = () => {
           placeholder="Enter messages (one per line)&#10;Example:&#10;Loading character...&#10;Please wait"
           className={styles.textarea}
         />
-        <button onClick={handleSavePreload} className={styles.saveButton}>
+        <Button variant="success" size="medium" onClick={handleSavePreload}>
           Save Preload Messages
-        </button>
+        </Button>
       </div>
 
       <div className={styles.section}>
@@ -103,9 +104,9 @@ const LoaderSettings: React.FC = () => {
           placeholder="Enter messages (one per line)&#10;Example:&#10;Character loaded successfully!&#10;Ready to play"
           className={styles.textarea}
         />
-        <button onClick={handleSavePostload} className={styles.saveButton}>
+        <Button variant="success" size="medium" onClick={handleSavePostload}>
           Save Postload Messages
-        </button>
+        </Button>
       </div>
 
       {saveStatus && <div className={styles.successMessage}>{saveStatus}</div>}

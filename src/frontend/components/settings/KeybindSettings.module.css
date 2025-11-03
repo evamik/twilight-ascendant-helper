@@ -62,64 +62,7 @@
   }
 }
 
-.recordButton {
-  padding: 8px 12px;
-  background: #2196f3;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.2s;
-  white-space: nowrap;
-  flex: 0 0 auto;
-}
-
-.recordButton:hover:not(:disabled) {
-  background: #1976d2;
-}
-
-.recordButton:disabled {
-  background: #555;
-  cursor: not-allowed;
-}
-
-.saveButton {
-  padding: 8px 12px;
-  background: #4caf50;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.2s;
-  white-space: nowrap;
-  flex: 0 0 auto;
-}
-
-.saveButton:hover {
-  background: #45a049;
-}
-
-.resetButton {
-  padding: 8px 12px;
-  background: #f44336;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.2s;
-  white-space: nowrap;
-  flex: 0 0 auto;
-}
-
-.resetButton:hover {
-  background: #da190b;
-}
+/* Button styles now handled by standardized Button component */
 
 .statusMessage {
   color: #fff;
@@ -169,13 +112,7 @@
     font-size: 14px;
   }
 
-  .recordButton,
-  .saveButton,
-  .resetButton {
-    padding: 7px 10px;
-    font-size: 12px;
-    flex: 1 1 auto;
-  }
+  /* Button responsive sizes handled by Button component */
 
   .statusMessage {
     font-size: 12px;
@@ -198,9 +135,8 @@
     order: -1;
   }
 
-  .recordButton,
-  .saveButton,
-  .resetButton {
+  /* Buttons go full width on very small screens */
+  .keybindRow > button {
     width: 100%;
     flex: 1 1 auto;
   }

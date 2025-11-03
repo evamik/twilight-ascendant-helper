@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "./TagManager.module.css";
+import { Button } from "../common/buttons";
 
 const { ipcRenderer } = window.require("electron");
 
@@ -110,13 +111,15 @@ const TagManager: React.FC = () => {
               {tag.name}
             </div>
             {!isDefaultTag(tag.id) && (
-              <button
+              <Button
                 className={styles.deleteButton}
                 onClick={() => handleDeleteTag(tag.id)}
+                variant="danger"
+                size="small"
                 title="Delete tag"
               >
                 ×
-              </button>
+              </Button>
             )}
             {isDefaultTag(tag.id) && (
               <span className={styles.defaultLabel}>Default</span>
@@ -126,12 +129,13 @@ const TagManager: React.FC = () => {
       </div>
 
       {!isCreating ? (
-        <button
+        <Button
           className={styles.createButton}
           onClick={() => setIsCreating(true)}
+          variant="primary"
         >
           + Create New Tag
-        </button>
+        </Button>
       ) : (
         <div className={styles.createForm}>
           <input
@@ -155,11 +159,11 @@ const TagManager: React.FC = () => {
             />
           </div>
           <div className={styles.formButtons}>
-            <button className={styles.saveButton} onClick={handleCreateTag}>
+            <Button variant="success" onClick={handleCreateTag}>
               Create
-            </button>
-            <button
-              className={styles.cancelButton}
+            </Button>
+            <Button
+              variant="secondary"
               onClick={() => {
                 setIsCreating(false);
                 setNewTagName("");
@@ -167,7 +171,7 @@ const TagManager: React.FC = () => {
               }}
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}

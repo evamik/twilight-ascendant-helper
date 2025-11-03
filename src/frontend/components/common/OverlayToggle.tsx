@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from "react";
 import type { IpcRenderer } from "../../types/electron";
 import styles from "./OverlayToggle.module.css";
+import { Button } from "./buttons";
 
 const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
   ipcRenderer?: IpcRenderer;
@@ -98,9 +99,13 @@ const OverlayToggle: React.FC = () => {
         />
         <span>Enable Overlay</span>
       </label>
-      <button onClick={handleResetOverlay} className={styles.resetButton}>
+      <Button
+        onClick={handleResetOverlay}
+        variant="secondary"
+        className={styles.resetButton}
+      >
         Reset Overlay Position & Size
-      </button>
+      </Button>
       {statusMessage && (
         <div className={styles.statusMessage}>{statusMessage}</div>
       )}

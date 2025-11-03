@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import type { IpcRenderer } from "../../types/electron";
+import { Button } from "../common/buttons";
 import styles from "./KeybindSettings.module.css";
 
 const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
@@ -144,21 +145,22 @@ const KeybindSettings: React.FC = () => {
           )}
         </div>
 
-        <button
+        <Button
+          variant="info"
+          size="medium"
           onClick={handleStartRecording}
-          className={styles.recordButton}
           disabled={isRecording}
         >
           {isRecording ? "Press Key..." : "Change"}
-        </button>
+        </Button>
 
-        <button onClick={handleSave} className={styles.saveButton}>
+        <Button variant="success" size="medium" onClick={handleSave}>
           Save
-        </button>
+        </Button>
 
-        <button onClick={handleReset} className={styles.resetButton}>
+        <Button variant="danger" size="medium" onClick={handleReset}>
           Reset
-        </button>
+        </Button>
       </div>
 
       {statusMessage && (

@@ -10,6 +10,7 @@ import AccountList from "../character/AccountList";
 import CharacterList from "../character/CharacterList";
 import CharacterData from "../character/CharacterData";
 import { useAccountCharacterNavigation } from "../../hooks/useAccountCharacterNavigation";
+import { Button } from "../common/buttons";
 
 const LoaderView: React.FC = () => {
   const {
@@ -42,9 +43,13 @@ const LoaderView: React.FC = () => {
         />
       ) : selectedAccount ? (
         <>
-          <button onClick={handleBackClick} className={styles.backButton}>
+          <Button
+            onClick={handleBackClick}
+            variant="secondary"
+            className={styles.backButton}
+          >
             ← Back
-          </button>
+          </Button>
           <CharacterList
             accountName={selectedAccount}
             characters={characters}

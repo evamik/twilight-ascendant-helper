@@ -3,6 +3,7 @@ import type { IpcRenderer } from "../../types/electron";
 import FormattedDrops from "./FormattedDrops";
 import { parseDropsContent } from "../../utils/dropsParser";
 import styles from "./Drops.module.css";
+import { Button } from "../common/buttons";
 
 const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
   ipcRenderer?: IpcRenderer;
@@ -155,38 +156,38 @@ const Drops: React.FC = () => {
       <div className={styles.header}>
         <h2 className={styles.title}>📦 Drops Tracker</h2>
         <div className={styles.buttonGroup}>
-          <button
+          <Button
             onClick={copyReplay}
             disabled={copyingReplay}
-            className={
-              copyingReplay
-                ? styles.copyReplayButtonDisabled
-                : styles.copyReplayButton
-            }
+            variant="primary"
+            isLoading={copyingReplay}
+            icon="🎮"
+            iconPosition="left"
           >
-            <span className={styles.buttonIcon}>
-              {copyingReplay ? "⏳" : "🎮"}
-            </span>
-            <span className={styles.buttonLabel}>
+            <span className={styles.buttonText}>
               {copyingReplay ? "Copying..." : "Copy Replay"}
             </span>
-          </button>
-          <button onClick={openDirectory} className={styles.openExplorerButton}>
-            <span className={styles.buttonIcon}>📂</span>
-            <span className={styles.buttonLabel}>Open in Explorer</span>
-          </button>
-          <button
+          </Button>
+          <Button
+            onClick={openDirectory}
+            variant="info"
+            icon="📂"
+            iconPosition="left"
+          >
+            <span className={styles.buttonText}>Open in Explorer</span>
+          </Button>
+          <Button
             onClick={loadDrops}
             disabled={loading}
-            className={
-              loading ? styles.refreshButtonDisabled : styles.refreshButton
-            }
+            variant="secondary"
+            isLoading={loading}
+            icon="🔄"
+            iconPosition="left"
           >
-            <span className={styles.buttonIcon}>{loading ? "⏳" : "🔄"}</span>
-            <span className={styles.buttonLabel}>
+            <span className={styles.buttonText}>
               {loading ? "Refreshing..." : "Refresh"}
             </span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -237,12 +238,13 @@ const Drops: React.FC = () => {
           )}
 
           <div className={styles.rawTextSection}>
-            <button
+            <Button
               onClick={() => setShowRawText(!showRawText)}
+              variant="ghost"
               className={styles.toggleButton}
             >
               {showRawText ? "▼" : "▶"} Raw Text Data
-            </button>
+            </Button>
             {showRawText && (
               <div className={styles.dropsContent}>
                 <pre className={styles.dropsText}>{dropsContent}</pre>

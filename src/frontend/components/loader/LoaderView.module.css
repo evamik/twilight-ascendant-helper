@@ -1,12 +1,5 @@
+/* Back button now uses standardized Button component with variant="secondary" */
 .backButton {
-  padding: 8px 16px;
-  background: #555;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
   margin-bottom: 16px;
 }
 

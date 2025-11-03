@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import type { IpcRenderer } from "../../types/electron";
 import type { BackupFileInfo } from "../../types";
 import styles from "./CharacterData.module.css";
+import { Button } from "../common/buttons";
 
 const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
   ipcRenderer?: IpcRenderer;
@@ -48,12 +49,13 @@ const BackupViewer: React.FC<BackupViewerProps> = ({
 
   return (
     <div className={styles.rawTextSection}>
-      <button
+      <Button
         onClick={() => setShowBackups(!showBackups)}
+        variant="ghost"
         className={styles.toggleButton}
       >
         {showBackups ? "▼" : "▶"} Backup Files
-      </button>
+      </Button>
       {showBackups && (
         <div className={styles.rawContent}>
           {backupFiles.length > 0 ? (
@@ -71,40 +73,20 @@ const BackupViewer: React.FC<BackupViewerProps> = ({
                 const isSelected = selectedBackupFileName === backup.fileName;
 
                 return (
-                  <button
+                  <Button
                     key={backup.fileName}
                     onClick={() => handleBackupClick(backup.fileName)}
                     disabled={isLoading}
+                    variant={isSelected ? "success" : "secondary"}
+                    isLoading={isLoading}
+                    fullWidth
                     style={{
-                      padding: "8px 12px",
-                      background: isSelected
-                        ? "#4caf50"
-                        : "rgba(255, 255, 255, 0.1)",
-                      color: "#fff",
-                      border: "1px solid rgba(255, 255, 255, 0.2)",
-                      borderRadius: "4px",
-                      cursor: isLoading ? "wait" : "pointer",
                       textAlign: "left",
                       fontSize: "13px",
-                      transition: "all 0.2s",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isLoading) {
-                        e.currentTarget.style.background = isSelected
-                          ? "#45a049"
-                          : "rgba(255, 255, 255, 0.15)";
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isLoading) {
-                        e.currentTarget.style.background = isSelected
-                          ? "#4caf50"
-                          : "rgba(255, 255, 255, 0.1)";
-                      }
                     }}
                   >
-                    {isLoading ? "⏳ Loading..." : `📅 ${dateStr}`}
-                  </button>
+                    {isLoading ? "Loading..." : `📅 ${dateStr}`}
+                  </Button>
                 );
               })}
             </div>

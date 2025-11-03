@@ -9,14 +9,7 @@
   gap: 8px;
 }
 
+/* Button now uses standardized Button component with variant="primary" */
 .button {
-  padding: 10px 12px;
-  background: #ff9800;
-  color: #222;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
   text-align: left;
 }

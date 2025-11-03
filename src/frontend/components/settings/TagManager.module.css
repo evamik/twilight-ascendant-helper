@@ -44,25 +44,14 @@
   white-space: nowrap;
 }
 
+/* Delete button now uses standardized Button component with variant="danger" */
 .deleteButton {
-  background: rgba(244, 67, 54, 0.8);
-  color: white;
-  border: none;
-  border-radius: 50%;
   width: 24px;
   height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
   font-size: 1.2rem;
   line-height: 1;
-  transition: all 0.2s ease;
-}
-
-.deleteButton:hover {
-  background: rgba(244, 67, 54, 1);
-  transform: scale(1.1);
+  padding: 0;
+  min-width: 24px;
 }
 
 .defaultLabel {
@@ -71,23 +60,7 @@
   font-style: italic;
 }
 
-.createButton {
-  background: #ff9800;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.createButton:hover {
-  background: #fb8c00;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
-}
+/* Create button now uses standardized Button component with variant="primary" */
 
 .createForm {
   background: rgba(255, 255, 255, 0.05);
@@ -145,37 +118,8 @@
   gap: 10px;
 }
 
-.saveButton {
-  background: #4caf50;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
+/* Save button now uses standardized Button component with variant="success" */
+/* Cancel button now uses standardized Button component with variant="secondary" */
+.formButtons button {
   flex: 1;
-}
-
-.saveButton:hover {
-  background: #45a049;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.4);
-}
-
-.cancelButton {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  flex: 1;
-}
-
-.cancelButton:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
 }

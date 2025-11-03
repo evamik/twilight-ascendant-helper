@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import type { ParsedLoaderData } from "../../utils/loaderParser";
 import type { IpcRenderer } from "../../types/electron";
 import styles from "./FormattedLoader.module.css";
+import { Button } from "../common/buttons";
 
 const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
   ipcRenderer?: IpcRenderer;
@@ -109,11 +110,11 @@ const FormattedLoader: React.FC<FormattedLoaderProps> = ({
             {availableTags.map((tag) => {
               const isActive = characterTags.includes(tag.id);
               return (
-                <button
+                <Button
                   key={tag.id}
-                  className={`${styles.tagButton} ${
-                    isActive ? styles.tagActive : ""
-                  }`}
+                  variant={isActive ? "success" : "secondary"}
+                  size="small"
+                  className={styles.tagButton}
                   style={isActive ? { backgroundColor: tag.color } : undefined}
                   onClick={() => toggleTag(tag.id)}
                   title={
@@ -121,7 +122,7 @@ const FormattedLoader: React.FC<FormattedLoaderProps> = ({
                   }
                 >
                   {tag.name}
-                </button>
+                </Button>
               );
             })}
           </div>
