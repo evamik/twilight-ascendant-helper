@@ -19,6 +19,7 @@ import {
   registerDataPathIpcHandlers,
   setOverlayWin as setDataPathOverlayWin,
 } from "./dataPathIpcHandlers";
+import { registerKeybindIpcHandlers } from "./keybindIpcHandlers";
 
 /**
  * Set the overlay window reference for broadcasting settings changes
@@ -129,4 +130,5 @@ export const registerSettingsIpcHandlers = (): void => {
   registerCharacterIpcHandlers();
   registerReplayIpcHandlers();
   registerTagIpcHandlers();
+  registerKeybindIpcHandlers();
 };

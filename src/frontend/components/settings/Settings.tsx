@@ -5,6 +5,7 @@ import LoaderSettings from "./LoaderSettings";
 import ReplayDirectorySettings from "./ReplayDirectorySettings";
 import UpdateSettings from "./UpdateSettings";
 import TagManager from "./TagManager";
+import KeybindSettings from "./KeybindSettings";
 
 interface SettingsProps {
   onBack: () => void;
@@ -43,6 +44,11 @@ const Settings: React.FC<SettingsProps> = ({
       {/* Tag Manager Section */}
       <div className={styles.section}>
         <TagManager />
+      </div>
+
+      {/* Keybind Settings Section */}
+      <div className={styles.section}>
+        <KeybindSettings />
       </div>
 
       {/* Loader Settings Section */}

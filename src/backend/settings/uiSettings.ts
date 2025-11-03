@@ -18,6 +18,7 @@ export const getUISettings = (): UISettings => {
     lastUsedAccount: settings.lastUsedAccount, // Return last used account or undefined
     availableTags: settings.availableTags || DEFAULT_TAGS, // Return available tags
     characterTags: settings.characterTags || {}, // Return character tag mappings
+    overlayToggleKeybind: settings.overlayToggleKeybind || "Alt+O", // Return keybind or default
   };
 };
 

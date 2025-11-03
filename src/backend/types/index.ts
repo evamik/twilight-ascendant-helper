@@ -52,6 +52,7 @@ export interface UISettings {
   lastUsedAccount?: string; // Last selected account name
   availableTags?: Tag[]; // User-defined tags
   characterTags?: Record<string, string[]>; // Map of "accountName:characterName" to array of tag IDs
+  overlayToggleKeybind?: string; // Global keybind to toggle overlay expand/minimize
 }
 
 // Character-specific settings

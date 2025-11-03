@@ -21,6 +21,7 @@ export interface Settings {
   characterTags?: Record<string, string[]>; // Map of "accountName:characterName" to array of tag IDs
   selectedTagFilters?: string[]; // Array of currently selected tag filter IDs
   characterSettings: Record<string, CharacterSettings>;
+  overlayToggleKeybind?: string; // Global keybind to toggle overlay expand/minimize
 }
 
 // Get the user data path for storing settings
@@ -48,6 +49,7 @@ const getDefaultSettings = (): Settings => {
     availableTags: DEFAULT_TAGS, // Initialize with default tags
     characterTags: {}, // Initialize with empty character tag mappings
     characterSettings: {}, // Per-character settings { "accountName:characterName": { preloadMessages, postloadMessages } }
+    overlayToggleKeybind: "Alt+O", // Default keybind to toggle overlay expand/minimize
   };
 };
 
@@ -138,3 +140,4 @@ export * from "./overlaySettings";
 export * from "./loaderSettings";
 export * from "./replaySettings";
 export * from "./uiSettings";
+export * from "./keybindSettings";

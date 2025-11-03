@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, globalShortcut } from "electron";
 import { createOverlayWindow } from "./src/backend/overlay";
 import { createMainWindow } from "./src/backend/main";
 import {
@@ -14,6 +14,7 @@ import {
   shutdownAnalytics,
 } from "./src/backend/settings/analytics";
 import { watchDropsFile, stopAllWatchers } from "./src/backend/fileWatcher";
+import { getOverlayToggleKeybind } from "./src/backend/settings/keybindSettings";
 import activeWin from "active-win";
 import { WindowInfo } from "./src/backend/types";
 
@@ -38,6 +39,41 @@ app.whenReady().then(() => {
   };
 
   attachClosedHandler();
+
+  // Setup global keybind for overlay toggle
+  const registerOverlayToggleKeybind = () => {
+    // Unregister any existing keybind first
+    globalShortcut.unregisterAll();
+
+    const keybind = getOverlayToggleKeybind();
+    const registered = globalShortcut.register(keybind, () => {
+      console.log(`[Main] Overlay toggle keybind pressed: ${keybind}`);
+      if (overlayWin && !overlayWin.isDestroyed()) {
+        // Send toggle command to overlay window
+        overlayWin.webContents.send("toggle-overlay-minimize");
+      }
+    });
+
+    if (registered) {
+      console.log(
+        `[Main] Successfully registered overlay toggle keybind: ${keybind}`
+      );
+    } else {
+      console.warn(
+        `[Main] Failed to register overlay toggle keybind: ${keybind}`
+      );
+    }
+  };
+
+  // Register initial keybind
+  registerOverlayToggleKeybind();
+
+  // Listen for keybind changes
+  const { ipcMain } = require("electron");
+  ipcMain.on("keybind-changed", () => {
+    console.log("[Main] Keybind changed, re-registering...");
+    registerOverlayToggleKeybind();
+  });
 
   // Setup auto-updater (only in production)
   if (!process.defaultApp) {
@@ -138,7 +174,8 @@ app.on("window-all-closed", () => {
   }
 });
 
-// Cleanup analytics on app quit
+// Cleanup analytics and global shortcuts on app quit
 app.on("before-quit", async () => {
+  globalShortcut.unregisterAll();
   await shutdownAnalytics();
 });

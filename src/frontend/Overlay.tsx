@@ -83,9 +83,18 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
       ipcRenderer.on("set-overlay-size", (_event: any, size: Size) => {
         setOverlaySize(size);
       });
+      ipcRenderer.on("toggle-overlay-minimize", () => {
+        console.log("Overlay minimize toggle triggered by keybind");
+        setIsMinimized((prev) => {
+          const newState = !prev;
+          ipcRenderer.send("set-overlay-minimized", newState);
+          return newState;
+        });
+      });
       return () => {
         ipcRenderer.removeAllListeners("set-anchor");
         ipcRenderer.removeAllListeners("set-overlay-size");
+        ipcRenderer.removeAllListeners("toggle-overlay-minimize");
       };
     }
     return undefined;
