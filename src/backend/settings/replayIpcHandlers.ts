@@ -1,4 +1,6 @@
 import { ipcMain, dialog, IpcMainInvokeEvent } from "electron";
+import path from "path";
+import os from "os";
 import {
   getReplayBaseDirectory,
   setReplayBaseDirectory,
@@ -45,15 +47,23 @@ export const registerReplayIpcHandlers = (): void => {
   ipcMain.handle(
     "reset-replay-directory",
     async (): Promise<DirectoryResult> => {
-      // Reset to empty string (which will use default path)
-      const success = setReplayBaseDirectory("");
+      // Get the default path
+      const documentsPath = path.join(os.homedir(), "Documents");
+      const defaultReplayPath = path.join(
+        documentsPath,
+        "Warcraft III",
+        "BattleNet"
+      );
+
+      // Reset to default path
+      const success = setReplayBaseDirectory(defaultReplayPath);
 
       // Track feature usage
       if (success) {
         trackFeature("replay_directory_reset");
       }
 
-      return { success, path: getReplayBaseDirectory() };
+      return { success, path: defaultReplayPath };
     }
   );
 
