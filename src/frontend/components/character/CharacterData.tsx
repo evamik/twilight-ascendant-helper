@@ -1,12 +1,12 @@
 import React, { useState, useMemo, useEffect } from "react";
 import type { IpcRenderer } from "../../types/electron";
-import type {
-  CharacterData as CharacterDataType,
-  BackupFileInfo,
-} from "../../types";
+import type { CharacterData as CharacterDataType } from "../../types";
 import styles from "./CharacterData.module.css";
-import CharacterMessageSettings from "./CharacterMessageSettings";
+import CharacterActions from "./CharacterActions";
+import BackupIndicator from "./BackupIndicator";
+import BackupViewer from "./BackupViewer";
 import FormattedLoader from "./FormattedLoader";
+import RawTextViewer from "./RawTextViewer";
 import { parseLoaderContent } from "../../utils/loaderParser";
 
 const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
@@ -33,10 +33,6 @@ const CharacterData: React.FC<CharacterDataProps> = ({
   showBackButton = true, // Default to true
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [showRawText, setShowRawText] = useState<boolean>(false);
-  const [showBackups, setShowBackups] = useState<boolean>(false);
-  const [backupFiles, setBackupFiles] = useState<BackupFileInfo[]>([]);
-  const [loadingBackup, setLoadingBackup] = useState<string | null>(null);
   const [selectedBackupData, setSelectedBackupData] =
     useState<CharacterDataType | null>(null);
 
@@ -72,22 +68,10 @@ const CharacterData: React.FC<CharacterDataProps> = ({
     };
   }, [accountName, characterName, onLoad, ipcRenderer]);
 
-  // Load backup files when backups section is expanded
-  useEffect(() => {
-    if (showBackups && ipcRenderer && accountName && characterName) {
-      ipcRenderer
-        .invoke("get-character-backups", accountName, characterName)
-        .then((backups: BackupFileInfo[]) => {
-          setBackupFiles(backups);
-        });
-    }
-  }, [showBackups, accountName, characterName, ipcRenderer]);
-
   // Handle loading a backup file
   const handleLoadBackup = async (fileName: string) => {
-    if (!ipcRenderer || loadingBackup) return;
+    if (!ipcRenderer) return;
 
-    setLoadingBackup(fileName);
     try {
       const backupData = await ipcRenderer.invoke(
         "load-character-backup",
@@ -98,8 +82,6 @@ const CharacterData: React.FC<CharacterDataProps> = ({
       setSelectedBackupData(backupData);
     } catch (error) {
       console.error("Error loading backup:", error);
-    } finally {
-      setLoadingBackup(null);
     }
   };
 
@@ -154,63 +136,24 @@ const CharacterData: React.FC<CharacterDataProps> = ({
 
   return (
     <>
-      <div className={styles.buttonRow}>
-        {showBackButton && (
-          <button onClick={onBack} className={styles.backButton}>
-            ← Back
-          </button>
-        )}
-
-        <button
-          onClick={handleLoad}
-          disabled={isLoading}
-          className={isLoading ? styles.loadButtonDisabled : styles.loadButton}
-          style={buttonStyle}
-        >
-          {isLoading ? "⏳ Loading..." : "🔄 Load"}
-        </button>
-
-        {/* Character-specific message settings (inline button) */}
-        <CharacterMessageSettings
-          accountName={accountName}
-          characterName={characterName}
-        />
-      </div>
+      <CharacterActions
+        accountName={accountName}
+        characterName={characterName}
+        onBack={onBack}
+        onLoad={handleLoad}
+        isLoading={isLoading}
+        showBackButton={showBackButton}
+        buttonStyle={buttonStyle}
+      />
 
       {characterData ? (
         <>
           {/* Show backup indicator if viewing a backup */}
           {selectedBackupData && (
-            <div
-              style={{
-                background: "rgba(255, 165, 0, 0.2)",
-                border: "1px solid #ffa500",
-                borderRadius: "4px",
-                padding: "8px 12px",
-                marginBottom: "12px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <span style={{ color: "#ffa500", fontWeight: "bold" }}>
-                📂 Viewing Backup: {selectedBackupData.fileName}
-              </span>
-              <button
-                onClick={handleCloseBackup}
-                style={{
-                  padding: "4px 12px",
-                  background: "#555",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  fontSize: "12px",
-                }}
-              >
-                ← Back to Current
-              </button>
-            </div>
+            <BackupIndicator
+              fileName={selectedBackupData.fileName}
+              onClose={handleCloseBackup}
+            />
           )}
 
           {/* Formatted View */}
@@ -224,93 +167,16 @@ const CharacterData: React.FC<CharacterDataProps> = ({
             </div>
           )}
 
-          {/* Expandable Backups Section */}
-          <div className={styles.rawTextSection}>
-            <button
-              onClick={() => setShowBackups(!showBackups)}
-              className={styles.toggleButton}
-            >
-              {showBackups ? "▼" : "▶"} Backup Files
-            </button>
-            {showBackups && (
-              <div className={styles.rawContent}>
-                {backupFiles.length > 0 ? (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "6px",
-                    }}
-                  >
-                    {backupFiles.map((backup) => {
-                      const date = new Date(backup.modifiedDate);
-                      const dateStr = date.toLocaleString();
-                      const isLoading = loadingBackup === backup.fileName;
+          {/* Backup Viewer */}
+          <BackupViewer
+            accountName={accountName}
+            characterName={characterName}
+            onBackupSelected={handleLoadBackup}
+            selectedBackupFileName={selectedBackupData?.fileName || null}
+          />
 
-                      return (
-                        <button
-                          key={backup.fileName}
-                          onClick={() => handleLoadBackup(backup.fileName)}
-                          disabled={isLoading}
-                          style={{
-                            padding: "8px 12px",
-                            background:
-                              selectedBackupData?.fileName === backup.fileName
-                                ? "#4caf50"
-                                : "rgba(255, 255, 255, 0.1)",
-                            color: "#fff",
-                            border: "1px solid rgba(255, 255, 255, 0.2)",
-                            borderRadius: "4px",
-                            cursor: isLoading ? "wait" : "pointer",
-                            textAlign: "left",
-                            fontSize: "13px",
-                            transition: "all 0.2s",
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!isLoading) {
-                              e.currentTarget.style.background =
-                                selectedBackupData?.fileName === backup.fileName
-                                  ? "#45a049"
-                                  : "rgba(255, 255, 255, 0.15)";
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!isLoading) {
-                              e.currentTarget.style.background =
-                                selectedBackupData?.fileName === backup.fileName
-                                  ? "#4caf50"
-                                  : "rgba(255, 255, 255, 0.1)";
-                            }
-                          }}
-                        >
-                          {isLoading ? "⏳ Loading..." : `📅 ${dateStr}`}
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p style={{ color: "#aaa", margin: "10px 0" }}>
-                    No backup files found.
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Expandable Raw Text Section */}
-          <div className={styles.rawTextSection}>
-            <button
-              onClick={() => setShowRawText(!showRawText)}
-              className={styles.toggleButton}
-            >
-              {showRawText ? "▼" : "▶"} Raw Text Data
-            </button>
-            {showRawText && displayData && (
-              <div className={styles.rawContent}>
-                <pre className={styles.rawText}>{displayData.content}</pre>
-              </div>
-            )}
-          </div>
+          {/* Raw Text Viewer */}
+          {displayData && <RawTextViewer content={displayData.content} />}
         </>
       ) : (
         <p className={styles.emptyMessage}>
