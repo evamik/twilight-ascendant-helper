@@ -12,3 +12,6 @@ export type {
   IconButtonVariant,
   IconButtonSize,
 } from "./IconButton";
+
+export { default as NavButton } from "./buttons/NavButton";
+export type { NavButtonProps } from "./buttons/NavButton";

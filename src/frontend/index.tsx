@@ -46,7 +46,11 @@ const App: React.FC = () => {
   };
 
   if (showSettings) {
-    return <Settings onBack={handleSettingsBack} />;
+    return (
+      <div className={styles.app} style={{ zoom: appScale }}>
+        <Settings onBack={handleSettingsBack} />
+      </div>
+    );
   }
 
   return (

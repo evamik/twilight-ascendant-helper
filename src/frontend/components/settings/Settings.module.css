@@ -2,14 +2,6 @@
   padding: 20px;
 }
 
-/* Back button now uses standardized Button component with variant="secondary" */
-.backButton {
-  position: sticky;
-  top: 10px;
-  margin-bottom: 20px;
-  z-index: 1;
-}
-
 .title {
   color: white;
   margin-bottom: 20px;
@@ -21,10 +13,12 @@
   padding: 20px;
   border-radius: 8px;
   margin-bottom: 20px;
+  scroll-margin-top: 80px;
 }
 
 .sectionLast {
   background-color: #2a2a2a;
   padding: 20px;
   border-radius: 8px;
+  scroll-margin-top: 80px;
 }

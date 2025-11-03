@@ -6,7 +6,10 @@ import { loadSettings, saveSettings } from "./settings";
 export const getReplayBaseDirectory = (): string => {
   const settings = loadSettings();
   // If the directory is empty or not set, return the default
-  if (!settings.replayBaseDirectory || settings.replayBaseDirectory.trim() === "") {
+  if (
+    !settings.replayBaseDirectory ||
+    settings.replayBaseDirectory.trim() === ""
+  ) {
     const documentsPath = path.join(os.homedir(), "Documents");
     return path.join(documentsPath, "Warcraft III", "BattleNet");
   }

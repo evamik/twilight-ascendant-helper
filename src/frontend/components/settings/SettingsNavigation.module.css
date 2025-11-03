@@ -1,0 +1,42 @@
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  background: rgba(30, 30, 30, 0.98);
+  padding: 12px;
+  margin-bottom: 20px;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+  border-bottom: 2px solid #444;
+}
+
+.backButton {
+  margin-bottom: 10px;
+  width: fit-content;
+}
+
+.settingsNav {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #555 transparent;
+}
+
+.settingsNav::-webkit-scrollbar {
+  height: 4px;
+}
+
+.settingsNav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.settingsNav::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 2px;
+}
+
+.settingsNav::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
