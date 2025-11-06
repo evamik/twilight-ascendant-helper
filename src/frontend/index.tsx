@@ -11,6 +11,7 @@ import styles from "./index.module.css";
 import Settings from "./components/settings/Settings";
 import LoaderView from "./components/loader/LoaderView";
 import Drops from "./components/drops/Drops";
+import Guide from "./components/guide/Guide";
 import TabNavigation from "./components/common/TabNavigation";
 import OverlayToggle from "./components/common/OverlayToggle";
 
@@ -66,13 +67,21 @@ const App: React.FC = () => {
       {/* Tab Navigation */}
       <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
 
-      {/* Overlay Toggle */}
-      <OverlayToggle />
+      {/* Overlay Toggle - hide when viewing guide */}
+      {activeTab !== "guide" && <OverlayToggle />}
 
       {/* Tab Content */}
-      <div className={styles.content}>
+      <div
+        className={styles.content}
+        style={
+          activeTab === "guide"
+            ? { height: "calc(100vh - 160px)", overflow: "hidden" }
+            : {}
+        }
+      >
         {activeTab === "loader" && <LoaderView />}
         {activeTab === "drops" && <Drops />}
+        {activeTab === "guide" && <Guide />}
       </div>
     </div>
   );

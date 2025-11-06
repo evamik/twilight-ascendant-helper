@@ -1,0 +1,155 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Fill the parent content area */
+  gap: 12px;
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.titleSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0;
+  font-size: 22px;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.infoBox {
+  background: rgba(74, 158, 255, 0.1);
+  border-left: 3px solid #4a9eff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #e0e0e0;
+  white-space: nowrap;
+}
+
+.infoBox strong {
+  color: #4a9eff;
+  font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.zoomControls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #2a2a2a;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.zoomButton {
+  width: 32px;
+  height: 32px;
+  background: #3a3a3a;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.zoomButton:hover {
+  background: #4a4a4a;
+  transform: translateY(-1px);
+}
+
+.zoomButton:active {
+  transform: translateY(0);
+}
+
+.zoomLevel {
+  min-width: 50px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  padding: 0 8px;
+}
+
+.resetButton {
+  padding: 6px 12px;
+  background: #3a3a3a;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.resetButton:hover {
+  background: #4a4a4a;
+  transform: translateY(-1px);
+}
+
+.resetButton:active {
+  transform: translateY(0);
+}
+
+.openButton {
+  padding: 8px 16px;
+  background: #4a9eff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.openButton:hover {
+  background: #3a8eef;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(74, 158, 255, 0.3);
+}
+
+.openButton:active {
+  transform: translateY(0);
+}
+
+.iframeContainer {
+  flex: 1; /* Take up remaining space */
+  min-height: 0; /* Allow flex shrinking */
+  background: #1a1a1a;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transform-origin: top left; /* For zoom to work properly */
+}
+
+.iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}

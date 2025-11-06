@@ -12,10 +12,16 @@ export interface IpcRenderer {
   removeAllListeners(channel: string): this;
 }
 
+export interface Shell {
+  openExternal(url: string): Promise<void>;
+  openPath(path: string): Promise<string>;
+}
+
 declare global {
   interface Window {
     require?: (module: "electron") => {
       ipcRenderer: IpcRenderer;
+      shell: Shell;
     };
   }
 }
