@@ -10,7 +10,7 @@ const Guide: React.FC = () => {
 
   // Use the original URL you provided - works when the sheet is publicly accessible
   const spreadsheetUrl =
-    "https://docs.google.com/spreadsheets/d/1uPRf7nsp50BpyAOMCu-cYtkEFwLY2NKAUcEa_PbIW00/preview#gid=1051526395";
+    "https://docs.google.com/spreadsheets/d/1uPRf7nsp50BpyAOMCu-cYtkEFwLY2NKAUcEa_PbIW00/view?rm=minimal&gid=1051526395#gid=1051526395";
 
   const openInBrowser = () => {
     if (window.require) {

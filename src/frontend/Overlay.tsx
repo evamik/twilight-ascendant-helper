@@ -6,6 +6,7 @@ import CharacterList from "./components/character/CharacterList";
 import CharacterData from "./components/character/CharacterData";
 import TabNavigation from "./components/common/TabNavigation";
 import Drops from "./components/drops/Drops";
+import Guide from "./components/guide/Guide";
 import Settings from "./components/settings/Settings";
 import { useAccountCharacterNavigation } from "./hooks/useAccountCharacterNavigation";
 import { Button, IconButton } from "./components/common/buttons";
@@ -522,6 +523,7 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
                 </>
               )}
               {activeTab === "drops" && <Drops />}
+              {activeTab === "guide" && <Guide />}
             </div>
           </>
         )}
