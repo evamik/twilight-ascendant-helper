@@ -14,11 +14,13 @@ import Drops from "./components/drops/Drops";
 import Guide from "./components/guide/Guide";
 import TabNavigation from "./components/common/TabNavigation";
 import OverlayToggle from "./components/common/OverlayToggle";
+import { GuideNavigationProvider } from "./contexts/GuideNavigationContext";
 
 const App: React.FC = () => {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("loader"); // 'loader' or 'drops'
   const [appScale, setAppScale] = useState<number>(1);
+  const [guideUrl, setGuideUrl] = useState<string | undefined>(undefined);
 
   // Load main app scale from settings
   useEffect(() => {
@@ -46,6 +48,11 @@ const App: React.FC = () => {
     setActiveTab(tabId);
   };
 
+  const navigateToGuide = (url: string) => {
+    setGuideUrl(url);
+    setActiveTab("guide");
+  };
+
   if (showSettings) {
     return (
       <div className={styles.app} style={{ zoom: appScale }}>
@@ -71,18 +78,20 @@ const App: React.FC = () => {
       {activeTab !== "guide" && <OverlayToggle />}
 
       {/* Tab Content */}
-      <div
-        className={styles.content}
-        style={
-          activeTab === "guide"
-            ? { height: "calc(100vh - 160px)", overflow: "hidden" }
-            : {}
-        }
-      >
-        {activeTab === "loader" && <LoaderView />}
-        {activeTab === "drops" && <Drops />}
-        {activeTab === "guide" && <Guide />}
-      </div>
+      <GuideNavigationProvider navigateToGuide={navigateToGuide}>
+        <div
+          className={styles.content}
+          style={
+            activeTab === "guide"
+              ? { height: "calc(100vh - 160px)", overflow: "hidden" }
+              : {}
+          }
+        >
+          {activeTab === "loader" && <LoaderView />}
+          {activeTab === "drops" && <Drops />}
+          {activeTab === "guide" && <Guide url={guideUrl} />}
+        </div>
+      </GuideNavigationProvider>
     </div>
   );
 };

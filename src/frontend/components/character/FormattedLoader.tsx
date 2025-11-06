@@ -3,6 +3,8 @@ import type { ParsedLoaderData } from "../../utils/loaderParser";
 import type { IpcRenderer } from "../../types/electron";
 import styles from "./FormattedLoader.module.css";
 import { Button } from "../common/buttons";
+import { hasHeroGuide, getHeroGuideUrl } from "../../constants/guideUrls";
+import { useGuideNavigation } from "../../contexts/GuideNavigationContext";
 
 const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
   ipcRenderer?: IpcRenderer;
@@ -31,6 +33,7 @@ const FormattedLoader: React.FC<FormattedLoaderProps> = ({
 }) => {
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [characterTags, setCharacterTags] = useState<string[]>([]);
+  const { navigateToGuide } = useGuideNavigation();
 
   // Load tags on mount
   useEffect(() => {
@@ -86,20 +89,44 @@ const FormattedLoader: React.FC<FormattedLoaderProps> = ({
   // Construct the hero icon path
   const heroIconPath = `./icons/heroes/${data.hero}.png`;
 
+  // Check if this hero has a guide URL
+  const heroHasGuide = hasHeroGuide(data.hero);
+
+  // Handle opening the guide for this hero
+  const handleOpenInGuide = () => {
+    const guideUrl = getHeroGuideUrl(data.hero);
+    if (guideUrl) {
+      navigateToGuide(guideUrl);
+    }
+  };
+
   return (
     <div className={styles.container}>
       {/* Hero Name - Big Header with Icon */}
       <div className={styles.heroHeader}>
-        <img
-          src={heroIconPath}
-          alt={data.hero}
-          className={styles.heroIcon}
-          onError={(e) => {
-            // Hide icon if image fails to load
-            e.currentTarget.style.display = "none";
-          }}
-        />
-        <h2 className={styles.heroName}>{data.hero}</h2>
+        <div className={styles.heroTitleSection}>
+          <img
+            src={heroIconPath}
+            alt={data.hero}
+            className={styles.heroIcon}
+            onError={(e) => {
+              // Hide icon if image fails to load
+              e.currentTarget.style.display = "none";
+            }}
+          />
+          <h2 className={styles.heroName}>{data.hero}</h2>
+        </div>
+        {heroHasGuide && (
+          <Button
+            variant="info"
+            size="medium"
+            onClick={handleOpenInGuide}
+            className={styles.guideButton}
+            title={`Open ${data.hero} in Guide`}
+          >
+            📚 Open in Guide
+          </Button>
+        )}
       </div>
 
       {/* Tags Section */}

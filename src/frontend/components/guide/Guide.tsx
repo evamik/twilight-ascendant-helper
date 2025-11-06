@@ -1,16 +1,24 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Guide.module.css";
 
+interface GuideProps {
+  /** Optional URL to display. If not provided, shows the default guide overview */
+  url?: string;
+}
+
 /**
  * Guide Component
  * Embeds the Twilight Ascendant community guide (Google Spreadsheet)
  */
-const Guide: React.FC = () => {
+const Guide: React.FC<GuideProps> = ({ url }) => {
   const [zoomLevel, setZoomLevel] = useState<number>(1.0);
 
-  // Use the original URL you provided - works when the sheet is publicly accessible
-  const spreadsheetUrl =
+  // Default URL - guide overview
+  const defaultUrl =
     "https://docs.google.com/spreadsheets/d/1uPRf7nsp50BpyAOMCu-cYtkEFwLY2NKAUcEa_PbIW00/view?rm=minimal&gid=1051526395#gid=1051526395";
+
+  // Use provided URL or fall back to default
+  const spreadsheetUrl = url || defaultUrl;
 
   const openInBrowser = () => {
     if (window.require) {

@@ -10,6 +10,7 @@ import Guide from "./components/guide/Guide";
 import Settings from "./components/settings/Settings";
 import { useAccountCharacterNavigation } from "./hooks/useAccountCharacterNavigation";
 import { Button, IconButton } from "./components/common/buttons";
+import { GuideNavigationProvider } from "./contexts/GuideNavigationContext";
 
 interface Position {
   x: number;
@@ -47,6 +48,7 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [overlayScale, setOverlayScale] = useState<number>(1);
+  const [guideUrl, setGuideUrl] = useState<string | undefined>(undefined);
   const dragging = useRef<boolean>(false);
   const grabOffset = useRef<Position>({ x: 0, y: 0 }); // Offset from overlay top-left to initial click position
   const resizing = useRef<boolean>(false);
@@ -335,6 +337,11 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
     }
   };
 
+  const navigateToGuide = (url: string) => {
+    setGuideUrl(url);
+    setActiveTab("guide");
+  };
+
   const handleResizeMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
     resizing.current = true;
@@ -491,39 +498,41 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
                   : styles.contentAreaNoBack
               }
             >
-              {activeTab === "loader" && (
-                <>
-                  {selectedCharacter ? (
-                    <CharacterData
-                      accountName={selectedAccount!}
-                      characterName={selectedCharacter}
-                      characterData={characterData}
-                      onBack={handleBackClick}
-                      onLoad={() => loadCharacterData()}
-                      showBackButton={false}
-                    />
-                  ) : selectedAccount ? (
-                    <CharacterList
-                      accountName={selectedAccount}
-                      characters={characters}
-                      onBack={handleBackClick}
-                      onCharacterClick={handleCharacterClick}
-                      onLoad={handleQuickLoad}
-                      showBackButton={false}
-                    />
-                  ) : (
-                    <>
-                      <h2 className={styles.accountsTitle}>Accounts</h2>
-                      <AccountList
-                        accounts={accounts}
-                        onAccountClick={handleAccountClick}
+              <GuideNavigationProvider navigateToGuide={navigateToGuide}>
+                {activeTab === "loader" && (
+                  <>
+                    {selectedCharacter ? (
+                      <CharacterData
+                        accountName={selectedAccount!}
+                        characterName={selectedCharacter}
+                        characterData={characterData}
+                        onBack={handleBackClick}
+                        onLoad={() => loadCharacterData()}
+                        showBackButton={false}
                       />
-                    </>
-                  )}
-                </>
-              )}
-              {activeTab === "drops" && <Drops />}
-              {activeTab === "guide" && <Guide />}
+                    ) : selectedAccount ? (
+                      <CharacterList
+                        accountName={selectedAccount}
+                        characters={characters}
+                        onBack={handleBackClick}
+                        onCharacterClick={handleCharacterClick}
+                        onLoad={handleQuickLoad}
+                        showBackButton={false}
+                      />
+                    ) : (
+                      <>
+                        <h2 className={styles.accountsTitle}>Accounts</h2>
+                        <AccountList
+                          accounts={accounts}
+                          onAccountClick={handleAccountClick}
+                        />
+                      </>
+                    )}
+                  </>
+                )}
+                {activeTab === "drops" && <Drops />}
+                {activeTab === "guide" && <Guide url={guideUrl} />}
+              </GuideNavigationProvider>
             </div>
           </>
         )}

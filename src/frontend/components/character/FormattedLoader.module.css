@@ -10,9 +10,14 @@
 .heroHeader {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
+  justify-content: space-between;
   margin-bottom: 16px;
+}
+
+.heroTitleSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .heroIcon {
@@ -27,6 +32,10 @@
   font-weight: bold;
   color: #ffd700;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.guideButton {
+  flex-shrink: 0;
 }
 
 /* Resources Section */
