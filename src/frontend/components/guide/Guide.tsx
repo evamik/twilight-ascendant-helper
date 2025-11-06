@@ -12,13 +12,63 @@ interface GuideProps {
  */
 const Guide: React.FC<GuideProps> = ({ url }) => {
   const [zoomLevel, setZoomLevel] = useState<number>(1.0);
+  const [currentUrl, setCurrentUrl] = useState<string | undefined>(url);
 
   // Default URL - guide overview
   const defaultUrl =
     "https://docs.google.com/spreadsheets/d/1uPRf7nsp50BpyAOMCu-cYtkEFwLY2NKAUcEa_PbIW00/view?rm=minimal&gid=1051526395#gid=1051526395";
 
-  // Use provided URL or fall back to default
-  const spreadsheetUrl = url || defaultUrl;
+  // Use provided URL or fall back to saved/default
+  const spreadsheetUrl = url || currentUrl || defaultUrl;
+
+  // Load saved zoom level and last URL on mount
+  useEffect(() => {
+    if (window.require) {
+      const { ipcRenderer } = window.require("electron") as {
+        ipcRenderer: { invoke: (channel: string) => Promise<any> };
+      };
+
+      // Load saved zoom level
+      ipcRenderer.invoke("get-guide-zoom").then((savedZoom: number) => {
+        setZoomLevel(savedZoom);
+      });
+
+      // Load last opened URL if no URL was provided
+      if (!url) {
+        ipcRenderer
+          .invoke("get-last-guide-url")
+          .then((savedUrl: string | undefined) => {
+            if (savedUrl) {
+              setCurrentUrl(savedUrl);
+            }
+          });
+      }
+    }
+  }, [url]);
+
+  // Save zoom level whenever it changes
+  useEffect(() => {
+    if (window.require) {
+      const { ipcRenderer } = window.require("electron") as {
+        ipcRenderer: {
+          invoke: (channel: string, ...args: any[]) => Promise<any>;
+        };
+      };
+      ipcRenderer.invoke("set-guide-zoom", zoomLevel);
+    }
+  }, [zoomLevel]);
+
+  // Save URL whenever it changes
+  useEffect(() => {
+    if (window.require && spreadsheetUrl !== defaultUrl) {
+      const { ipcRenderer } = window.require("electron") as {
+        ipcRenderer: {
+          invoke: (channel: string, ...args: any[]) => Promise<any>;
+        };
+      };
+      ipcRenderer.invoke("set-last-guide-url", spreadsheetUrl);
+    }
+  }, [spreadsheetUrl, defaultUrl]);
 
   const openInBrowser = () => {
     if (window.require) {

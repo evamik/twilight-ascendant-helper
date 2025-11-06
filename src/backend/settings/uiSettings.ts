@@ -90,3 +90,32 @@ export const setCharacterListScale = (scale: number): boolean => {
   settings.characterListScale = Math.max(0.5, Math.min(2.0, scale));
   return saveSettings(settings);
 };
+
+// Get guide zoom level (default 1.0 = 100%)
+export const getGuideZoom = (): number => {
+  const settings = loadSettings();
+  const zoom = settings.guideZoom ?? 1.0;
+  // Clamp between 0.5 and 2.0
+  return Math.max(0.5, Math.min(2.0, zoom));
+};
+
+// Set guide zoom level
+export const setGuideZoom = (zoom: number): boolean => {
+  const settings = loadSettings();
+  // Clamp between 0.5 and 2.0
+  settings.guideZoom = Math.max(0.5, Math.min(2.0, zoom));
+  return saveSettings(settings);
+};
+
+// Get last opened guide URL
+export const getLastGuideUrl = (): string | undefined => {
+  const settings = loadSettings();
+  return settings.lastGuideUrl;
+};
+
+// Set last opened guide URL
+export const setLastGuideUrl = (url: string | undefined): boolean => {
+  const settings = loadSettings();
+  settings.lastGuideUrl = url;
+  return saveSettings(settings);
+};

@@ -10,6 +10,10 @@ import {
   setOverlayScale,
   getCharacterListScale,
   setCharacterListScale,
+  getGuideZoom,
+  setGuideZoom,
+  getLastGuideUrl,
+  setLastGuideUrl,
 } from "./uiSettings";
 import { setOverlayEnabled } from "./overlaySettings";
 import { trackFeature } from "./analytics";
@@ -139,6 +143,41 @@ export const registerUIIpcHandlers = (): void => {
     async (_event: IpcMainInvokeEvent, scale: number): Promise<SaveResult> => {
       const success = setCharacterListScale(scale);
       trackFeature("character_list_scale_saved", { scale });
+      return { success };
+    }
+  );
+
+  // Get guide zoom level
+  ipcMain.handle("get-guide-zoom", async (): Promise<number> => {
+    return getGuideZoom();
+  });
+
+  // Set guide zoom level
+  ipcMain.handle(
+    "set-guide-zoom",
+    async (_event: IpcMainInvokeEvent, zoom: number): Promise<SaveResult> => {
+      const success = setGuideZoom(zoom);
+      trackFeature("guide_zoom_saved", { zoom });
+      return { success };
+    }
+  );
+
+  // Get last opened guide URL
+  ipcMain.handle(
+    "get-last-guide-url",
+    async (): Promise<string | undefined> => {
+      return getLastGuideUrl();
+    }
+  );
+
+  // Set last opened guide URL
+  ipcMain.handle(
+    "set-last-guide-url",
+    async (
+      _event: IpcMainInvokeEvent,
+      url: string | undefined
+    ): Promise<SaveResult> => {
+      const success = setLastGuideUrl(url);
       return { success };
     }
   );

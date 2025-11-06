@@ -24,6 +24,8 @@ export interface Settings {
   mainAppScale?: number; // UI scale for main app (default 1.0 = 100%)
   overlayScale?: number; // UI scale for overlay (default 1.0 = 100%)
   characterListScale?: number; // UI scale for character list grid (default 1.0 = 100%)
+  guideZoom?: number; // Zoom level for guide view (default 1.0 = 100%)
+  lastGuideUrl?: string; // Last opened guide URL
   characterSettings: Record<string, CharacterSettings>;
   overlayToggleKeybind?: string; // Global keybind to toggle overlay expand/minimize
 }
