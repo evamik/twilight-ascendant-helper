@@ -40,39 +40,47 @@ app.whenReady().then(() => {
 
   attachClosedHandler();
 
-  // Setup global keybind for overlay toggle
-  const registerOverlayToggleKeybind = () => {
-    // Unregister any existing keybind first
-    globalShortcut.unregisterAll();
+  // Track whether keybind is currently registered
+  let isKeybindRegistered = false;
+  let currentKeybind = getOverlayToggleKeybind(); // Cache the keybind
 
-    const keybind = getOverlayToggleKeybind();
-    const registered = globalShortcut.register(keybind, () => {
-      console.log(`[Main] Overlay toggle keybind pressed: ${keybind}`);
-      if (overlayWin && !overlayWin.isDestroyed()) {
-        // Send toggle command to overlay window
-        overlayWin.webContents.send("toggle-overlay-minimize");
+  // Register/unregister keybind based on active window
+  const updateKeybindRegistration = (shouldRegister: boolean) => {
+    if (shouldRegister && !isKeybindRegistered) {
+      // Register the shortcut
+      const registered = globalShortcut.register(currentKeybind, () => {
+        console.log(`[Main] Overlay toggle keybind triggered: ${currentKeybind}`);
+        if (overlayWin && !overlayWin.isDestroyed()) {
+          overlayWin.webContents.send("toggle-overlay-minimize");
+        }
+      });
+
+      if (registered) {
+        console.log(`[Main] Registered overlay toggle keybind: ${currentKeybind}`);
+        isKeybindRegistered = true;
+      } else {
+        console.warn(`[Main] Failed to register keybind: ${currentKeybind}`);
       }
-    });
-
-    if (registered) {
-      console.log(
-        `[Main] Successfully registered overlay toggle keybind: ${keybind}`
-      );
-    } else {
-      console.warn(
-        `[Main] Failed to register overlay toggle keybind: ${keybind}`
-      );
+    } else if (!shouldRegister && isKeybindRegistered) {
+      // Unregister the shortcut
+      globalShortcut.unregisterAll();
+      isKeybindRegistered = false;
+      console.log(`[Main] Unregistered overlay toggle keybind: ${currentKeybind}`);
     }
   };
 
-  // Register initial keybind
-  registerOverlayToggleKeybind();
-
-  // Listen for keybind changes
+  // Listen for keybind changes from settings
   const { ipcMain } = require("electron");
   ipcMain.on("keybind-changed", () => {
-    console.log("[Main] Keybind changed, re-registering...");
-    registerOverlayToggleKeybind();
+    console.log("[Main] Keybind changed in settings");
+    // Unregister old keybind
+    if (isKeybindRegistered) {
+      globalShortcut.unregisterAll();
+      isKeybindRegistered = false;
+    }
+    // Update cached keybind
+    currentKeybind = getOverlayToggleKeybind();
+    console.log(`[Main] New keybind: ${currentKeybind}`);
   });
 
   // Setup auto-updater (only in production)
@@ -125,6 +133,12 @@ app.whenReady().then(() => {
       const winInfo = (await activeWin()) as WindowInfo | undefined;
       const isWarcraft = winInfo && winInfo.title === "Warcraft III";
       const isOverlay = winInfo && winInfo.title === overlayWin.getTitle();
+      const isMainWindow =
+        winInfo && winInfo.owner?.name === "Twilight Ascendant Helper";
+
+      // Register keybind only when Warcraft III or our app windows are focused
+      const shouldHaveKeybind = !!(isWarcraft || isOverlay || isMainWindow);
+      updateKeybindRegistration(shouldHaveKeybind);
 
       if (isWarcraft && winInfo.bounds) {
         setLastWarcraftBounds({ x: winInfo.bounds.x, y: winInfo.bounds.y });

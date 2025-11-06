@@ -133,7 +133,7 @@ const KeybindSettings: React.FC = () => {
     <div className={styles.container}>
       <h3 className={styles.title}>Overlay Toggle Keybind</h3>
       <p className={styles.description}>
-        Set a global keybind to expand/minimize the overlay window
+        Set a keybind to expand/minimize the overlay window
       </p>
 
       <div className={styles.keybindRow}>
@@ -168,7 +168,11 @@ const KeybindSettings: React.FC = () => {
       )}
 
       <div className={styles.hint}>
-        Hint: Try combinations like Alt+O, Ctrl+Shift+O, or F5
+        💡 Keybind is only active when Warcraft III or the helper app is
+        focused.
+        <br />
+        It will NOT interfere with other applications like File Explorer,
+        browsers, etc.
       </div>
     </div>
   );
