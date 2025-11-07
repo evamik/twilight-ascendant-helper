@@ -21,6 +21,8 @@ export const createOverlayWindow = (): BrowserWindow => {
   overlayWin.setAlwaysOnTop(true, "screen-saver");
   if (process.env.NODE_ENV === "development") {
     overlayWin.loadURL("http://localhost:3000/overlay.html");
+    // Open DevTools for overlay in development to see console logs
+    overlayWin.webContents.openDevTools({ mode: "detach" });
   } else {
     // In production, load from dist-react folder
     overlayWin.loadFile(path.join(__dirname, "../../dist-react/overlay.html"));

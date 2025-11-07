@@ -55,7 +55,6 @@ export const getAccountFolders = (): AccountList => {
       .filter((item) => item.isDirectory())
       .map((item) => item.name);
 
-    console.log("Found account folders:", folders);
     return folders;
   } catch (error) {
     console.error("Error reading account folders:", error);
@@ -128,7 +127,6 @@ export const getLatestCharacterData = (
     const latestFile = files[0];
     const content = fs.readFileSync(latestFile.path, "utf-8");
 
-    console.log("Found latest file for", characterName, ":", latestFile.name);
     return {
       fileName: latestFile.name,
       content: content,
@@ -177,7 +175,6 @@ export const getCharacterBackups = (
       })
       .sort((a, b) => b.modifiedTime - a.modifiedTime); // Sort by modified time, newest first
 
-    console.log("Found", files.length, "backup files for", characterName);
     return files;
   } catch (error) {
     console.error("Error reading backup files:", error);
@@ -311,12 +308,6 @@ export const getCharacterSummaries = (
       }
     }
 
-    console.log(
-      "Found character summaries for",
-      accountName,
-      ":",
-      summaries.length
-    );
     return summaries;
   } catch (error) {
     console.error("Error reading character summaries:", error);

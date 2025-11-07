@@ -49,6 +49,11 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [overlayScale, setOverlayScale] = useState<number>(1);
   const [guideUrl, setGuideUrl] = useState<string | undefined>(undefined);
+
+  // Debug: log when isMinimized changes
+  useEffect(() => {
+    console.log("[Overlay] isMinimized state changed to:", isMinimized);
+  }, [isMinimized]);
   const dragging = useRef<boolean>(false);
   const grabOffset = useRef<Position>({ x: 0, y: 0 }); // Offset from overlay top-left to initial click position
   const resizing = useRef<boolean>(false);
@@ -94,7 +99,6 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
         setOverlaySize(size);
       });
       ipcRenderer.on("toggle-overlay-minimize", () => {
-        console.log("Overlay minimize toggle triggered by keybind");
         setIsMinimized((prev) => {
           const newState = !prev;
           ipcRenderer.send("set-overlay-minimized", newState);
@@ -377,56 +381,7 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
 
   if (!visible) return null;
 
-  // Handle settings view separately
-  if (showSettings) {
-    return (
-      <div
-        className={styles.overlayContainer}
-        style={{
-          width: overlaySize.width,
-          height: overlaySize.height,
-          background: "rgba(30,30,30,0.95)",
-        }}
-      >
-        <div
-          className={styles.overlayZoomContainer}
-          style={{ zoom: overlayScale }}
-        >
-          <div
-            className={styles.anchor}
-            onMouseDown={handleMouseDown}
-            onMouseEnter={handleAnchorMouseEnter}
-            onMouseLeave={handleAnchorMouseLeave}
-            title="Click to minimize, drag to move"
-          >
-            +
-          </div>
-          <Button
-            className={styles.backButtonSettings}
-            onClick={() => setShowSettings(false)}
-            variant="secondary"
-            size="medium"
-            title="Back"
-          >
-            ← Back
-          </Button>
-          <div
-            className={styles.resizeHandle}
-            onMouseDown={handleResizeMouseDown}
-            title="Resize overlay"
-          >
-            ↘
-          </div>
-          <div className={styles.contentAreaSettings}>
-            <Settings
-              onBack={() => setShowSettings(false)}
-              showBackButton={false}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (!visible) return null;
 
   return (
     <div
@@ -457,83 +412,117 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
         </div>
         {!isMinimized && (
           <>
-            {/* Tab Navigation */}
-            <div className={styles.tabSection}>
-              <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-              <IconButton
-                onClick={() => setShowSettings(true)}
-                className={styles.settingsButton}
-                variant="ghost"
-                size="medium"
-                icon="⚙️"
-                title="Settings"
-              />
-            </div>
+            {showSettings ? (
+              <>
+                {/* Settings view */}
+                <Button
+                  className={styles.backButtonSettings}
+                  onClick={() => setShowSettings(false)}
+                  variant="secondary"
+                  size="medium"
+                  title="Back"
+                >
+                  ← Back
+                </Button>
+                <div
+                  className={styles.resizeHandle}
+                  onMouseDown={handleResizeMouseDown}
+                  title="Resize overlay"
+                >
+                  ↘
+                </div>
+                <div className={styles.contentAreaSettings}>
+                  <Settings
+                    onBack={() => setShowSettings(false)}
+                    showBackButton={false}
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Main overlay view */}
+                {/* Tab Navigation */}
+                <div className={styles.tabSection}>
+                  <TabNavigation
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                  />
+                  <IconButton
+                    onClick={() => setShowSettings(true)}
+                    className={styles.settingsButton}
+                    variant="ghost"
+                    size="medium"
+                    icon="⚙️"
+                    title="Settings"
+                  />
+                </div>
 
-            {/* Universal back button - shows when navigating in characters */}
-            {activeTab === "loader" && selectedAccount && (
-              <Button
-                className={styles.backButtonOverlay}
-                onClick={handleBackClick}
-                variant="secondary"
-                size="medium"
-                title="Back"
-              >
-                ← Back
-              </Button>
-            )}
+                {/* Universal back button - shows when navigating in characters */}
+                {activeTab === "loader" && selectedAccount && (
+                  <Button
+                    className={styles.backButtonOverlay}
+                    onClick={handleBackClick}
+                    variant="secondary"
+                    size="medium"
+                    title="Back"
+                  >
+                    ← Back
+                  </Button>
+                )}
 
-            <div
-              className={styles.resizeHandle}
-              onMouseDown={handleResizeMouseDown}
-              title="Resize overlay"
-            >
-              ↘
-            </div>
+                <div
+                  className={styles.resizeHandle}
+                  onMouseDown={handleResizeMouseDown}
+                  title="Resize overlay"
+                >
+                  ↘
+                </div>
 
-            <div
-              className={
-                activeTab === "loader" && selectedAccount
-                  ? styles.contentArea
-                  : styles.contentAreaNoBack
-              }
-            >
-              <GuideNavigationProvider navigateToGuide={navigateToGuide}>
-                {activeTab === "loader" && (
-                  <>
-                    {selectedCharacter ? (
-                      <CharacterData
-                        accountName={selectedAccount!}
-                        characterName={selectedCharacter}
-                        characterData={characterData}
-                        onBack={handleBackClick}
-                        onLoad={() => loadCharacterData()}
-                        showBackButton={false}
-                      />
-                    ) : selectedAccount ? (
-                      <CharacterList
-                        accountName={selectedAccount}
-                        characters={characters}
-                        onBack={handleBackClick}
-                        onCharacterClick={handleCharacterClick}
-                        onLoad={handleQuickLoad}
-                        showBackButton={false}
-                      />
-                    ) : (
+                <div
+                  className={
+                    activeTab === "loader" && selectedAccount
+                      ? styles.contentArea
+                      : styles.contentAreaNoBack
+                  }
+                >
+                  <GuideNavigationProvider navigateToGuide={navigateToGuide}>
+                    {activeTab === "loader" && (
                       <>
-                        <h2 className={styles.accountsTitle}>Accounts</h2>
-                        <AccountList
-                          accounts={accounts}
-                          onAccountClick={handleAccountClick}
-                        />
+                        {selectedCharacter ? (
+                          <CharacterData
+                            accountName={selectedAccount!}
+                            characterName={selectedCharacter}
+                            characterData={characterData}
+                            onBack={handleBackClick}
+                            onLoad={() => loadCharacterData()}
+                            showBackButton={false}
+                          />
+                        ) : selectedAccount ? (
+                          <CharacterList
+                            accountName={selectedAccount}
+                            characters={characters}
+                            onBack={handleBackClick}
+                            onCharacterClick={handleCharacterClick}
+                            onLoad={handleQuickLoad}
+                            showBackButton={false}
+                          />
+                        ) : (
+                          <>
+                            <h2 className={styles.accountsTitle}>Accounts</h2>
+                            <AccountList
+                              accounts={accounts}
+                              onAccountClick={handleAccountClick}
+                            />
+                          </>
+                        )}
                       </>
                     )}
-                  </>
-                )}
-                {activeTab === "drops" && <Drops />}
-                {activeTab === "guide" && <Guide url={guideUrl} />}
-              </GuideNavigationProvider>
-            </div>
+                    {activeTab === "drops" && <Drops />}
+                    {activeTab === "guide" && <Guide url={guideUrl} />}
+                  </GuideNavigationProvider>
+                </div>
+              </>
+            )}
           </>
         )}
       </div>

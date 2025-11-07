@@ -43,44 +43,83 @@ app.whenReady().then(() => {
   // Track whether keybind is currently registered
   let isKeybindRegistered = false;
   let currentKeybind = getOverlayToggleKeybind(); // Cache the keybind
+  let isKeybindSettingsOpen = false; // Flag to prevent dynamic registration while configuring
 
   // Register/unregister keybind based on active window
   const updateKeybindRegistration = (shouldRegister: boolean) => {
     if (shouldRegister && !isKeybindRegistered) {
       // Register the shortcut
       const registered = globalShortcut.register(currentKeybind, () => {
-        console.log(`[Main] Overlay toggle keybind triggered: ${currentKeybind}`);
+        console.log(
+          `[Main] Overlay toggle keybind triggered: ${currentKeybind}`
+        );
         if (overlayWin && !overlayWin.isDestroyed()) {
           overlayWin.webContents.send("toggle-overlay-minimize");
         }
       });
 
       if (registered) {
-        console.log(`[Main] Registered overlay toggle keybind: ${currentKeybind}`);
         isKeybindRegistered = true;
       } else {
         console.warn(`[Main] Failed to register keybind: ${currentKeybind}`);
       }
     } else if (!shouldRegister && isKeybindRegistered) {
-      // Unregister the shortcut
-      globalShortcut.unregisterAll();
+      // Unregister the specific shortcut instead of all
+      if (globalShortcut.isRegistered(currentKeybind)) {
+        globalShortcut.unregister(currentKeybind);
+      }
       isKeybindRegistered = false;
-      console.log(`[Main] Unregistered overlay toggle keybind: ${currentKeybind}`);
     }
   };
 
   // Listen for keybind changes from settings
   const { ipcMain } = require("electron");
-  ipcMain.on("keybind-changed", () => {
-    console.log("[Main] Keybind changed in settings");
-    // Unregister old keybind
-    if (isKeybindRegistered) {
-      globalShortcut.unregisterAll();
+
+  // Listen for keybind settings page open/close
+  ipcMain.on("keybind-settings-opened", () => {
+    isKeybindSettingsOpen = true;
+    // Keep keybind registered while settings are open (so user can test it)
+    // but prevent the 20ms loop from unregistering it if focus changes
+  });
+
+  ipcMain.on("keybind-settings-closed", () => {
+    isKeybindSettingsOpen = false;
+  });
+
+  ipcMain.on("keybind-changed", async () => {
+    // Store the old keybind before unregistering
+    const oldKeybind = currentKeybind;
+
+    // Unregister old keybind if registered
+    if (isKeybindRegistered && globalShortcut.isRegistered(oldKeybind)) {
+      globalShortcut.unregister(oldKeybind);
       isKeybindRegistered = false;
+      console.log(`[Main] Unregistered old keybind: ${oldKeybind}`);
     }
+
     // Update cached keybind
-    currentKeybind = getOverlayToggleKeybind();
-    console.log(`[Main] New keybind: ${currentKeybind}`);
+    const newKeybind = getOverlayToggleKeybind();
+    console.log(`[Main] Keybind changed from ${oldKeybind} to ${newKeybind}`);
+    currentKeybind = newKeybind;
+
+    // Check if overlay or our windows are focused
+    const winInfo = (await activeWin()) as WindowInfo | undefined;
+    const isOverlayFocused = winInfo && winInfo.title === overlayWin.getTitle();
+    const isMainWindowFocused =
+      winInfo && winInfo.owner?.name === "Twilight Ascendant Helper";
+
+    // Small delay before re-registering to avoid Electron issues
+    setTimeout(() => {
+      if (isOverlayFocused || isMainWindowFocused) {
+        updateKeybindRegistration(true);
+        console.log(
+          "[Main] Re-registered new keybind immediately (our window focused)"
+        );
+
+        // Don't call focus() - it causes the overlay minimize state to desync
+        // The focus call was triggering extra IPC events that break the UI state
+      }
+    }, 100); // 100ms delay
   });
 
   // Setup auto-updater (only in production)
@@ -137,7 +176,13 @@ app.whenReady().then(() => {
         winInfo && winInfo.owner?.name === "Twilight Ascendant Helper";
 
       // Register keybind only when Warcraft III or our app windows are focused
-      const shouldHaveKeybind = !!(isWarcraft || isOverlay || isMainWindow);
+      // UNLESS keybind settings page is open - then keep it registered regardless
+      const shouldHaveKeybind = !!(
+        isWarcraft ||
+        isOverlay ||
+        isMainWindow ||
+        isKeybindSettingsOpen
+      );
       updateKeybindRegistration(shouldHaveKeybind);
 
       if (isWarcraft && winInfo.bounds) {
@@ -162,7 +207,6 @@ app.whenReady().then(() => {
           }
           // Only show/focus if not already visible
           if (!isOverlayVisible) {
-            console.log("[Main] Showing and focusing overlay");
             overlayWin.show();
             overlayWin.setAlwaysOnTop(true, "screen-saver");
             isOverlayVisible = true;
@@ -171,7 +215,6 @@ app.whenReady().then(() => {
         }
       } else {
         if (overlayWin && isOverlayVisible) {
-          console.log("[Main] Hiding overlay");
           overlayWin.hide();
           isOverlayVisible = false;
         }

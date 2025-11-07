@@ -39,7 +39,6 @@ export const getDropsContent = (): DropsResult & {
     }
 
     const content = fs.readFileSync(dropsPath, "utf-8");
-    console.log("Successfully read drops.txt");
 
     return {
       success: true,

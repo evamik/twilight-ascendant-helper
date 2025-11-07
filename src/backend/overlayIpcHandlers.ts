@@ -30,16 +30,10 @@ const initializeOverlayState = (): void => {
     // Load saved position and size if available
     if (uiSettings.overlayPosition) {
       anchorOffset = uiSettings.overlayPosition;
-      console.log(
-        `[Overlay] Loaded saved position: ${JSON.stringify(anchorOffset)}`
-      );
     }
 
     if (uiSettings.overlaySize) {
       overlaySize = uiSettings.overlaySize;
-      console.log(
-        `[Overlay] Loaded saved size: ${JSON.stringify(overlaySize)}`
-      );
     }
 
     console.log(`[Overlay] Initialized overlayEnabled: ${overlayEnabled}`);
@@ -173,7 +167,7 @@ export const registerOverlayIpcHandlers = (): void => {
   ipcMain.on(
     "set-overlay-minimized",
     (_event: IpcMainEvent, isMinimized: boolean) => {
-      if (overlayWin) {
+      if (overlayWin && !overlayWin.isDestroyed()) {
         if (isMinimized) {
           // When minimized: forward mouse events through
           overlayWin.setIgnoreMouseEvents(true, { forward: true });
@@ -182,6 +176,9 @@ export const registerOverlayIpcHandlers = (): void => {
           // When expanded: capture mouse events normally
           overlayWin.setIgnoreMouseEvents(false);
           trackFeature("overlay_maximized");
+
+          // Don't call focus() here - it can interfere with the overlay's state
+          // especially when changing keybinds in settings
         }
       }
     }

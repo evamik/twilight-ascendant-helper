@@ -26,12 +26,10 @@ function findWarcraftWindow(): HWND {
     for (const title of possibleTitles) {
       const hwnd = findWindowByTitle(title);
       if (hwnd) {
-        console.log(`Found Warcraft III window with title: "${title}"`);
         return hwnd;
       }
     }
 
-    console.log("Warcraft III window not found");
     return null;
   } catch (error) {
     console.error("Error finding Warcraft window:", error);
@@ -52,7 +50,6 @@ export async function sendLoadCommand(
 ): Promise<GameSendResult> {
   // Prevent multiple simultaneous executions
   if (isExecutingCommand) {
-    console.log("Command already in progress, skipping...");
     return { success: false, error: "Command already in progress" };
   }
 
@@ -75,9 +72,6 @@ export async function sendLoadCommand(
       return { success: false, error: "Load code not found in character data" };
     }
 
-    console.log("Sending load sequence to Warcraft III");
-    console.log("Load code length:", loadCode.length);
-
     // Get loader settings - check for character-specific first, then fallback to global
     let preloadMessages: string[] = [];
     let postloadMessages: string[] = [];
@@ -88,21 +82,14 @@ export async function sendLoadCommand(
         characterName
       );
       if (characterSettings) {
-        console.log(
-          `Using character-specific settings for ${accountName}:${characterName}`
-        );
         preloadMessages = characterSettings.preloadMessages || [];
         postloadMessages = characterSettings.postloadMessages || [];
       } else {
-        console.log(
-          `No character-specific settings found, using global settings`
-        );
         const globalSettings = getLoaderSettings();
         preloadMessages = globalSettings.preloadMessages || [];
         postloadMessages = globalSettings.postloadMessages || [];
       }
     } else {
-      console.log(`Using global settings (no account/character provided)`);
       const globalSettings = getLoaderSettings();
       preloadMessages = globalSettings.preloadMessages || [];
       postloadMessages = globalSettings.postloadMessages || [];
@@ -110,7 +97,6 @@ export async function sendLoadCommand(
 
     // Send preload messages (before load command)
     if (preloadMessages && preloadMessages.length > 0) {
-      console.log(`Sending ${preloadMessages.length} preload message(s)`);
       for (const message of preloadMessages) {
         if (message.trim()) {
           sendEnter(hwnd);
@@ -134,15 +120,8 @@ export async function sendLoadCommand(
     const maxChunkLength = 124;
     const codeChunks = splitIntoChunks(loadCode, maxChunkLength);
 
-    console.log(`Sending code in ${codeChunks.length} chunk(s)`);
-
     for (let i = 0; i < codeChunks.length; i++) {
       const chunk = codeChunks[i];
-      console.log(
-        `Sending chunk ${i + 1}/${codeChunks.length}: ${
-          chunk.length
-        } characters`
-      );
 
       sendEnter(hwnd);
       await new Promise<void>((resolve) => setTimeout(resolve, 20)); // Wait for text box to be ready
@@ -162,7 +141,6 @@ export async function sendLoadCommand(
 
     // Send postload messages (after load command)
     if (postloadMessages && postloadMessages.length > 0) {
-      console.log(`Sending ${postloadMessages.length} postload message(s)`);
       await new Promise<void>((resolve) => setTimeout(resolve, 200)); // Wait a bit after -le
       for (const message of postloadMessages) {
         if (message.trim()) {
@@ -176,7 +154,6 @@ export async function sendLoadCommand(
       }
     }
 
-    console.log("Successfully sent load sequence");
     return { success: true };
   } catch (error) {
     console.error("Error sending load command:", error);

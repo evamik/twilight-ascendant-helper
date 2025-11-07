@@ -37,11 +37,6 @@ export const findLatestReplay = (): ReplayResult => {
       };
     }
 
-    console.log(
-      `Found ${accountFolders.length} account folders:`,
-      accountFolders
-    );
-
     // Search for LastReplay.w3g in each account's Replays folder
     let latestReplay: {
       path: string;
@@ -62,11 +57,6 @@ export const findLatestReplay = (): ReplayResult => {
         const stats = fs.statSync(replayPath);
         const modTime = stats.mtimeMs;
 
-        console.log(
-          `Found replay in ${accountFolder}, modified:`,
-          new Date(stats.mtime)
-        );
-
         if (modTime > latestModTime) {
           latestModTime = modTime;
           latestReplay = {
@@ -85,7 +75,6 @@ export const findLatestReplay = (): ReplayResult => {
       };
     }
 
-    console.log(`Latest replay found in account ${latestReplay.accountId}`);
     return {
       success: true,
       replayPath: latestReplay.path,
@@ -132,7 +121,6 @@ export const copyReplayToDropsDirectory = (): ReplayResult & {
 
     if (!fs.existsSync(dropsDirectory)) {
       fs.mkdirSync(dropsDirectory, { recursive: true });
-      console.log("Created drops directory:", dropsDirectory);
     }
 
     // Use exact filename (replaces previous copy if it exists)
@@ -141,7 +129,6 @@ export const copyReplayToDropsDirectory = (): ReplayResult & {
 
     // Copy the file (overwrites if exists)
     fs.copyFileSync(replayPath, destinationPath);
-    console.log(`Copied replay to: ${destinationPath}`);
 
     return {
       success: true,

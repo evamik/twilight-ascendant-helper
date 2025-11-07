@@ -38,7 +38,6 @@ export function watchCharacterFile(
     const characterPath = path.join(basePath, accountName, characterName);
 
     if (!fs.existsSync(characterPath)) {
-      console.log(`[FileWatcher] Character path not found: ${characterPath}`);
       return;
     }
 
@@ -48,10 +47,6 @@ export function watchCharacterFile(
       { persistent: false },
       (_eventType, filename) => {
         if (filename && filename.endsWith(".txt")) {
-          console.log(
-            `[FileWatcher] Character file changed: ${characterName}/${filename}`
-          );
-
           // Notify both windows that character data changed
           if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send("character-file-changed", {
@@ -73,7 +68,6 @@ export function watchCharacterFile(
     );
 
     watchedCharacterFiles.set(key, { watcher, path: characterPath });
-    console.log(`[FileWatcher] Started watching character: ${key}`);
   } catch (error) {
     console.error(`[FileWatcher] Error watching character ${key}:`, error);
   }
@@ -92,7 +86,6 @@ export function unwatchCharacterFile(
   if (watched) {
     watched.watcher.close();
     watchedCharacterFiles.delete(key);
-    console.log(`[FileWatcher] Stopped watching character: ${key}`);
   }
 }
 
@@ -113,15 +106,12 @@ export function watchDropsFile(
     const dropsPath = getDropsFilePath();
 
     if (!dropsPath || !fs.existsSync(dropsPath)) {
-      console.log(`[FileWatcher] Drops file not found: ${dropsPath}`);
       return;
     }
 
     // Watch the drops file
     dropsWatcher = fs.watch(dropsPath, { persistent: false }, (eventType) => {
       if (eventType === "change") {
-        console.log(`[FileWatcher] Drops file changed`);
-
         // Notify both windows that drops data changed
         if (mainWindow && !mainWindow.isDestroyed()) {
           mainWindow.webContents.send("drops-file-changed");
@@ -132,8 +122,6 @@ export function watchDropsFile(
         }
       }
     });
-
-    console.log(`[FileWatcher] Started watching drops file: ${dropsPath}`);
   } catch (error) {
     console.error(`[FileWatcher] Error watching drops file:`, error);
   }
@@ -146,7 +134,6 @@ export function unwatchDropsFile(): void {
   if (dropsWatcher) {
     dropsWatcher.close();
     dropsWatcher = null;
-    console.log(`[FileWatcher] Stopped watching drops file`);
   }
 }
 
@@ -162,6 +149,4 @@ export function stopAllWatchers(): void {
 
   // Stop drops watcher
   unwatchDropsFile();
-
-  console.log(`[FileWatcher] Stopped all watchers`);
 }

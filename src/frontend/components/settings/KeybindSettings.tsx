@@ -27,10 +27,21 @@ const KeybindSettings: React.FC = () => {
         .catch((error: any) => {
           console.error("Error loading keybind:", error);
         });
+
+      // Notify main process that settings page is open
+      // This prevents dynamic keybind registration while we're configuring
+      ipcRenderer.send("keybind-settings-opened");
     }
+
+    return () => {
+      // Notify main process that settings page is closed
+      if (ipcRenderer) {
+        ipcRenderer.send("keybind-settings-closed");
+      }
+    };
   }, []);
 
-  // Handle key recording
+  // Handle key recording - only when recording is active
   useEffect(() => {
     if (!isRecording) return;
 
@@ -71,9 +82,14 @@ const KeybindSettings: React.FC = () => {
       setIsRecording(false);
     };
 
+    // Add listener only while recording
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isRecording]);
+
+    return () => {
+      // Clean up when recording stops
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isRecording]); // Re-run when isRecording changes
 
   const handleStartRecording = () => {
     setIsRecording(true);

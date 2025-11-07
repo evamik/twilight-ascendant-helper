@@ -78,7 +78,6 @@ export const loadSettings = (): Settings => {
       // Run migration
       migrateSettings(settings);
 
-      console.log("Loaded settings:", settings);
       const mergedSettings = { ...getDefaultSettings(), ...settings };
 
       // Save migrated settings back
@@ -97,7 +96,6 @@ export const saveSettings = (settings: Settings): boolean => {
   try {
     const settingsPath = getSettingsPath();
     fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf-8");
-    console.log("Saved settings:", settings);
     return true;
   } catch (error) {
     console.error("Error saving settings:", error);
@@ -122,7 +120,6 @@ export const getDataPath = (): string => {
     "CustomMapData",
     "Twilight Ascendant"
   );
-  console.log("Using default data path:", defaultPath);
   return defaultPath;
 };
 
