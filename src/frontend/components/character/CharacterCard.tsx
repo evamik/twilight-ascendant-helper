@@ -36,11 +36,21 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
 }) => {
   const heroIconPath = `./icons/heroes/${characterName}.png`;
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onCharacterClick(characterName);
+    }
+  };
+
   return (
-    <button
+    <div
       onClick={() => onCharacterClick(characterName)}
+      onKeyDown={handleKeyDown}
       className={styles.characterButton}
       style={buttonStyle}
+      role="button"
+      tabIndex={0}
     >
       {/* Icon and load button column */}
       <div className={styles.leftColumn}>
@@ -124,7 +134,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
         icon={isFavorite ? "⭐" : "☆"}
         title={isFavorite ? "Remove from favorites" : "Add to favorites"}
       />
-    </button>
+    </div>
   );
 };
 

@@ -15,6 +15,21 @@
   position: relative;
   width: 100%;
   min-height: 70px; /* Ensure consistent height */
+  box-sizing: border-box; /* Ensure padding doesn't add to width */
+  margin: 0; /* Remove any default margins */
+}
+
+.characterButton:hover {
+  background: var(--button-primary-hover, #4a5568);
+}
+
+.characterButton:focus {
+  outline: 2px solid #4299e1;
+  outline-offset: 2px;
+}
+
+.characterButton:focus:not(:focus-visible) {
+  outline: none;
 }
 
 .leftColumn {
