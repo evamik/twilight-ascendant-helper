@@ -6,6 +6,7 @@ import {
   calculateSwapCommands,
   type ItemLocation,
 } from "../../utils/inventorySwapper";
+import BuildManager from "./BuildManager";
 import styles from "./FormattedInventory.module.css";
 
 const { ipcRenderer } = (window.require ? window.require("electron") : {}) as {
@@ -130,9 +131,14 @@ const FormattedInventory: React.FC<FormattedInventoryProps> = ({ content }) => {
           } ${isSwapping ? styles.disabled : ""}`}
           title={item ? item.itemName : "Empty slot"}
           draggable={!!item && !isSwapping}
-          onDragStart={() =>
-            item && handleDragStart(itemLocation, item.itemName)
-          }
+          onDragStart={(e) => {
+            if (item) {
+              handleDragStart(itemLocation, item.itemName);
+              // Store item name in dataTransfer for BuildManager
+              e.dataTransfer.setData("itemName", item.itemName);
+              e.dataTransfer.effectAllowed = "copyMove";
+            }
+          }}
           onDragOver={(e) => {
             if (!isSwapping) e.preventDefault();
           }}
@@ -160,56 +166,8 @@ const FormattedInventory: React.FC<FormattedInventoryProps> = ({ content }) => {
         </div>
       )}
 
-      {/* Hero Info Header */}
-      {data.hero && (
-        <div className={styles.heroHeader}>
-          <div className={styles.heroTitleSection}>
-            <img
-              src={`./icons/heroes/${data.hero}.png`}
-              alt={data.hero}
-              className={styles.heroIcon}
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-              }}
-            />
-            <h2 className={styles.heroName}>{data.hero}</h2>
-          </div>
-        </div>
-      )}
-
-      {/* Resources Section */}
-      <div className={styles.resources}>
-        {data.level && (
-          <div className={styles.resourceItem}>
-            <span className={styles.resourceLabel}>Level:</span>
-            <span className={styles.resourceValue}>{data.level}</span>
-          </div>
-        )}
-        {data.gold && (
-          <div className={styles.resourceItem}>
-            <img
-              src="icons/general/gold.png"
-              alt="Gold"
-              style={{ width: "16px", height: "16px" }}
-            />
-            <span className={styles.resourceValue}>
-              {parseInt(data.gold).toLocaleString()}
-            </span>
-          </div>
-        )}
-        {data.powerShards && (
-          <div className={styles.resourceItem}>
-            <img
-              src="icons/general/shard.png"
-              alt="Power Shards"
-              style={{ width: "16px", height: "16px" }}
-            />
-            <span className={styles.resourceValue}>
-              {parseInt(data.powerShards).toLocaleString()}
-            </span>
-          </div>
-        )}
-      </div>
+      {/* Build Manager */}
+      <BuildManager data={data} />
 
       {/* Cards Grid Container - Inventory and Stashes */}
       <div className={styles.cardsGrid}>

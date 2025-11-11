@@ -33,8 +33,6 @@ const Inventory: React.FC = () => {
   const [initialLoadComplete, setInitialLoadComplete] =
     useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [lastModified, setLastModified] = useState<string | null>(null);
-  const [showRawText, setShowRawText] = useState<boolean>(false);
 
   // Load inventory content on mount
   useEffect(() => {
@@ -77,7 +75,6 @@ const Inventory: React.FC = () => {
 
       if (result.success) {
         setInventoryContent(result.content || null);
-        setLastModified(result.lastModified || null);
         if (result.message) {
           // File doesn't exist yet
           setError(null);
@@ -91,15 +88,6 @@ const Inventory: React.FC = () => {
     } finally {
       setLoading(false);
       setInitialLoadComplete(true);
-    }
-  };
-
-  const formatDate = (date: string | null): string => {
-    if (!date) return "Never";
-    try {
-      return new Date(date).toLocaleString();
-    } catch {
-      return "Unknown";
     }
   };
 
@@ -117,20 +105,6 @@ const Inventory: React.FC = () => {
     } catch (err) {
       console.error("Error opening inventory directory:", err);
     }
-  };
-
-  const handleCopyToClipboard = () => {
-    if (!inventoryContent) return;
-
-    navigator.clipboard
-      .writeText(inventoryContent)
-      .then(() => {
-        alert("Inventory copied to clipboard!");
-      })
-      .catch((err) => {
-        console.error("Failed to copy:", err);
-        alert("Failed to copy to clipboard");
-      });
   };
 
   const handleRefresh = () => {
@@ -186,50 +160,12 @@ const Inventory: React.FC = () => {
           <h2>Live Inventory</h2>
           <span className={styles.liveIndicator}>● LIVE</span>
         </div>
-        <p className={styles.lastUpdate}>
-          Last updated: {formatDate(lastModified)}
+        <p className={styles.helpText}>
+          💡 Drag and drop items to swap them in-game
         </p>
-        {!showRawText && inventoryContent && (
-          <p className={styles.helpText}>
-            💡 Drag and drop items to swap them in-game
-          </p>
-        )}
       </div>
 
-      <div className={styles.actions}>
-        <Button
-          onClick={() => setShowRawText(!showRawText)}
-          variant="secondary"
-          size="small"
-        >
-          {showRawText ? "Show Formatted" : "Show Raw Text"}
-        </Button>
-        <Button
-          onClick={handleCopyToClipboard}
-          variant="secondary"
-          size="small"
-        >
-          Copy to Clipboard
-        </Button>
-        <Button
-          onClick={handleOpenInventoryDirectory}
-          variant="secondary"
-          size="small"
-        >
-          Open Directory
-        </Button>
-        <Button onClick={handleRefresh} variant="primary" size="small">
-          Refresh
-        </Button>
-      </div>
-
-      {showRawText ? (
-        <div className={styles.rawTextContainer}>
-          <pre className={styles.rawText}>{inventoryContent}</pre>
-        </div>
-      ) : (
-        <FormattedInventory content={inventoryContent} />
-      )}
+      <FormattedInventory content={inventoryContent} />
     </div>
   );
 };
