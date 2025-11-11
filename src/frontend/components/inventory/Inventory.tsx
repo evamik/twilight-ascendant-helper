@@ -189,6 +189,11 @@ const Inventory: React.FC = () => {
         <p className={styles.lastUpdate}>
           Last updated: {formatDate(lastModified)}
         </p>
+        {!showRawText && inventoryContent && (
+          <p className={styles.helpText}>
+            💡 Drag and drop items to swap them in-game
+          </p>
+        )}
       </div>
 
       <div className={styles.actions}>

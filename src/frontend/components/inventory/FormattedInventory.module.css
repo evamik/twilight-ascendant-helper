@@ -121,13 +121,28 @@
   border-radius: 3px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   min-width: 0;
-  cursor: help;
-  transition: background 0.2s ease;
+  cursor: grab;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.itemSlot:active {
+  cursor: grabbing;
 }
 
 .itemSlot:hover {
   background: rgba(0, 0, 0, 0.4);
   border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.itemSlot.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+}
+
+.itemSlot.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .itemName {
@@ -158,6 +173,42 @@
   color: #444;
   font-size: 12px;
   font-style: italic;
+}
+
+.swappingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.swappingMessage {
+  background: rgba(30, 30, 30, 0.95);
+  padding: 20px 40px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  border: 2px solid #4caf50;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
 }
 
 /* Responsive adjustments */

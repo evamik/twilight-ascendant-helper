@@ -162,3 +162,48 @@ export async function sendLoadCommand(
     isExecutingCommand = false;
   }
 }
+
+/**
+ * Send inventory swap commands to Warcraft III
+ * @param commands - Array of game commands to send (e.g., ["-s1 2", "-g3 4"])
+ */
+export async function sendInventoryCommands(
+  commands: string[]
+): Promise<GameSendResult> {
+  if (isExecutingCommand) {
+    return { success: false, error: "Command already in progress" };
+  }
+
+  try {
+    isExecutingCommand = true;
+
+    // Find the Warcraft III window
+    const hwnd = findWarcraftWindow();
+    if (!hwnd) {
+      return {
+        success: false,
+        error:
+          "Warcraft III window not found. Make sure the game is running and in focus.",
+      };
+    }
+
+    // Send each command with delays
+    for (const command of commands) {
+      if (command.trim()) {
+        sendEnter(hwnd);
+        await new Promise<void>((resolve) => setTimeout(resolve, 50));
+        await sendTextAsync(hwnd, command.trim(), 5);
+        await new Promise<void>((resolve) => setTimeout(resolve, 50));
+        sendEnter(hwnd);
+        await new Promise<void>((resolve) => setTimeout(resolve, 150)); // Wait between commands
+      }
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error sending inventory commands:", error);
+    return { success: false, error: (error as Error).message };
+  } finally {
+    isExecutingCommand = false;
+  }
+}
