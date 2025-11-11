@@ -13,7 +13,11 @@ import {
   initAnalytics,
   shutdownAnalytics,
 } from "./src/backend/settings/analytics";
-import { watchDropsFile, stopAllWatchers } from "./src/backend/fileWatcher";
+import {
+  watchDropsFile,
+  watchInventoryFile,
+  stopAllWatchers,
+} from "./src/backend/fileWatcher";
 import { getOverlayToggleKeybind } from "./src/backend/settings/keybindSettings";
 import activeWin from "active-win";
 import { WindowInfo } from "./src/backend/types";
@@ -127,8 +131,9 @@ app.whenReady().then(() => {
     setupAutoUpdater(mainWin);
   }
 
-  // Start watching drops file
+  // Start watching drops and inventory files
   watchDropsFile(mainWin, overlayWin);
+  watchInventoryFile(mainWin, overlayWin);
 
   mainWin.on("closed", () => {
     stopAllWatchers();

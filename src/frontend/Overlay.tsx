@@ -5,6 +5,7 @@ import AccountList from "./components/character/AccountList";
 import CharacterList from "./components/character/CharacterList";
 import CharacterData from "./components/character/CharacterData";
 import TabNavigation from "./components/common/TabNavigation";
+import Inventory from "./components/inventory/Inventory";
 import Drops from "./components/drops/Drops";
 import Guide from "./components/guide/Guide";
 import Settings from "./components/settings/Settings";
@@ -517,6 +518,7 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
                         )}
                       </>
                     )}
+                    {activeTab === "inventory" && <Inventory />}
                     {activeTab === "drops" && <Drops />}
                     {activeTab === "guide" && <Guide url={guideUrl} />}
                   </GuideNavigationProvider>

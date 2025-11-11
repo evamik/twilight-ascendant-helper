@@ -10,6 +10,7 @@ import "./styles/variables.css";
 import styles from "./index.module.css";
 import Settings from "./components/settings/Settings";
 import LoaderView from "./components/loader/LoaderView";
+import Inventory from "./components/inventory/Inventory";
 import Drops from "./components/drops/Drops";
 import Guide from "./components/guide/Guide";
 import TabNavigation from "./components/common/TabNavigation";
@@ -88,6 +89,7 @@ const App: React.FC = () => {
           }
         >
           {activeTab === "loader" && <LoaderView />}
+          {activeTab === "inventory" && <Inventory />}
           {activeTab === "drops" && <Drops />}
           {activeTab === "guide" && <Guide url={guideUrl} />}
         </div>

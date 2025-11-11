@@ -3,9 +3,10 @@ import path from "path";
 import { BrowserWindow } from "electron";
 import { getDataPath } from "./settings/settings";
 import { getDropsFilePath } from "./drops/drops";
+import { getInventoryFilePath } from "./inventory/inventory";
 
 /**
- * File watcher for character save files and drops.txt
+ * File watcher for character save files, drops.txt, and inventory.txt
  * Notifies frontend when files change so UI can be updated
  */
 
@@ -16,6 +17,7 @@ interface WatchedFile {
 
 const watchedCharacterFiles = new Map<string, WatchedFile>();
 let dropsWatcher: fs.FSWatcher | null = null;
+let inventoryWatcher: fs.FSWatcher | null = null;
 
 /**
  * Watch a specific character file for changes
@@ -138,6 +140,58 @@ export function unwatchDropsFile(): void {
 }
 
 /**
+ * Watch the inventory.txt file for changes
+ */
+export function watchInventoryFile(
+  mainWindow: BrowserWindow,
+  overlayWindow?: BrowserWindow
+): void {
+  // Close existing watcher if any
+  if (inventoryWatcher) {
+    inventoryWatcher.close();
+    inventoryWatcher = null;
+  }
+
+  try {
+    const inventoryPath = getInventoryFilePath();
+
+    if (!inventoryPath || !fs.existsSync(inventoryPath)) {
+      return;
+    }
+
+    // Watch the inventory file
+    inventoryWatcher = fs.watch(
+      inventoryPath,
+      { persistent: false },
+      (eventType) => {
+        if (eventType === "change") {
+          // Notify both windows that inventory data changed
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send("inventory-file-changed");
+          }
+
+          if (overlayWindow && !overlayWindow.isDestroyed()) {
+            overlayWindow.webContents.send("inventory-file-changed");
+          }
+        }
+      }
+    );
+  } catch (error) {
+    console.error(`[FileWatcher] Error watching inventory file:`, error);
+  }
+}
+
+/**
+ * Stop watching the inventory file
+ */
+export function unwatchInventoryFile(): void {
+  if (inventoryWatcher) {
+    inventoryWatcher.close();
+    inventoryWatcher = null;
+  }
+}
+
+/**
  * Stop all file watchers
  */
 export function stopAllWatchers(): void {
@@ -149,4 +203,7 @@ export function stopAllWatchers(): void {
 
   // Stop drops watcher
   unwatchDropsFile();
+
+  // Stop inventory watcher
+  unwatchInventoryFile();
 }

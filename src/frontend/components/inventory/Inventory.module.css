@@ -1,0 +1,103 @@
+.container {
+  padding: 20px;
+  color: #fff;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  margin-bottom: 8px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.titleRow h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #fff;
+}
+
+.liveIndicator {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: #4ade80;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.lastUpdate {
+  margin: 0;
+  font-size: 12px;
+  color: #aaa;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rawTextContainer {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  padding: 12px;
+  overflow-x: auto;
+  flex: 1;
+}
+
+.rawText {
+  margin: 0;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  color: #e0e0e0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.emptyState h3 {
+  margin: 0 0 12px 0;
+  color: #fff;
+  font-size: 18px;
+}
+
+.emptyState p {
+  margin: 0 0 20px 0;
+  color: #aaa;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.error {
+  color: #ff6b6b;
+  margin: 0 0 12px 0;
+  font-size: 14px;
+}

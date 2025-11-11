@@ -19,6 +19,7 @@ import {
   setOverlaySize as setOverlaySizeInternal,
 } from "./overlayIpcHandlers";
 import { registerDropsIpcHandlers } from "./drops/dropsIpcHandlers";
+import { registerInventoryIpcHandlers } from "./inventory/inventoryIpcHandlers";
 import { registerReplayIpcHandlers } from "./replays/replayIpcHandlers";
 import { BrowserWindow } from "electron";
 
@@ -56,6 +57,9 @@ export const registerIpcHandlers = (): void => {
 
   // Register drops tracking handlers
   registerDropsIpcHandlers();
+
+  // Register inventory tracking handlers
+  registerInventoryIpcHandlers();
 
   // Register replay handlers
   registerReplayIpcHandlers();

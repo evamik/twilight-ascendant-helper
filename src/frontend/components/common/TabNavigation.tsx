@@ -24,6 +24,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
 }) => {
   const tabs: Tab[] = [
     { id: "loader", icon: "🔄", label: "Loader" },
+    { id: "inventory", icon: "🎒", label: "Inventory" },
     { id: "drops", icon: "📦", label: "Drops" },
     { id: "guide", icon: "📚", label: "Guide" },
   ];

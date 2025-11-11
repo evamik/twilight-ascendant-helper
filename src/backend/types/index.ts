@@ -89,6 +89,13 @@ export interface DropsResult {
   error?: string;
 }
 
+// Inventory result
+export interface InventoryResult {
+  success: boolean;
+  content?: string;
+  error?: string;
+}
+
 // Replay result
 export interface ReplayResult {
   success: boolean;
