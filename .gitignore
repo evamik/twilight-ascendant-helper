@@ -24,4 +24,5 @@ Thumbs.db
 .vscode/
 .github/
 *.md
+!README.md
 test*
